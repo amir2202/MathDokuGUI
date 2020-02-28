@@ -1,0 +1,10 @@
+.borders {
+    -fx-fill: white;
+    -fx-border-width: 0.5; 
+    -fx-border-color: black;
+}
+.selected {
+	-fx-background-color: rgba(0,0,255,0.3);
+    -fx-border-width: 0.5; 
+    -fx-border-color: black
+}
