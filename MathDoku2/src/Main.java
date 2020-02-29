@@ -15,18 +15,25 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 public class Main extends Application {
 	
 	private Grid grid;
-
+	private ArrayList<String> numbers;
+	private ActionHandler handler;
+	final KeyCombination undo = new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN);
+	final KeyCombination redo = new KeyCodeCombination(KeyCode.Y, KeyCombination.CONTROL_DOWN);
 	public static void main(String[] args) {
 		launch(args);
 	
@@ -34,17 +41,34 @@ public class Main extends Application {
 
 	@Override
 	public void start(Stage stage) throws Exception {
+		handler = new ActionHandler();
 		VBox main = new VBox();
 		Scene scene = new Scene(main, 500,500);
 		//Get grid
 		grid = new Grid(5);
-		
+		this.validInput();
 		main.getChildren().add(grid);
 		main.setOnKeyPressed(new KeyHandler());
 		HBox options = new HBox();
 		main.setVgrow(grid, Priority.ALWAYS);
 		Button undo = new Button("Undo");
+		undo.setOnAction(new EventHandler<ActionEvent>(){
+			public void handle(ActionEvent event) {
+				if(handler.undoEmpty() == false) {
+					handler.undo();
+				}
+			}
+		});
+//		undo.
 		Button redo = new Button("Redo");
+		redo.setOnAction(new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent event) {
+				if(handler.redoEmpty() == false) {
+					handler.redo();
+				}			
+			}
+			
+		});
 		Button clear = new Button("Clear");
 		clear.setOnAction(new ClearHandler());
 		Button load = new Button("Load game");
@@ -56,9 +80,6 @@ public class Main extends Application {
 		options.setHgrow(load, Priority.ALWAYS);
 		options.setHgrow(mistakes, Priority.ALWAYS);
 		main.getChildren().add(options);
-		grid.setCage("11-", 1);
-		grid.setCage("2-",2,3,4);
-		grid.setCage("3+",6,7,8);
 		stage.setScene(scene);
 		stage.show();
 		
@@ -116,6 +137,13 @@ public class Main extends Application {
 		});
 	}
 	
+	public void validInput() {
+		numbers = new ArrayList<String>();
+		for(int i = 1; i <= grid.getDimensions();i++) {
+			numbers.add(String.valueOf(i));
+		}
+	}
+	
 	
 	class ClearHandler implements EventHandler<ActionEvent> {
 
@@ -140,15 +168,17 @@ public class Main extends Application {
 	}
 
 	class KeyHandler implements EventHandler<KeyEvent>{
-
 		public void handle(KeyEvent arg0) {
-			if(grid.getSelected() != null) {
-				grid.getSelected().setText(arg0.getText());
-//				int[] selectedcell = currentGrid.getSelectedCell();
-//				int x = selectedcell[0];
-//				int y = selectedcell[1];
-//				currentGrid.setText(arg0.getText(), x, y, false);
-				}
+			if(undo.match(arg0)){
+				handler.undo();
+			}
+			else if(redo.match(arg0)) {
+				handler.redo();
+			}
+			else if(grid.getSelected() != null && numbers.contains(arg0.getText())) {
+				Action action = grid.getSelected().setText(new Text(arg0.getText()));
+				handler.notify(action);
+			}
 		}
 	}
 }

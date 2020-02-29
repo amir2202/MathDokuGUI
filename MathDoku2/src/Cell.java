@@ -7,7 +7,7 @@ public class Cell extends StackPane{
 	private int x;
 	private int y;
 	private Label label;
-	private boolean selected;
+	private boolean selected = false;;
 	private Cage cage;
 	private Text number;
 	public Cell(int x, int y) {
@@ -16,13 +16,10 @@ public class Cell extends StackPane{
 		this.y = y;
 		this.getStylesheets().add("borders.css");
 		this.getStyleClass().add("borders");
+		this.setText(new Text(" "));
 	}
 	
 	
-	public void setText(String text) {
-		this.number = new Text(text);
-		this.getChildren().add(number);
-	}
 	
 	public void setLabel(String label) {
 		this.label = new Label(label);
@@ -47,10 +44,24 @@ public class Cell extends StackPane{
 		return this.number;
 	}
 	
-	public void setText(Text text) {
-		this.getChildren().remove(this.getText());
-		this.number = text;
+	
+//	public Action setText(String text) {
+//		Text newtext = new Text(text);
+//		this.getChildren().remove(this.getText());
+//		Action action = new Action(this, this.getText(), newtext);
+//		this.number = newtext;
+//		this.getChildren().add(this.number);
+//		return action;
+//	}
+	
+	public Action setText(Text newtext) {
+		if(this.getChildren().contains(this.getText())) {
+			this.getChildren().remove(this.getText());
+		}
+		Action action = new Action(this, this.getText(), newtext);
+		this.number = newtext;
 		this.getChildren().add(this.number);
+		return action;
 	}
 	
 	public void cellThickenBorder() {
@@ -70,7 +81,29 @@ public class Cell extends StackPane{
 	}
 	
 	public void setSelected(boolean i) {
-		this.selected = i;
+		if (i == true && this.selected == false) {
+
+			this.getStyleClass().remove("borders");
+			this.getStyleClass().add("selected");
+		}
+		if (i == false) {
+			this.getStyleClass().remove("selected");
+			this.getStyleClass().add("borders");
+			this.selected = false;
+		}
 	}
+	
+	public void setFont(String size) {
+		if(size.equals("small")) {
+			
+		}
+		if(size.equals("medium")) {
+			
+		}
+		if(size.equals("large")) {
+			
+		}
+	}
+	
 }
 

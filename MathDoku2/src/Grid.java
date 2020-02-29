@@ -8,6 +8,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.text.Text;
 
 public class Grid extends GridPane {
 	private int dimensions;
@@ -23,6 +24,8 @@ public class Grid extends GridPane {
 		cells = new Cell[dimensions][dimensions];
 		this.dimensions = dimensions;
 		cords = new HashMap<Integer,Integer[]>();
+		
+		
 		for(int i= 0; i< this.dimensions;i++) {
 			for(int j = 0; j<this.dimensions;j++) {
 				cells[i][j] = new Cell(i,j);
@@ -30,31 +33,20 @@ public class Grid extends GridPane {
 					public void handle(MouseEvent arg0) {
 						Cell current = (Cell) arg0.getSource();
 						if(current.getSelected() == true) {
-							int currentx = current.getX();
-							int currenty = current.getY();
-							int oldx = selectedCell.getX();
-							int oldy = selectedCell.getY();
-							if(selectedCell.getText() != null) {
-								cells[oldx][oldy].getStyleClass().remove("selected");
-								cells[oldx][oldy].getStyleClass().add("borders");
-								cells[currentx][currenty].getStyleClass().add("selected");
-								selectedCell = current;			
-
-						}
+							current.setSelected(false);
+							
 						}
 						else if(current.getSelected() == false) {
-							int x = current.getX();
-							int y = current.getY();
-							cells[x][y].getStyleClass().remove("borders");
-							cells[x][y].getStyleClass().add("selected");
+							if(selectedCell == null) {
+								selectedCell = current;
+							}
+							selectedCell.setSelected(false);
+							current.setSelected(true);
 							selectedCell = current;
-							cells[x][y].setSelected(true);
 						}
-						
 					
 					
 				}
-					
 					
 				});
 				this.setVgrow(cells[i][j], Priority.ALWAYS);
@@ -75,7 +67,8 @@ public class Grid extends GridPane {
 	public void clearCells() {
 		for(int i = 0; i < cells.length; i++) {
 			for(int j = 0;j<cells.length;j++) {
-				cells[i][j].setText(" ");
+				cells[i][j].setText(new Text(" "));
+				//allow it to be undone?
 			}
 		}
 	}
