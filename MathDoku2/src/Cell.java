@@ -9,6 +9,7 @@ public class Cell extends StackPane{
 	private Label label;
 	private boolean selected = false;;
 	private Cage cage;
+	private Boolean correct;
 	private Text number;
 	public Cell(int x, int y) {
 		super();
@@ -45,23 +46,27 @@ public class Cell extends StackPane{
 	}
 	
 	
-//	public Action setText(String text) {
-//		Text newtext = new Text(text);
-//		this.getChildren().remove(this.getText());
-//		Action action = new Action(this, this.getText(), newtext);
-//		this.number = newtext;
-//		this.getChildren().add(this.number);
-//		return action;
-//	}
-	
 	public Action setText(Text newtext) {
 		if(this.getChildren().contains(this.getText())) {
 			this.getChildren().remove(this.getText());
 		}
-		Action action = new Action(this, this.getText(), newtext);
-		this.number = newtext;
-		this.getChildren().add(this.number);
-		return action;
+		if(this.correct == null) {
+			Action action = new Action(this, this.getText(), newtext);
+			this.number = newtext;
+			this.getChildren().add(this.number);
+			return action;
+		}
+		else if(this.correct != null) {
+			Action action = new Action(this, this.getText(), newtext, correct);
+			this.number = newtext;
+			this.getChildren().add(this.number);
+			return action;
+		}
+		return null;
+	}
+	
+	public String getStringText() {
+		return this.getText().getText();
 	}
 	
 	public void cellThickenBorder() {
@@ -103,6 +108,27 @@ public class Cell extends StackPane{
 		if(size.equals("large")) {
 			
 		}
+	}
+	
+	public void setCorrect(boolean input) {
+		if(input == true) {
+			this.getStyleClass().add("correct");
+			this.correct = true;
+		}
+		if(input == false) {
+			this.getStyleClass().add("wrong");
+			this.correct = false;
+		}
+	}
+	
+	public Boolean getCorrect() {
+		return this.correct;
+	}
+	
+	public void resetStyle() {
+		this.getStyleClass().remove("correct");
+		this.getStyleClass().remove("wrong");
+		this.getStyleClass().add("borders");
 	}
 	
 }

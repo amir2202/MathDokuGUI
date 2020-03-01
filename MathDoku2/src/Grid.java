@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import javafx.event.Event;
@@ -14,9 +15,14 @@ public class Grid extends GridPane {
 	private int dimensions;
 	private Cell[][] cells;
 	private Cell selectedCell;
+	private ArrayList<String> numbers;
 	private HashMap<Integer,Integer[]> cords;
 	public Grid(int dimensions) {
 		super();
+		this.numbers = new ArrayList<String>();
+		for(int i = 1; i <= this.getDimensions();i++) {
+			numbers.add(String.valueOf(i));
+		}
         ColumnConstraints column = new ColumnConstraints();
         column.setPercentWidth(100/dimensions);
         for (int i = 0; i < dimensions; i++)
@@ -34,6 +40,7 @@ public class Grid extends GridPane {
 						Cell current = (Cell) arg0.getSource();
 						if(current.getSelected() == true) {
 							current.setSelected(false);
+							selectedCell = null;
 							
 						}
 						else if(current.getSelected() == false) {
@@ -68,7 +75,7 @@ public class Grid extends GridPane {
 		for(int i = 0; i < cells.length; i++) {
 			for(int j = 0;j<cells.length;j++) {
 				cells[i][j].setText(new Text(" "));
-				//allow it to be undone?
+				cells[i][j].resetStyle();
 			}
 		}
 	}
@@ -178,4 +185,39 @@ public class Grid extends GridPane {
 	public Integer[] getCords(int noobsystem){
 		return this.cords.get(noobsystem);
 	}
+	
+	public boolean validInput(Cell cell) {
+		//Check columns and rows for duplicates first
+		//proof by contradictino method --> assume valid
+		boolean valid = true;
+		int currentx = cell.getX();
+		int currenty = cell.getY();
+		for(int x = 0; x < this.getDimensions();x++) {
+			if(x != currentx && cells[x][currenty].getStringText().equals(cell.getStringText())) {
+				valid = false;
+			}
+		}
+		
+		for(int y = 0; y < this.getDimensions();y++) {
+			if(y != currenty && cells[currentx][y].getStringText().equals(cell.getStringText())) {
+				valid = false;
+			}
+		}
+		
+		
+		
+		return valid;
+	}
+	
+	public ArrayList<String> getNumbers(){
+		return this.numbers;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
 }

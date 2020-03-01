@@ -8,3 +8,13 @@
     -fx-border-width: 0.5; 
     -fx-border-color: black
 }
+.wrong {
+	-fx-background-color: rgb(204,0,0);
+    -fx-border-width: 0.5; 
+    -fx-border-color: black
+}
+.correct {
+	-fx-background-color: rgb(107,194,130);
+    -fx-border-width: 0.5; 
+    -fx-border-color: black
+}

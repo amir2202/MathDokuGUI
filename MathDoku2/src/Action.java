@@ -11,11 +11,19 @@ public class Action {
 	private Cell oldCell;
 	private Text oldText;
 	private Text newText;
+	private Boolean correct;
 	
 	public Action(Cell cell,Text oldText, Text newText) {
 		this.oldCell = cell;
 		this.oldText = oldText;
 		this.newText = newText;
+	}
+	
+	public Action(Cell cell,Text oldText, Text newText, Boolean correct) {
+		this.oldCell = cell;
+		this.oldText = oldText;
+		this.newText = newText;
+		this.correct = correct;
 	}
 	
 	public Cell getCell() {
@@ -28,6 +36,10 @@ public class Action {
 	
 	public Text getnewText() {
 		return this.newText;
+	}
+	
+	public Boolean getCorrect() {
+		return this.correct;
 	}
 	
 	public void invert() {

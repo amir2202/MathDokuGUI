@@ -22,6 +22,7 @@ public class ActionHandler {
 	public void undo() {
 		Action tofix = this.undo.pop();
 		tofix.getCell().setText(tofix.getOldText());
+		tofix.getCell().resetStyle();
 		this.addRedo(tofix);
 	}
 	
@@ -45,7 +46,14 @@ public class ActionHandler {
 
 	public void redo() {
 		Action tofix = this.redo.pop();
-		tofix.getCell().setText(tofix.getnewText());
+		Cell celltofix = tofix.getCell();
+		if(celltofix.getCorrect() == null) {
+			celltofix.setText(tofix.getnewText());
+		}
+		else if(celltofix.getCorrect() != null) {
+			celltofix.setText(tofix.getnewText());
+			celltofix.setCorrect(celltofix.getCorrect());
+		}
 	}
 	
 	public void reset() {

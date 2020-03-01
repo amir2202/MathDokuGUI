@@ -5,11 +5,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
-
-
+import javafx.scene.control.CheckBox;
 import javafx.application.Application;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.MapChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -28,7 +30,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-	
+	private boolean checking = false;
 	private Grid grid;
 	private ArrayList<String> numbers;
 	private ActionHandler handler;
@@ -69,13 +71,28 @@ public class Main extends Application {
 			}
 			
 		});
+		
 		Button clear = new Button("Clear");
 		clear.setOnAction(new ClearHandler());
 		Button load = new Button("Load game");
-		Button mistakes = new Button("Show mistakes");
+		CheckBox mistakes = new CheckBox("Show mistakes");
+		mistakes.setOnAction(new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent e) {
+				if(mistakes.isSelected() == true) {
+					checking = true;
+				}
+				else if (mistakes.isSelected() == false) {
+					checking = false;
+				}
+				
+			}
+			
+		});
 		
 		options.getChildren().addAll(clear,undo,redo,load,mistakes);
 		options.setHgrow(undo, Priority.ALWAYS);
+		options.setSpacing(2);
+		options.setAlignment(Pos.BASELINE_LEFT);
 		options.setHgrow(redo, Priority.ALWAYS);
 		options.setHgrow(load, Priority.ALWAYS);
 		options.setHgrow(mistakes, Priority.ALWAYS);
@@ -114,6 +131,7 @@ public class Main extends Application {
 						main.getChildren().remove(grid);
 						main.getChildren().remove(options);
 						grid = newgrid;
+						validInput();
 						for(String cage:allcages){
 							String[] splitline = cage.split(" ");
 							String label = splitline[0];
@@ -169,6 +187,7 @@ public class Main extends Application {
 
 	class KeyHandler implements EventHandler<KeyEvent>{
 		public void handle(KeyEvent arg0) {
+//			System.out.println(arg0.getSource());
 			if(undo.match(arg0)){
 				handler.undo();
 			}
@@ -176,8 +195,22 @@ public class Main extends Application {
 				handler.redo();
 			}
 			else if(grid.getSelected() != null && numbers.contains(arg0.getText())) {
-				Action action = grid.getSelected().setText(new Text(arg0.getText()));
-				handler.notify(action);
+				if(checking == false) {
+					Action action = grid.getSelected().setText(new Text(arg0.getText()));
+					handler.notify(action);	
+				}
+				else if(checking == true) {
+					Action action = grid.getSelected().setText(new Text(arg0.getText()));
+					handler.notify(action);	
+					if(grid.validInput(grid.getSelected()) == true)
+					{
+						grid.getSelected().setCorrect(true);
+					}
+					if(grid.validInput(grid.getSelected()) == false)
+					{
+						grid.getSelected().setCorrect(false);
+					}
+				}
 			}
 		}
 	}
