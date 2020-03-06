@@ -15,6 +15,7 @@ public class Cell extends StackPane{
 		super();
 		this.x = x;
 		this.y = y;
+		this.correct = null;
 		this.getStylesheets().add("borders.css");
 		this.getStyleClass().add("borders");
 		this.setText(new Text(" "));
@@ -109,6 +110,13 @@ public class Cell extends StackPane{
 			
 		}
 	}
+	
+	public int getNumber() {
+		if(this.getStringText() != " ") {
+		return Integer.valueOf(this.getStringText());
+		}
+		return 0;
+	}	
 	
 	public void setCorrect(boolean input) {
 		if(input == true) {

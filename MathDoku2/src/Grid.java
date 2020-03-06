@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 import javafx.event.Event;
@@ -92,7 +93,7 @@ public class Grid extends GridPane {
 
 		//now for args 
 		else if(args.length > 1) {
-			Cage multiple = new Cage(label);
+			Cage multiple = new Cage(label,args);
 			for(int i = 0; i < args.length;i++) {
 				if(i == 0) {
 					Integer[] cords = this.getCords(args[i]);
@@ -181,29 +182,153 @@ public class Grid extends GridPane {
 		}
 	}
 	
+	//public void setUpBorders(Cage cage, boolean mistakes)
+	
+	
+	
 	//return an array, with pos 0 being x, pos 1 being 1
 	public Integer[] getCords(int noobsystem){
 		return this.cords.get(noobsystem);
 	}
 	
 	public boolean validInput(Cell cell) {
-		//Check columns and rows for duplicates first
-		//proof by contradictino method --> assume valid
 		boolean valid = true;
 		int currentx = cell.getX();
 		int currenty = cell.getY();
+		//work on this later.
+//		for(int x = 0; x < this.getDimensions(); x++) {
+//			for(int y = 0; y < this.getDimensions(); y++) {
+//				if(cells[x][y].getCorrect() == null) {
+////					validInput(cells[x][y]);
+//					System.out.println(cells[x][y].getX() + cells[x][y].getY());
+//				}
+//			}
+//		}
+
+		//Check columns and rows for duplicates first
+		//proof by contradictino method --> assume valid
+		
+		//Check column
 		for(int x = 0; x < this.getDimensions();x++) {
 			if(x != currentx && cells[x][currenty].getStringText().equals(cell.getStringText())) {
 				valid = false;
+				//columnerror = true
 			}
 		}
-		
+		//Check row
 		for(int y = 0; y < this.getDimensions();y++) {
 			if(y != currenty && cells[currentx][y].getStringText().equals(cell.getStringText())) {
+				valid = false;
+				//rowerror = true
+				//
+			}
+		}
+		Cage cage = cell.getCage();
+		String label = cage.getLabel();
+		char operator = label.charAt(label.length() -1);
+		
+		//Algorithm for plus label 
+		//cage error
+		if(operator == '+') {
+			//if input 1 plus dimension - 1 < 
+			boolean cagecomplete = true;
+			int expected = Integer.valueOf(label.substring(0, label.length() -1));
+			ArrayList<Integer> cagenumbers = new ArrayList<Integer>();
+			for(int	coordinate: cage.getCords()) {
+				Integer[] proper = this.getCords(coordinate);
+				int x = proper[0];
+				int y = proper[1];
+				int number = cells[x][y].getNumber();
+				if(cells[x][y].getNumber() == 0) {
+					cagecomplete = false;
+					break;
+				}
+				int possible = number + ((cage.getCords().length -1)* this.getDimensions());
+				if(possible < expected) {
+					valid = false;
+				}
+				
+				cagenumbers.add(cells[x][y].getNumber());
+			}
+			int result = 0;
+			for(Integer value: cagenumbers) {
+				result+= value;
+			}
+
+			if(result != expected && cagecomplete == true) {
 				valid = false;
 			}
 		}
 		
+		
+		
+		
+		
+//		else if(label[label.length-1] == 'x') {
+//			
+//		}
+		
+		else if(operator == '-') {
+			boolean cagecomplete = true;
+			int expected = Integer.valueOf(label.substring(0, label.length() -1)); 
+			ArrayList<Integer> cagenumbers = new ArrayList<Integer>();
+			for(int	coordinate: cage.getCords()) {
+				Integer[] proper = this.getCords(coordinate);
+				int x = proper[0];
+				int y = proper[1];
+				if(cells[x][y].getNumber() == 0) {
+					cagecomplete = false;
+					break;
+				}
+				cagenumbers.add(cells[x][y].getNumber());
+			}
+			Collections.sort(cagenumbers);
+			Collections.reverse(cagenumbers);
+			int result = cagenumbers.get(0);
+			for(int element = 1; element < cagenumbers.size(); element++){
+				result -= cagenumbers.get(element);
+			}
+			
+			if(result != expected && cagecomplete == true) {
+				valid = false;
+			}
+//			System.out.print(result);
+			//some sort of recursive method
+			
+		}
+		// work on this 
+		else if(operator == '÷') {
+			boolean cagecomplete = true;
+			int expected = Integer.valueOf(label.substring(0, label.length() -1)); 
+			ArrayList<Integer> cagenumbers = new ArrayList<Integer>();
+			for(int	coordinate: cage.getCords()) {
+				Integer[] proper = this.getCords(coordinate);
+				int x = proper[0];
+				int y = proper[1];
+				if(cells[x][y].getNumber() == 0) {
+					cagecomplete = false;
+					break;
+				}
+				cagenumbers.add(cells[x][y].getNumber());
+			}
+			Collections.sort(cagenumbers);
+			Collections.reverse(cagenumbers);
+			int result = cagenumbers.get(0);
+			for(int element = 1; element < cagenumbers.size(); element++){
+				result /= cagenumbers.get(element);
+			}
+			System.out.print(result);
+			if(result != expected && cagecomplete == true) {
+				valid = false;
+			}
+//			System.out.print(result);
+			//some sort of recursive method
+			
+		}
+		
+		//row and column time complexity 2n together, with n being dimensions (not an issue for the size of this grid)
+		
+		//for - and plus there is a N! options 
 		
 		
 		return valid;
@@ -214,7 +339,46 @@ public class Grid extends GridPane {
 	}
 	
 	
+	public Cell[] getRowCells(int rowindex) {
+		Cell[] rows = new Cell[this.getDimensions()];
+		for(int i = 0; i < rows.length;i++) {
+			rows[i] = cells[i][rowindex];
+		}
+		return rows;
+	}
 	
+	public Cell[] getColumncells(int colindex) {
+		Cell[] cols = new Cell[this.getDimensions()];
+		for(int i = 0; i < cols.length;i++) {
+			cols[i] = cells[colindex][i];
+		}
+		return cols;
+	}
+	
+	public boolean columnDuplicates(int columnindex) {
+		Cell[] cols = this.getColumncells(columnindex);
+		for(int i = 0; i < cols.length; i++) {
+			if(i + 1 < cols.length) {
+				if (cols[i].getNumber() == cols[i+1].getNumber()) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public boolean rowDuplicates(int rowindex) {
+		Cell[] rows = this.getRowCells(rowindex);
+		for(int i = 0; i < rows.length; i++) {
+			if(i + 1 < rows.length) {
+				if (rows[i].getNumber() == rows[i+1].getNumber()) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	
 	
 	

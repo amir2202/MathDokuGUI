@@ -48,7 +48,7 @@ public class Main extends Application {
 		Scene scene = new Scene(main, 500,500);
 		//Get grid
 		grid = new Grid(5);
-		this.validInput();
+		this.validInputNumber();
 		main.getChildren().add(grid);
 		main.setOnKeyPressed(new KeyHandler());
 		HBox options = new HBox();
@@ -74,6 +74,16 @@ public class Main extends Application {
 		
 		Button clear = new Button("Clear");
 		clear.setOnAction(new ClearHandler());
+//		clear.setOnAction(new EventHandler<ActionEvent>(){
+//			public void handle(ActionEvent e) {
+//				System.out.print(grid.rowDuplicates(0));
+////				Cell[] cols = grid.getColumncells(0);
+////				for(int i = 0; i <cols.length;i++ ) {
+////					System.out.print(cols[i].getNumber());
+////				}
+//			}
+//		});
+		
 		Button load = new Button("Load game");
 		CheckBox mistakes = new CheckBox("Show mistakes");
 		mistakes.setOnAction(new EventHandler<ActionEvent>() {
@@ -131,7 +141,7 @@ public class Main extends Application {
 						main.getChildren().remove(grid);
 						main.getChildren().remove(options);
 						grid = newgrid;
-						validInput();
+						validInputNumber();
 						for(String cage:allcages){
 							String[] splitline = cage.split(" ");
 							String label = splitline[0];
@@ -155,7 +165,7 @@ public class Main extends Application {
 		});
 	}
 	
-	public void validInput() {
+	public void validInputNumber() {
 		numbers = new ArrayList<String>();
 		for(int i = 1; i <= grid.getDimensions();i++) {
 			numbers.add(String.valueOf(i));
@@ -187,7 +197,6 @@ public class Main extends Application {
 
 	class KeyHandler implements EventHandler<KeyEvent>{
 		public void handle(KeyEvent arg0) {
-//			System.out.println(arg0.getSource());
 			if(undo.match(arg0)){
 				handler.undo();
 			}
