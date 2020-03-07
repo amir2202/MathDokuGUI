@@ -9,6 +9,7 @@ import javafx.scene.control.CheckBox;
 import javafx.application.Application;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.MapChangeListener;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -53,6 +54,23 @@ public class Main extends Application {
 		main.setOnKeyPressed(new KeyHandler());
 		HBox options = new HBox();
 		main.setVgrow(grid, Priority.ALWAYS);
+		Button solve = new Button("Solve");
+		solve.setOnAction(new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent event) {
+//				Task<Void> task = new Task<Void>() {
+//					protected Void call() {
+//						solve.setDisable(true);
+//						Solver.solve(grid);
+//						return null;
+//					}
+//				};
+//				Thread solving = new Thread(task);
+//				solving.start();
+				Solver.solve(grid);
+			}
+		});
+		
+		
 		Button undo = new Button("Undo");
 		undo.setOnAction(new EventHandler<ActionEvent>(){
 			public void handle(ActionEvent event) {
@@ -99,7 +117,7 @@ public class Main extends Application {
 			
 		});
 		
-		options.getChildren().addAll(clear,undo,redo,load,mistakes);
+		options.getChildren().addAll(clear,undo,redo,load,solve,mistakes);
 		options.setHgrow(undo, Priority.ALWAYS);
 		options.setSpacing(2);
 		options.setAlignment(Pos.BASELINE_LEFT);
@@ -196,7 +214,7 @@ public class Main extends Application {
 	}
 
 	class KeyHandler implements EventHandler<KeyEvent>{
-		public void handle(KeyEvent arg0) {
+		public void handle(KeyEvent arg0) {	
 			if(undo.match(arg0)){
 				handler.undo();
 			}
@@ -205,17 +223,17 @@ public class Main extends Application {
 			}
 			else if(grid.getSelected() != null && numbers.contains(arg0.getText())) {
 				if(checking == false) {
-					Action action = grid.getSelected().setText(new Text(arg0.getText()));
+					Action action = grid.getSelected().setText(new Text(arg0.getText()),true, Integer.valueOf(arg0.getText()));
 					handler.notify(action);	
 				}
 				else if(checking == true) {
-					Action action = grid.getSelected().setText(new Text(arg0.getText()));
+					Action action = grid.getSelected().setText(new Text(arg0.getText()),true, Integer.valueOf(arg0.getText()));
 					handler.notify(action);	
-					if(grid.validInput(grid.getSelected()) == true)
+					if(grid.validCellInput(grid.getSelected(),false) == true)
 					{
 						grid.getSelected().setCorrect(true);
 					}
-					if(grid.validInput(grid.getSelected()) == false)
+					if(grid.validCellInput(grid.getSelected(),false) == false)
 					{
 						grid.getSelected().setCorrect(false);
 					}

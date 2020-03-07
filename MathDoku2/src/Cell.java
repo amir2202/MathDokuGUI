@@ -11,6 +11,7 @@ public class Cell extends StackPane{
 	private Cage cage;
 	private Boolean correct;
 	private Text number;
+	private int numberOfText;
 	public Cell(int x, int y) {
 		super();
 		this.x = x;
@@ -18,7 +19,8 @@ public class Cell extends StackPane{
 		this.correct = null;
 		this.getStylesheets().add("borders.css");
 		this.getStyleClass().add("borders");
-		this.setText(new Text(" "));
+		this.setText(new Text(" "),true, 0);
+		this.setNumber(0);
 	}
 	
 	
@@ -47,21 +49,31 @@ public class Cell extends StackPane{
 	}
 	
 	
-	public Action setText(Text newtext) {
-		if(this.getChildren().contains(this.getText())) {
-			this.getChildren().remove(this.getText());
+	public Action setText(Text newtext, boolean updateGrid, int actualvalue) {
+		if(updateGrid == true) {
+			if(this.getChildren().contains(this.getText())) {
+				this.getChildren().remove(this.getText());
+			}
+			if(this.correct == null) {
+				Action action = new Action(this, this.getText(), newtext);
+				this.number = newtext;
+				this.numberOfText = actualvalue;
+				this.getChildren().add(this.number);
+				return action;
+			}
+			else if(this.correct != null) {
+				Action action = new Action(this, this.getText(), newtext, correct);
+				this.number = newtext;
+				this.numberOfText = actualvalue;
+				this.getChildren().add(this.number);
+				return action;
+			}
+			return null;
 		}
-		if(this.correct == null) {
-			Action action = new Action(this, this.getText(), newtext);
+		if(updateGrid == false) {
 			this.number = newtext;
-			this.getChildren().add(this.number);
-			return action;
-		}
-		else if(this.correct != null) {
-			Action action = new Action(this, this.getText(), newtext, correct);
-			this.number = newtext;
-			this.getChildren().add(this.number);
-			return action;
+			this.numberOfText = actualvalue;
+			
 		}
 		return null;
 	}
@@ -76,6 +88,8 @@ public class Cell extends StackPane{
 	
 	public void setCage(Cage cage) {
 		this.cage = cage;
+		this.cage.addCell(this);
+		
 	}
 	
 	public Cage getCage() {
@@ -112,11 +126,22 @@ public class Cell extends StackPane{
 	}
 	
 	public int getNumber() {
-		if(this.getStringText() != " ") {
-		return Integer.valueOf(this.getStringText());
-		}
-		return 0;
-	}	
+		
+//		if(this.getStringText() != " ") {
+//		return Integer.valueOf(this.getStringText());
+//		}
+//		return 0;
+		return this.numberOfText;
+	}
+	
+	public void increaseCell() {
+		this.numberOfText = this.numberOfText + 1;
+	}
+	
+	public void setNumber(int number) {
+		this.numberOfText = number;
+	}
+
 	
 	public void setCorrect(boolean input) {
 		if(input == true) {
@@ -139,5 +164,8 @@ public class Cell extends StackPane{
 		this.getStyleClass().add("borders");
 	}
 	
+	public void refreshNumber() {
+		//do this
+	}
 }
 

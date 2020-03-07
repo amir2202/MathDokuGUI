@@ -52,7 +52,10 @@ public class Grid extends GridPane {
 							current.setSelected(true);
 							selectedCell = current;
 						}
-					
+//						//remove after
+//						System.out.println(current.getCage().isCageCorrect());
+//						System.out.println(columnDuplicates(current.getX()));
+						System.out.println(validCellInput(current,true));
 					
 				}
 					
@@ -75,7 +78,7 @@ public class Grid extends GridPane {
 	public void clearCells() {
 		for(int i = 0; i < cells.length; i++) {
 			for(int j = 0;j<cells.length;j++) {
-				cells[i][j].setText(new Text(" "));
+				cells[i][j].setText(new Text(" "),true, 0);
 				cells[i][j].resetStyle();
 			}
 		}
@@ -183,6 +186,33 @@ public class Grid extends GridPane {
 	}
 	
 	//public void setUpBorders(Cage cage, boolean mistakes)
+	//Indicate whether it used for solving purpose
+	public boolean validCellInput(Cell cell, boolean solver) {
+		
+		//Row column logic 
+		if(columnDuplicates(cell.getX()) || rowDuplicates(cell.getY())) {
+			return false;
+		}
+		
+		//Cage logic
+		if(cell.getCage().isCageFull() == false) {
+			if(solver == true) {
+				return true;
+			}
+			if (solver == false) {
+				return false;
+			}
+		}
+		else if(cell.getCage().isCageFull() == true) {
+			if(!cell.getCage().isCageCorrect() ) {
+				return false;
+			}
+		}
+
+		return true;
+
+	}
+	
 	
 	
 	
@@ -191,148 +221,8 @@ public class Grid extends GridPane {
 		return this.cords.get(noobsystem);
 	}
 	
-	public boolean validInput(Cell cell) {
-		boolean valid = true;
-		int currentx = cell.getX();
-		int currenty = cell.getY();
-		//work on this later.
-//		for(int x = 0; x < this.getDimensions(); x++) {
-//			for(int y = 0; y < this.getDimensions(); y++) {
-//				if(cells[x][y].getCorrect() == null) {
-////					validInput(cells[x][y]);
-//					System.out.println(cells[x][y].getX() + cells[x][y].getY());
-//				}
-//			}
-//		}
-
-		//Check columns and rows for duplicates first
-		//proof by contradictino method --> assume valid
-		
-		//Check column
-		for(int x = 0; x < this.getDimensions();x++) {
-			if(x != currentx && cells[x][currenty].getStringText().equals(cell.getStringText())) {
-				valid = false;
-				//columnerror = true
-			}
-		}
-		//Check row
-		for(int y = 0; y < this.getDimensions();y++) {
-			if(y != currenty && cells[currentx][y].getStringText().equals(cell.getStringText())) {
-				valid = false;
-				//rowerror = true
-				//
-			}
-		}
-		Cage cage = cell.getCage();
-		String label = cage.getLabel();
-		char operator = label.charAt(label.length() -1);
-		
-		//Algorithm for plus label 
-		//cage error
-		if(operator == '+') {
-			//if input 1 plus dimension - 1 < 
-			boolean cagecomplete = true;
-			int expected = Integer.valueOf(label.substring(0, label.length() -1));
-			ArrayList<Integer> cagenumbers = new ArrayList<Integer>();
-			for(int	coordinate: cage.getCords()) {
-				Integer[] proper = this.getCords(coordinate);
-				int x = proper[0];
-				int y = proper[1];
-				int number = cells[x][y].getNumber();
-				if(cells[x][y].getNumber() == 0) {
-					cagecomplete = false;
-					break;
-				}
-				int possible = number + ((cage.getCords().length -1)* this.getDimensions());
-				if(possible < expected) {
-					valid = false;
-				}
-				
-				cagenumbers.add(cells[x][y].getNumber());
-			}
-			int result = 0;
-			for(Integer value: cagenumbers) {
-				result+= value;
-			}
-
-			if(result != expected && cagecomplete == true) {
-				valid = false;
-			}
-		}
-		
-		
-		
-		
-		
-//		else if(label[label.length-1] == 'x') {
-//			
-//		}
-		
-		else if(operator == '-') {
-			boolean cagecomplete = true;
-			int expected = Integer.valueOf(label.substring(0, label.length() -1)); 
-			ArrayList<Integer> cagenumbers = new ArrayList<Integer>();
-			for(int	coordinate: cage.getCords()) {
-				Integer[] proper = this.getCords(coordinate);
-				int x = proper[0];
-				int y = proper[1];
-				if(cells[x][y].getNumber() == 0) {
-					cagecomplete = false;
-					break;
-				}
-				cagenumbers.add(cells[x][y].getNumber());
-			}
-			Collections.sort(cagenumbers);
-			Collections.reverse(cagenumbers);
-			int result = cagenumbers.get(0);
-			for(int element = 1; element < cagenumbers.size(); element++){
-				result -= cagenumbers.get(element);
-			}
-			
-			if(result != expected && cagecomplete == true) {
-				valid = false;
-			}
-//			System.out.print(result);
-			//some sort of recursive method
-			
-		}
-		// work on this 
-		else if(operator == '÷') {
-			boolean cagecomplete = true;
-			int expected = Integer.valueOf(label.substring(0, label.length() -1)); 
-			ArrayList<Integer> cagenumbers = new ArrayList<Integer>();
-			for(int	coordinate: cage.getCords()) {
-				Integer[] proper = this.getCords(coordinate);
-				int x = proper[0];
-				int y = proper[1];
-				if(cells[x][y].getNumber() == 0) {
-					cagecomplete = false;
-					break;
-				}
-				cagenumbers.add(cells[x][y].getNumber());
-			}
-			Collections.sort(cagenumbers);
-			Collections.reverse(cagenumbers);
-			int result = cagenumbers.get(0);
-			for(int element = 1; element < cagenumbers.size(); element++){
-				result /= cagenumbers.get(element);
-			}
-			System.out.print(result);
-			if(result != expected && cagecomplete == true) {
-				valid = false;
-			}
-//			System.out.print(result);
-			//some sort of recursive method
-			
-		}
-		
-		//row and column time complexity 2n together, with n being dimensions (not an issue for the size of this grid)
-		
-		//for - and plus there is a N! options 
-		
-		
-		return valid;
-	}
+	
+	
 	
 	public ArrayList<String> getNumbers(){
 		return this.numbers;
@@ -355,13 +245,21 @@ public class Grid extends GridPane {
 		return cols;
 	}
 	
+	
 	public boolean columnDuplicates(int columnindex) {
 		Cell[] cols = this.getColumncells(columnindex);
-		for(int i = 0; i < cols.length; i++) {
-			if(i + 1 < cols.length) {
-				if (cols[i].getNumber() == cols[i+1].getNumber()) {
-					return true;
-				}
+				//sort the array if there are pairs then return true
+				//should work-->
+		ArrayList<Integer> numbers = new ArrayList<Integer>();
+		//Should run in like 2n, rather than n^2
+		for(Cell cell: cols) {
+			int number = cell.getNumber();
+			numbers.add(number);
+		}
+		Collections.sort(numbers);
+		for(int i = 0; i < numbers.size() -1; i++) {
+			if(numbers.get(i) == numbers.get(i+1) && numbers.get(i) != 0 && numbers.get(i+1) != 0) {
+				return true;
 			}
 		}
 		return false;
@@ -369,16 +267,46 @@ public class Grid extends GridPane {
 	
 	public boolean rowDuplicates(int rowindex) {
 		Cell[] rows = this.getRowCells(rowindex);
-		for(int i = 0; i < rows.length; i++) {
-			if(i + 1 < rows.length) {
-				if (rows[i].getNumber() == rows[i+1].getNumber()) {
-					return true;
-				}
+		//sort the array if there are pairs then return true
+		//should work-->
+		ArrayList<Integer> numbers = new ArrayList<Integer>();
+		//Should run in like 2n, rather than n^2
+		for(Cell cell: rows) {
+			int number = cell.getNumber();
+			numbers.add(number);
+		}
+		Collections.sort(numbers);
+		for(int i = 0; i < numbers.size() -1; i++) {
+			if(numbers.get(i) == numbers.get(i+1) && numbers.get(i) != 0 && numbers.get(i+1) != 0) {
+				return true;
 			}
 		}
 		return false;
 	}
+	
 
+	
+	
+	public Cell getCell(int position) {
+		Integer[] proper = this.getCords(position);
+		int x = proper[0];
+		int y = proper[1];
+		return cells[x][y];
+	}
+
+	public Cell getCell(int x, int y) {
+		return this.cells[x][y];
+	}
+	
+	public void setText(int x, int y, Text text, boolean update, int value) {
+		cells[x][y].setText(text, update, value);
+	}
+	
+
+	
+	
+	
+	
 	
 	
 	

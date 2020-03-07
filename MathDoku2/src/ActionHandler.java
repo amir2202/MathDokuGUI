@@ -21,7 +21,12 @@ public class ActionHandler {
 	}
 	public void undo() {
 		Action tofix = this.undo.pop();
-		tofix.getCell().setText(tofix.getOldText());
+		if(tofix.getOldText().getText() == " " || tofix.getOldText().getText() == "") {
+			tofix.getCell().setText(tofix.getOldText(),true, 0);
+		}
+		else {
+			tofix.getCell().setText(tofix.getOldText(),true, Integer.valueOf(tofix.getOldText().getText()));
+		}
 		tofix.getCell().resetStyle();
 		this.addRedo(tofix);
 	}
@@ -47,11 +52,19 @@ public class ActionHandler {
 	public void redo() {
 		Action tofix = this.redo.pop();
 		Cell celltofix = tofix.getCell();
+		int temp;
+		if(celltofix.getText().getText() == "" || celltofix.getText().getText() == " ") {
+			temp = Integer.valueOf(tofix.getnewText().getText());
+		}
+		else {
+			temp = 0;
+		}
+		
 		if(celltofix.getCorrect() == null) {
-			celltofix.setText(tofix.getnewText());
+			celltofix.setText(tofix.getnewText(),true, temp);
 		}
 		else if(celltofix.getCorrect() != null) {
-			celltofix.setText(tofix.getnewText());
+			celltofix.setText(tofix.getnewText(),true, temp);
 			celltofix.setCorrect(celltofix.getCorrect());
 		}
 	}
