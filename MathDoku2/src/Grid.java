@@ -52,11 +52,6 @@ public class Grid extends GridPane {
 							current.setSelected(true);
 							selectedCell = current;
 						}
-//						//remove after
-//						System.out.println(current.getCage().isCageCorrect());
-//						System.out.println(columnDuplicates(current.getX()));
-						System.out.println(validCellInput(current,true));
-					
 				}
 					
 				});

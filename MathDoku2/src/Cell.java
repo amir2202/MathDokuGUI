@@ -126,11 +126,6 @@ public class Cell extends StackPane{
 	}
 	
 	public int getNumber() {
-		
-//		if(this.getStringText() != " ") {
-//		return Integer.valueOf(this.getStringText());
-//		}
-//		return 0;
 		return this.numberOfText;
 	}
 	

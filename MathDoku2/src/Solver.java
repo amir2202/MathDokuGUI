@@ -12,11 +12,11 @@ public class Solver {
 	}
 	
 	public static void solve(Grid grid) {
+		grid.clearCells();
 		int index = 1;
 		int dim = grid.getDimensions();
 		//outer loop for index
 		while(index <= grid.getDimensions() * grid.getDimensions()) {
-			
 			Cell current = grid.getCell(index);
 			current.increaseCell();
 			
@@ -24,13 +24,15 @@ public class Solver {
 				current.setNumber(0);
 			}
 			
-			while(grid.getCell(index).getNumber() != 0 && (validCell(grid ,grid.getCell(index)) == false)) {
-				grid.getCell(index).increaseCell();
+			while(current.getNumber() != 0 && (validCell(grid ,current) == false)) {
+				current.increaseCell();
+				if(current.getNumber() == grid.getDimensions() +1) {
+					current.setNumber(0);
+				}
 			}
 			
-			if (grid.getCell(index).getNumber() == 0) {
+			if (current.getNumber() == 0) {
 				index--;					
-				System.out.println("backtracking");
 			}
 			else {
 				index++;
