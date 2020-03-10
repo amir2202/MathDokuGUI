@@ -10,13 +10,14 @@ public class Cell extends StackPane{
 	private boolean selected = false;;
 	private Cage cage;
 	private Boolean correct;
+	private Boolean highlighted = false;
 	private Text number;
 	private int numberOfText;
 	public Cell(int x, int y) {
 		super();
 		this.x = x;
 		this.y = y;
-		this.correct = null;
+		this.correct = true;
 		this.getStylesheets().add("borders.css");
 		this.getStyleClass().add("borders");
 		this.setText(new Text(" "),true, 0);
@@ -27,7 +28,7 @@ public class Cell extends StackPane{
 	
 	public void setLabel(String label) {
 		this.label = new Label(label);
-	    this.label.setStyle("-fx-font: 14 arial;");
+	    this.label.getStyleClass().add("small");
 		this.getChildren().add(this.label);
 		this.setAlignment(this.label, Pos.TOP_LEFT);
 	}
@@ -122,16 +123,26 @@ public class Cell extends StackPane{
 	//start with labels
 	public void setFont(String size) {
 		if(size.equals("small")) {
-		    this.label.setStyle("-fx-font: 14 arial;");
-		    int current = this.getNumber();
-		    
+			if(this.label != null) {
+				this.label.getStyleClass().clear();
+			    this.label.getStyleClass().add("small");	
+			}
+		    this.getStyleClass().add("small");
 		    
 		}
 		if(size.equals("medium")) {
-		    this.label.setStyle("-fx-font: 18 arial;");
+			if(this.label != null) {
+				this.label.getStyleClass().clear();
+			    this.label.getStyleClass().add("medium");	
+			}
+		    this.getStyleClass().add("medium");
 		}
 		if(size.equals("large")) {
-		    this.label.setStyle("-fx-font: 26 arial;");
+			if(this.label != null) {
+				this.label.getStyleClass().clear();
+			    this.label.getStyleClass().add("large");	
+			}
+		    this.getStyleClass().add("large");
 		}
 	}
 	
@@ -164,13 +175,26 @@ public class Cell extends StackPane{
 	}
 	
 	public void resetStyle() {
-		this.getStyleClass().remove("correct");
-		this.getStyleClass().remove("wrong");
+		this.getStyleClass().clear();
 		this.getStyleClass().add("borders");
 	}
 	
 	public void refreshNumber() {
 		//do this
+	}
+	
+	public boolean getHighlighted() {
+		return this.highlighted;
+	}
+	
+	public void setHighlighted(boolean choice) {
+		if(choice == true) {
+			this.getStyleClass().add("highlight");	
+			this.highlighted = true;
+		}
+		if(choice == false) {
+			this.getStyleClass().remove("highlight");
+		}
 	}
 }
 

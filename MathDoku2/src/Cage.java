@@ -21,6 +21,12 @@ public class Cage {
 		
 	}
 	
+	public void setCorrect(boolean input) {
+		for(Cell cell: this.cagecells) {
+			cell.setCorrect(input);
+		}
+	}
+	
 	//Adding cell to cage 
 	public void addCell(Cell cell) {
 		cagecells.add(cell);
@@ -112,5 +118,7 @@ public class Cage {
 		return true;
 		
 	}	
+	
+	
 	
 }

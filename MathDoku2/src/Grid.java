@@ -183,15 +183,47 @@ public class Grid extends GridPane {
 	//public void setUpBorders(Cage cage, boolean mistakes)
 	//Indicate whether it used for solving purpose
 	public boolean validCellInput(Cell cell, boolean solver) {
-		
 		//Row column logic 
-		if(columnDuplicates(cell.getX()) || rowDuplicates(cell.getY())) {
+		if((columnDuplicates(cell.getX()) || rowDuplicates(cell.getY())) && (solver == true)) {
 			return false;
 		}
+		if(solver == false) {
+			if(!cell.getCage().isCageFull()|| !cell.getCage().isCageCorrect()) {
+				cell.getCage().setCorrect(false);
+			}
+			if(columnDuplicates(cell.getX()) == true) {
+				for(int y = 0; y < this.dimensions;y++) {
+					if(this.cells[cell.getX()][y].getCorrect() != false) {
+						this.cells[cell.getX()][y].setHighlighted(true);	
+					}
+					if(!this.cells[cell.getX()][y].getCorrect() && this.cells[cell.getX()][y].getHighlighted()) {
+						this.cells[cell.getX()][y].resetStyle();
+						this.cells[cell.getX()][y].setCorrect(false);
+					}
+				}
+			}
+			if(rowDuplicates(cell.getY()) == true) {
+				for(int x = 0; x < this.dimensions;x++) {
+					if(this.cells[x][cell.getY()].getCorrect() != false) {
+						this.cells[x][cell.getY()].setHighlighted(true);	
+					}
+					if(!this.cells[x][cell.getY()].getCorrect() && this.cells[x][cell.getY()].getHighlighted()) {
+						this.cells[x][cell.getY()].resetStyle();
+						this.cells[x][cell.getY()].setCorrect(false);
+					}
+					
+				}
+			}
+			
+			return false;
+		}
+		
+		
 		
 		//Cage logic
 		if(cell.getCage().isCageFull() == false) {
 			if(solver == true) {
+//				cell.getCage().setCorrect(false);
 				return true;
 			}
 			if (solver == false) {
@@ -203,11 +235,11 @@ public class Grid extends GridPane {
 				return false;
 			}
 		}
-
+		
 		return true;
 
 	}
-	
+
 	
 	
 	
@@ -295,7 +327,57 @@ public class Grid extends GridPane {
 		cells[x][y].setText(text, update, value);
 	}
 	
-
+	public void setSelected(int x, int y) {
+		if(this.selectedCell == null) {
+			this.selectedCell = this.cells[x][y];
+			this.selectedCell.setSelected(true);
+		}
+		else {
+			this.selectedCell.setSelected(false);
+			this.selectedCell = this.cells[x][y];
+			this.selectedCell.setSelected(true);
+		}
+	}
+	
+	public void setFont(String input) {
+		for(int x = 0; x < this.dimensions; x++) {
+			for(int y = 0; y < this.dimensions;y++) {
+				this.cells[x][y].setFont(input);
+			}
+		}
+	}
+	
+	public boolean isFilled() {
+		for(int x = 0; x < this.dimensions; x++) {
+			for(int y = 0; y < this.dimensions;y++) {
+				if (this.cells[x][y].getNumber() == 0) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+	public boolean solved() {
+		if(this.isFilled() != true) {
+			return false;
+		}
+		else {
+			for(int x = 0; x < this.getDimensions(); x++) {
+				for(int y = 0; y < this.getDimensions(); y++) {
+					if (validCellInput(cells[x][y], true) != true) {
+						return false;
+					}
+				}
+			}
+			return true;			
+		}
+	}
+	
+	
+	
+	
+	
 	
 	
 	

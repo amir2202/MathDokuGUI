@@ -18,3 +18,22 @@
     -fx-border-width: 0.5; 
     -fx-border-color: black
 }
+.highlight {
+    -fx-background-color: rgba(255,0,0,0.2);
+    -fx-border-width: 0.5; 
+    -fx-border-color: black
+}
+.cagewrong{
+    -fx-background-color: rgba(139,0,0,1);
+    -fx-border-width: 0.5; 
+    -fx-border-color: black
+}
+.small{
+    -fx-font: 12 arial;
+}
+.medium{
+    -fx-font: 16 arial;
+}
+.large{
+    -fx-font: 24 arial;
+}

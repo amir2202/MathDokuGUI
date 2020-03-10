@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
 import javafx.application.Application;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.MapChangeListener;
@@ -46,13 +47,31 @@ public class Main extends Application {
 	public void start(Stage stage) throws Exception {
 		handler = new ActionHandler();
 		VBox main = new VBox();
-		Scene scene = new Scene(main, 500,500);
+		Scene scene = new Scene(main, 600,600);
 		//Get grid
 		grid = new Grid(5);
 		this.validInputNumber();
+		ChoiceBox font = new ChoiceBox();
+		font.getItems().add("Small");
+		font.getItems().add("Medium");
+		font.getItems().add("Big");
 		main.getChildren().add(grid);
 		main.setOnKeyPressed(new KeyHandler());
 		HBox options = new HBox();
+		font.setOnAction(new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent arg0) {
+				if (font.getValue() == "Small") {
+					grid.setFont("small");
+				}
+				if (font.getValue() == "Medium") {
+					grid.setFont("medium");
+				}
+				if (font.getValue() == "Big") {
+					grid.setFont("large");
+				}
+			}
+			
+		});
 		main.setVgrow(grid, Priority.ALWAYS);
 		Button solve = new Button("Solve");
 		solve.setOnAction(new EventHandler<ActionEvent>() {
@@ -117,7 +136,7 @@ public class Main extends Application {
 			
 		});
 		
-		options.getChildren().addAll(clear,undo,redo,load,solve,mistakes);
+		options.getChildren().addAll(clear,undo,redo,load,font ,solve,mistakes);
 		options.setHgrow(undo, Priority.ALWAYS);
 		options.setSpacing(2);
 		options.setAlignment(Pos.BASELINE_LEFT);
@@ -144,7 +163,9 @@ public class Main extends Application {
 							String line = reader.readLine();
 							String[] split = line.split(" ");
 							String[] cages = split[1].split(",");
-							String[] cageargs = new String[split.length];
+							if(cages.length == 0) {
+								allarguments.add(Integer.valueOf(split[1]));
+							}
 							//for every argument of the
 							for(int i = 0; i < cages.length;i++) {
 								allarguments.add(Integer.valueOf(cages[i]));
@@ -170,7 +191,12 @@ public class Main extends Application {
 							for(int i = 0; i < args.length; i++) {
 								args[i] = Integer.valueOf(arguments[i]);
 							}
-							grid.setCage(label, args);
+							if(arguments.length == 0) {
+								grid.setCage(label, Integer.valueOf(splitline[1]));
+							}
+							else {
+							grid.setCage(label, args);	
+							}
 							
 						}			
 						main.setVgrow(grid, Priority.ALWAYS);
@@ -217,6 +243,45 @@ public class Main extends Application {
 
 	class KeyHandler implements EventHandler<KeyEvent>{
 		public void handle(KeyEvent arg0) {	
+			if(arg0.getCode() == KeyCode.A || arg0.getCode() == KeyCode.W || arg0.getCode() == KeyCode.S || arg0.getCode() == KeyCode.D  ) {
+				if(grid.getSelected() == null) {
+					grid.setSelected(0, 0);
+				}
+				
+				else if(arg0.getCode() == KeyCode.A){
+					int x = grid.getSelected().getX();
+					int y = grid.getSelected().getY();
+					if(x != 0) {
+						grid.setSelected(x -1, y);
+					}
+				}
+				//right
+				else if(arg0.getCode() == KeyCode.D){
+					int x = grid.getSelected().getX();
+					int y = grid.getSelected().getY();
+					if(x != grid.getDimensions()-1) {
+						grid.setSelected(x +1, y);
+					}
+				}
+				
+				//up
+				else if(arg0.getCode() == KeyCode.W){
+					int x = grid.getSelected().getX();
+					int y = grid.getSelected().getY();
+					if(y != 0) {
+						grid.setSelected(x, y-1);
+					}
+				}
+				
+				else if(arg0.getCode() == KeyCode.S){
+					int x = grid.getSelected().getX();
+					int y = grid.getSelected().getY();
+					if(y != grid.getDimensions()-1) {
+						grid.setSelected(x, y+1);
+					}
+				}
+			}
+			
 			if(arg0.getCode() == KeyCode.BACK_SPACE){
 				if(grid.getSelected() != null) {
 					grid.getSelected().setNumber(0);
