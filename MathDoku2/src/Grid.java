@@ -280,8 +280,6 @@ public class Grid extends GridPane {
 	}
 	
 
-	
-	
 	public Cell getCell(int position) {
 		Integer[] proper = this.getCords(position);
 		int x = proper[0];

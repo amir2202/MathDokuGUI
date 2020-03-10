@@ -151,6 +151,7 @@ public class Main extends Application {
 							}
 							allcages.add(line);
 						}
+
 						Collections.sort(allarguments);
 					
 						int dimensions = (int) Math.sqrt(allarguments.get(allarguments.size() -1));
@@ -163,7 +164,8 @@ public class Main extends Application {
 						for(String cage:allcages){
 							String[] splitline = cage.split(" ");
 							String label = splitline[0];
-							String[] arguments = splitline[1].split(",");
+							String[] arguments;
+							arguments = splitline[1].split(",");
 							int[] args = new int[arguments.length];
 							for(int i = 0; i < args.length; i++) {
 								args[i] = Integer.valueOf(arguments[i]);
@@ -215,6 +217,12 @@ public class Main extends Application {
 
 	class KeyHandler implements EventHandler<KeyEvent>{
 		public void handle(KeyEvent arg0) {	
+			if(arg0.getCode() == KeyCode.BACK_SPACE){
+				if(grid.getSelected() != null) {
+					grid.getSelected().setNumber(0);
+					grid.getSelected().setText(new Text(" "), true, 0);
+				}		
+			} 
 			if(undo.match(arg0)){
 				handler.undo();
 			}

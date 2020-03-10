@@ -32,7 +32,13 @@ public class Cell extends StackPane{
 		this.setAlignment(this.label, Pos.TOP_LEFT);
 	}
 	
+	public Label getLabel() {
+		return this.label;
+	}
+	
+	//dont call this
 	public void removeLabel(){
+		this.getChildren().remove(this.label);
 		this.label = null;
 	}
 	
@@ -113,15 +119,19 @@ public class Cell extends StackPane{
 		}
 	}
 	
+	//start with labels
 	public void setFont(String size) {
 		if(size.equals("small")) {
-			
+		    this.label.setStyle("-fx-font: 14 arial;");
+		    int current = this.getNumber();
+		    
+		    
 		}
 		if(size.equals("medium")) {
-			
+		    this.label.setStyle("-fx-font: 18 arial;");
 		}
 		if(size.equals("large")) {
-			
+		    this.label.setStyle("-fx-font: 26 arial;");
 		}
 	}
 	
