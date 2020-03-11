@@ -127,7 +127,9 @@ public class Cell extends StackPane{
 				this.label.getStyleClass().clear();
 			    this.label.getStyleClass().add("small");	
 			}
-		    this.getStyleClass().add("small");
+			this.getStyleClass().clear();
+			this.getStyleClass().add("borders");
+			this.getStyleClass().add("small");
 		    
 		}
 		if(size.equals("medium")) {
@@ -135,6 +137,8 @@ public class Cell extends StackPane{
 				this.label.getStyleClass().clear();
 			    this.label.getStyleClass().add("medium");	
 			}
+			this.getStyleClass().clear();
+			this.getStyleClass().add("borders");
 		    this.getStyleClass().add("medium");
 		}
 		if(size.equals("large")) {
@@ -142,6 +146,8 @@ public class Cell extends StackPane{
 				this.label.getStyleClass().clear();
 			    this.label.getStyleClass().add("large");	
 			}
+			this.getStyleClass().clear();
+			this.getStyleClass().add("borders");
 		    this.getStyleClass().add("large");
 		}
 	}
@@ -152,6 +158,9 @@ public class Cell extends StackPane{
 	
 	public void increaseCell() {
 		this.numberOfText = this.numberOfText + 1;
+	}
+	public void decreaseCell() {
+		
 	}
 	
 	public void setNumber(int number) {

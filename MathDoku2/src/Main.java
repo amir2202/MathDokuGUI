@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
+
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.application.Application;
@@ -36,8 +37,10 @@ public class Main extends Application {
 	private Grid grid;
 	private ArrayList<String> numbers;
 	private ActionHandler handler;
-	final KeyCombination undo = new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN);
-	final KeyCombination redo = new KeyCodeCombination(KeyCode.Y, KeyCombination.CONTROL_DOWN);
+	private Button redo; 
+	private Button undo;
+	final KeyCombination undocmb = new KeyCodeCombination(KeyCode.Z, KeyCombination.SHORTCUT_DOWN);
+	final KeyCombination redocmb = new KeyCodeCombination(KeyCode.Y, KeyCombination.SHORTCUT_DOWN);
 	public static void main(String[] args) {
 		launch(args);
 	
@@ -50,6 +53,7 @@ public class Main extends Application {
 		Scene scene = new Scene(main, 600,600);
 		//Get grid
 		grid = new Grid(5);
+		grid.requestFocus();
 		this.validInputNumber();
 		ChoiceBox font = new ChoiceBox();
 		font.getItems().add("Small");
@@ -74,6 +78,16 @@ public class Main extends Application {
 		});
 		main.setVgrow(grid, Priority.ALWAYS);
 		Button solve = new Button("Solve");
+		Button generate = new Button("Generate");
+		generate.setOnAction(new EventHandler<ActionEvent>() {
+
+			public void handle(ActionEvent arg0) {
+				Generator generate = new Generator();
+				generate.generateSodukoGrid(0, grid);
+				
+			}
+			
+		});
 		solve.setOnAction(new EventHandler<ActionEvent>() {
 			public void handle(ActionEvent event) {
 //				Task<Void> task = new Task<Void>() {
@@ -90,7 +104,8 @@ public class Main extends Application {
 		});
 		
 		
-		Button undo = new Button("Undo");
+		undo = new Button("Undo");
+		undo.setDisable(true);
 		undo.setOnAction(new EventHandler<ActionEvent>(){
 			public void handle(ActionEvent event) {
 				if(handler.undoEmpty() == false) {
@@ -99,7 +114,8 @@ public class Main extends Application {
 			}
 		});
 //		undo.
-		Button redo = new Button("Redo");
+		redo = new Button("Redo");
+		redo.setDisable(true);
 		redo.setOnAction(new EventHandler<ActionEvent>() {
 			public void handle(ActionEvent event) {
 				if(handler.redoEmpty() == false) {
@@ -136,7 +152,7 @@ public class Main extends Application {
 			
 		});
 		
-		options.getChildren().addAll(clear,undo,redo,load,font ,solve,mistakes);
+		options.getChildren().addAll(clear,undo,redo,load,font ,solve,mistakes,generate);
 		options.setHgrow(undo, Priority.ALWAYS);
 		options.setSpacing(2);
 		options.setAlignment(Pos.BASELINE_LEFT);
@@ -156,33 +172,15 @@ public class Main extends Application {
 				game = choseFiles.showOpenDialog(stage);
 				if(game != null && game.canRead() == true && game.exists() == true) {
 					try {
-						ArrayList<Integer> allarguments = new ArrayList<Integer>();
-						ArrayList<String> allcages = new ArrayList<String>();
-						BufferedReader reader = new BufferedReader(new FileReader(game));
-						while(reader.ready() == true) {
-							String line = reader.readLine();
-							String[] split = line.split(" ");
-							String[] cages = split[1].split(",");
-							if(cages.length == 0) {
-								allarguments.add(Integer.valueOf(split[1]));
-							}
-							//for every argument of the
-							for(int i = 0; i < cages.length;i++) {
-								allarguments.add(Integer.valueOf(cages[i]));
-							}
-							allcages.add(line);
-						}
-
-						Collections.sort(allarguments);
-					
-						int dimensions = (int) Math.sqrt(allarguments.get(allarguments.size() -1));
+						FileHandler handler = new FileHandler(game);
+						boolean temp = handler.readFile();
+						int dimensions = handler.getDimension();
 						Grid newgrid = new Grid(dimensions);
-						
 						main.getChildren().remove(grid);
 						main.getChildren().remove(options);
 						grid = newgrid;
 						validInputNumber();
-						for(String cage:allcages){
+						for(String cage:handler.getLines()){
 							String[] splitline = cage.split(" ");
 							String label = splitline[0];
 							String[] arguments;
@@ -201,9 +199,10 @@ public class Main extends Application {
 						}			
 						main.setVgrow(grid, Priority.ALWAYS);
 						main.getChildren().add(grid);
+						grid.requestFocus();
 						main.getChildren().add(options);
-					} catch(IOException e2) {
-						e2.printStackTrace();
+					} catch(Exception e2) {
+						System.out.println(e2.toString());
 					}
 					
 				}
@@ -231,8 +230,9 @@ public class Main extends Application {
 			alert.setHeaderText("Clearing the board");
 			
 			Optional<ButtonType> result = alert.showAndWait();
-			
-			
+			handler.reset();
+			undo.setDisable(true);
+			redo.setDisable(true);
 			if (result.isPresent() && result.get() == ButtonType.OK) {	
 				grid.clearCells();	
 			}
@@ -243,12 +243,12 @@ public class Main extends Application {
 
 	class KeyHandler implements EventHandler<KeyEvent>{
 		public void handle(KeyEvent arg0) {	
-			if(arg0.getCode() == KeyCode.A || arg0.getCode() == KeyCode.W || arg0.getCode() == KeyCode.S || arg0.getCode() == KeyCode.D  ) {
+			if(arg0.getCode() == KeyCode.A || arg0.getCode() == KeyCode.W || arg0.getCode() == KeyCode.S || arg0.getCode() == KeyCode.D /*|| arg0.getCode() == KeyCode.UP || arg0.getCode() == KeyCode.DOWN || arg0.getCode() == KeyCode.LEFT || arg0.getCode() == KeyCode.RIGHT */) {
 				if(grid.getSelected() == null) {
 					grid.setSelected(0, 0);
 				}
 				
-				else if(arg0.getCode() == KeyCode.A){
+				else if(arg0.getCode() == KeyCode.A || arg0.getCode() == KeyCode.LEFT){
 					int x = grid.getSelected().getX();
 					int y = grid.getSelected().getY();
 					if(x != 0) {
@@ -256,7 +256,7 @@ public class Main extends Application {
 					}
 				}
 				//right
-				else if(arg0.getCode() == KeyCode.D){
+				else if(arg0.getCode() == KeyCode.D || arg0.getCode() == KeyCode.RIGHT){
 					int x = grid.getSelected().getX();
 					int y = grid.getSelected().getY();
 					if(x != grid.getDimensions()-1) {
@@ -265,7 +265,7 @@ public class Main extends Application {
 				}
 				
 				//up
-				else if(arg0.getCode() == KeyCode.W){
+				else if(arg0.getCode() == KeyCode.W || arg0.getCode() == KeyCode.UP){
 					int x = grid.getSelected().getX();
 					int y = grid.getSelected().getY();
 					if(y != 0) {
@@ -273,7 +273,7 @@ public class Main extends Application {
 					}
 				}
 				
-				else if(arg0.getCode() == KeyCode.S){
+				else if(arg0.getCode() == KeyCode.S || arg0.getCode() == KeyCode.DOWN){
 					int x = grid.getSelected().getX();
 					int y = grid.getSelected().getY();
 					if(y != grid.getDimensions()-1) {
@@ -284,24 +284,49 @@ public class Main extends Application {
 			
 			if(arg0.getCode() == KeyCode.BACK_SPACE){
 				if(grid.getSelected() != null) {
+					Action action = grid.getSelected().setText(new Text(""),true, 0);
 					grid.getSelected().setNumber(0);
-					grid.getSelected().setText(new Text(" "), true, 0);
+					boolean temp = handler.notify(action);
+					if(temp == true) {
+						redo.setDisable(true);
+						handler.addUndo(action);
+					}
+					else if(temp == false) {
+						redo.setDisable(false);
+						undo.setDisable(false);
+					}
 				}		
 			} 
-			if(undo.match(arg0)){
+			if(undocmb.match(arg0)){
 				handler.undo();
 			}
-			else if(redo.match(arg0)) {
+			else if(redocmb.match(arg0)) {
 				handler.redo();
 			}
 			else if(grid.getSelected() != null && numbers.contains(arg0.getText())) {
 				if(checking == false) {
 					Action action = grid.getSelected().setText(new Text(arg0.getText()),true, Integer.valueOf(arg0.getText()));
-					handler.notify(action);	
+					boolean temp = handler.notify(action);	
+					if(temp == true) {
+						redo.setDisable(true);
+						handler.addUndo(action);
+					}
+					else if(temp == false) {
+						redo.setDisable(false);
+						undo.setDisable(false);
+					}
 				}
 				else if(checking == true) {
 					Action action = grid.getSelected().setText(new Text(arg0.getText()),true, Integer.valueOf(arg0.getText()));
-					handler.notify(action);	
+					boolean temp = handler.notify(action);	
+					if(temp == true) {
+						redo.setDisable(true);
+						handler.addUndo(action);
+					}
+					else if(temp == false) {
+						redo.setDisable(false);
+						undo.setDisable(false);
+					}
 					if(grid.validCellInput(grid.getSelected(),false) == true)
 					{
 						grid.getSelected().setCorrect(true);
@@ -310,6 +335,16 @@ public class Main extends Application {
 					{
 						grid.getSelected().setCorrect(false);
 					}
+				}
+			}
+			
+			
+			if(grid.isFilled()) {
+				try {
+					grid.win(grid.solved());
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 			}
 		}

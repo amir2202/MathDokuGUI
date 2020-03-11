@@ -9,11 +9,24 @@ public class ActionHandler {
 		redo = new Stack<Action>();	
 	}
 	
-	public void notify(Action action) {
+	public boolean notify(Action action) {
+		if(redo.isEmpty() == false) {
+			redo.clear();
+			return true;
+		}
 		this.addUndo(action);
+		return false;
 	}
 	public void addUndo(Action action) {
 		undo.add(action);
+	}
+	
+	public boolean isRedoEmpty() {
+		return this.redo.isEmpty();
+	}
+	
+	public boolean isUndoEmpty() {
+		return this.undo.isEmpty();
 	}
 	
 	public void addRedo(Action action) {
@@ -51,6 +64,7 @@ public class ActionHandler {
 
 	public void redo() {
 		Action tofix = this.redo.pop();
+		this.addUndo(tofix);
 		Cell celltofix = tofix.getCell();
 		int temp;
 		if(celltofix.getText().getText() == "" || celltofix.getText().getText() == " ") {
@@ -65,7 +79,7 @@ public class ActionHandler {
 		}
 		else if(celltofix.getCorrect() != null) {
 			celltofix.setText(tofix.getnewText(),true, temp);
-			celltofix.setCorrect(celltofix.getCorrect());
+//			celltofix.setCorrect(!celltofix.getCorrect());
 		}
 	}
 	

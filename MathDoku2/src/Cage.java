@@ -14,7 +14,12 @@ public class Cage {
 		this.label = label;
 		this.cordinates = cordinates;
 		this.operator = label.charAt(label.length() -1);
-		this.expected = Integer.valueOf(label.substring(0, label.length() -1));
+		if(this.label.charAt(this.label.length() -1 ) == '+' || this.label.charAt(this.label.length()-1) == '-' || this.label.charAt(this.label.length()-1) == 'x' || this.label.charAt(this.label.length()-1) == '÷'|| this.label.charAt(this.label.length()-1) == '/' || this.label.charAt(this.label.length()-1) == '*' ) {
+			this.expected = Integer.valueOf(label.substring(0, label.length() -1));
+		}
+		else {
+			this.expected = Integer.valueOf(label);
+		}
 	}
 	
 	public void addCords(Integer[] cords) {
@@ -73,7 +78,7 @@ public class Cage {
 			}
 		}
 		
-		else if(operator =='x') {
+		else if(operator =='x' || operator == '*') {
 			int result = 1;
 			for(int i = 0; i < this.cagecells.size(); i++) {
 				result *= this.cagecells.get(i).getNumber();
@@ -100,14 +105,14 @@ public class Cage {
 			}
 		}
 	
-		else if(operator =='÷') {
+		else if(operator =='÷' || operator == '/') {
 			ArrayList<Integer> cagenumbers = new ArrayList<Integer>();
 			for(int i = 0; i < this.cagecells.size(); i++) {
 				cagenumbers.add(this.cagecells.get(i).getNumber());
 			}
 			Collections.sort(cagenumbers);
 			Collections.reverse(cagenumbers);
-			int result = cagenumbers.get(0);
+			double result = cagenumbers.get(0);
 			for(int i = 1; i < cagenumbers.size(); i++) {
 				result /= cagenumbers.get(i); 
 			}

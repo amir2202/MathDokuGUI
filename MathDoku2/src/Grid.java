@@ -86,6 +86,7 @@ public class Grid extends GridPane {
 			int x = coordinates[0];
 			int y = coordinates[1];
 			cells[x][y].setLabel(label);
+			this.cells[x][y].setCage(single);
 			cells[x][y].cellThickenBorder();
 		}
 
@@ -117,6 +118,9 @@ public class Grid extends GridPane {
 	
 	public void intCords() {
 		//initial coordinate
+		if(cords.isEmpty() != true) {
+			cords.clear();
+		}
 		int coordinate = 1;
 		for(int row = 0; row < this.getDimensions(); row++) {
 			for(int column = 0; column <this.getDimensions(); column++) {
@@ -190,6 +194,9 @@ public class Grid extends GridPane {
 		if(solver == false) {
 			if(!cell.getCage().isCageFull()|| !cell.getCage().isCageCorrect()) {
 				cell.getCage().setCorrect(false);
+			}
+			if(cell.getCage().isCageFull() == true && cell.getCage().isCageCorrect() == true) {
+				cell.getCage().setCorrect(true);
 			}
 			if(columnDuplicates(cell.getX()) == true) {
 				for(int y = 0; y < this.dimensions;y++) {
@@ -292,6 +299,7 @@ public class Grid extends GridPane {
 		return false;
 	}
 	
+	
 	public boolean rowDuplicates(int rowindex) {
 		Cell[] rows = this.getRowCells(rowindex);
 		//sort the array if there are pairs then return true
@@ -374,17 +382,56 @@ public class Grid extends GridPane {
 		}
 	}
 	
+	public void shuffleRow(int initial, int end) {
+		for(int x= 0; x< this.dimensions; x++) {
+			Cell first = this.cells[x][initial];
+			Cell second = this.cells[x][end];
+			this.getChildren().remove(this.cells[x][initial]);
+			this.getChildren().remove(this.cells[x][end]);
+			this.cells[x][initial] = second;
+			this.add(this.cells[x][initial],x, initial);
+			this.cells[x][end] = first; 
+			this.add(this.cells[x][end], x, end);
+		}
+	}
 	
+	public void shuffleColumn(int initial, int end) {
+		for(int y= 0; y< this.dimensions; y++) {
+			Cell first = this.cells[initial][y];
+			Cell second = this.cells[end][y];
+			this.getChildren().remove(this.cells[initial][y]);
+			this.getChildren().remove(this.cells[end][y]);
+			this.cells[initial][y] = second;
+			this.add(this.cells[initial][y], initial,y);
+			this.cells[end][y] = first;
+			this.add(this.cells[end][y], end, y);
+		}
+	}
 	
+	public void win(boolean input) throws InterruptedException {
+		if(input == true) {
+			Cage temp = this.cells[0][0].getCage();
+			temp.setCorrect(true);
+		for(int x = 1; x <this.getDimensions(); x++) {
+			for(int y= 0; y < this.getDimensions();y++) {
+				if(temp != cells[x][y].getCage()) {
+					cells[x][y].getCage().setCorrect(true);
+				}
+			}
+		}
+		
+		//Winning animation 
+		
+		}
+	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
+//	public void changeDefaultValue(int value) {
+//		for(int x = 0; x <this.dimensions; x++) {
+//			for(int y = 0;y<this.dimensions;y++) {
+//				cells[x][y].setNumber(value);
+//			}
+//		}
+//	}
 	
 	
 }
