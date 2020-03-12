@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Dialog;
 import javafx.application.Application;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.MapChangeListener;
@@ -163,6 +164,15 @@ public class Main extends Application {
 		stage.setScene(scene);
 		stage.show();
 		
+		Dialog<String> dialog = new Dialog<>();
+//		load.setOnAction(new EventHandler<ActionEvent>() {
+//			public void handle(ActionEvent arg0) {
+//				dialog.isShowing();
+//				// TODO Auto-generated method stub
+//				
+//			}
+//			
+//		});
 		
 		load.setOnAction(new EventHandler<ActionEvent>() {
 			public void handle(ActionEvent e){

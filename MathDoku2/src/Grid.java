@@ -52,6 +52,12 @@ public class Grid extends GridPane {
 							current.setSelected(true);
 							selectedCell = current;
 						}
+						for(int i = 1; i <= dimensions*dimensions; i++) {
+							System.out.println("Neighbouring Cells for position " + i);
+							for(int j: adjacentCells(i)) {
+								System.out.println(j);
+							}
+						}
 				}
 					
 				});
@@ -425,13 +431,94 @@ public class Grid extends GridPane {
 		}
 	}
 	
-//	public void changeDefaultValue(int value) {
-//		for(int x = 0; x <this.dimensions; x++) {
-//			for(int y = 0;y<this.dimensions;y++) {
-//				cells[x][y].setNumber(value);
-//			}
-//		}
-//	}
+	public ArrayList<Integer> adjacentCells(int position) {
+		ArrayList<Integer> adjacentCells = new ArrayList<Integer>();
+		//starting corner
+		if(position == 1 && this.dimensions != 1) {
+			adjacentCells.add(2);
+			adjacentCells.add((1 +this.dimensions));
+			return adjacentCells;
+		}
+		//corner 1
+		if(position == this.dimensions) {
+			adjacentCells.add(this.dimensions -1);
+			adjacentCells.add(this.dimensions + this.dimensions);
+			return adjacentCells;
+		}
+		
+		//quadrant 3 corner
+		if(position == ((1+ (this.dimensions * (this.dimensions-1))))){
+			adjacentCells.add(position +1);
+			adjacentCells.add(position - this.getDimensions());
+			return adjacentCells;
+		}
+		
+		//end corner
+		if(position == this.dimensions * this.dimensions) {
+			adjacentCells.add((this.dimensions * this.dimensions) -1);
+			adjacentCells.add((this.dimensions * this.dimensions) -this.dimensions);
+			return adjacentCells;
+		}
+		
+		//top border
+		for(int n = 0; n < this.dimensions; n++) {
+			if(position <= this.dimensions) {
+				adjacentCells.add(position -1);
+				adjacentCells.add(position +1);
+				adjacentCells.add(position + this.getDimensions());
+				return adjacentCells;
+			}
+		}
+		
+		//right border 
+		for(int n = 1; n < this.dimensions; n++) {
+			if(position == this.dimensions + (n*this.dimensions)) {
+				adjacentCells.add((this.dimensions + (n*this.dimensions)) -1);
+				adjacentCells.add((n*this.dimensions)); 
+				adjacentCells.add(2*this.dimensions + (n*this.dimensions));
+				return adjacentCells;
+			}
+		}
+		
+		//left border
+		for(int n = 1; n< this.dimensions; n++) {
+			if(position == (1+(this.dimensions*n))) {
+				adjacentCells.add(position - this.dimensions);
+				adjacentCells.add(position + this.dimensions);
+				adjacentCells.add(position +1);
+				return adjacentCells;
+			}
+		}
+		
+		//bottom border
+		for(int n = 0; n < this.dimensions;n++) {
+			int d = this.dimensions;
+			if((position < d * d) && position >= (d*(d-1)+1)) {
+				adjacentCells.add(position -1);
+				adjacentCells.add(position+1);
+				adjacentCells.add(position-d);
+				return adjacentCells;
+			}
+		}
+		
+		//otherwise
+		adjacentCells.add(position - this.dimensions);
+		adjacentCells.add(position +1);
+		adjacentCells.add(position -1);
+		adjacentCells.add(position + this.dimensions);
+		
+		return adjacentCells;
+		
+ 	}
 	
+	public void updateGrid() {
+		for(int x = 0; x < this.getDimensions(); x++) {
+		for(int y = 0; y < this.getDimensions(); y++) {
+			int number = this.getCell(x, y).getNumber();
+			Text update = new Text(String.valueOf(number));
+			this.setText(x,y,update, true, number);	
+	}
+	}
+	}
 	
 }

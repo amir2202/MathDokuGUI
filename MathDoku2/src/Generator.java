@@ -14,39 +14,6 @@ public class Generator {
 		return true;
 	}
 	
-	public void generate(int difficulty, Grid grid) {
-		int index = 1;
-		while(index <= grid.getDimensions() * grid.getDimensions()) {
-			Cell current = grid.getCell(index);
-			current.increaseCell();
-			if(current.getNumber() == grid.getDimensions() +1) {
-				current.setNumber(0);
-			}
-			
-			while(current.getNumber() != 0 && (validCell(grid ,current) == false)) {
-				current.increaseCell();
-				if(current.getNumber() == grid.getDimensions() +1) {
-					current.setNumber(0);
-				}
-			}
-			
-			if (current.getNumber() == 0) {
-				index--;					
-			}
-			else {
-				index++;
-			}
-			
-			for(int x = 0; x < grid.getDimensions(); x++) {
-				for(int y = 0; y < grid.getDimensions(); y++) {
-					int number = grid.getCell(x, y).getNumber();
-					Text update = new Text(String.valueOf(number));
-					grid.setText(x,y,update, true, number);	
-			}
-			}
-			
-		}
-	}
 	
 	public void generateSodukoGrid(int difficulty, Grid grid) {
 		grid.clearCells();
@@ -88,18 +55,6 @@ public class Generator {
 				grid.shuffleRow(three, four);
 			}
 		}
-		
-		for(int x = 0; x < grid.getDimensions(); x++) {
-			for(int y = 0; y < grid.getDimensions(); y++) {
-				int number = grid.getCell(x, y).getNumber();
-				Text update = new Text(String.valueOf(number));
-				grid.setText(x,y,update, true, number);	
-		}
-		}
+		grid.updateGrid();
 	}	
-
-
-	//Now cell constructing
-	
-	
 }

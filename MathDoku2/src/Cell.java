@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
@@ -6,6 +8,8 @@ import javafx.scene.text.Text;
 public class Cell extends StackPane{
 	private int x;
 	private int y;
+	//Arraylist to store possible solutions
+	private ArrayList<Integer> possible = new ArrayList<Integer>();
 	private Label label;
 	private boolean selected = false;;
 	private Cage cage;
@@ -205,5 +209,25 @@ public class Cell extends StackPane{
 			this.getStyleClass().remove("highlight");
 		}
 	}
+	
+	public void addPossible(int possible) {
+		this.possible.add(possible);
+	}
+	
+	public void removePossible(int possible) {
+		this.possible.remove(possible);
+	}
+	
+	public ArrayList<Integer> getPossible() {
+		return this.possible;
+	}
+	
+	public ArrayList<Integer> getDeadlyPattern(){
+		return null;
+	}
+	
+	
+	
+	
 }
 
