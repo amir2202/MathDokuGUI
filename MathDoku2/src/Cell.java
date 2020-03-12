@@ -11,7 +11,8 @@ public class Cell extends StackPane{
 	//Arraylist to store possible solutions
 	private ArrayList<Integer> possible = new ArrayList<Integer>();
 	private Label label;
-	private boolean selected = false;;
+	private boolean occupied = false;
+	private boolean selected = false;
 	private Cage cage;
 	private Boolean correct;
 	private Boolean highlighted = false;
@@ -226,8 +227,13 @@ public class Cell extends StackPane{
 		return null;
 	}
 	
+	public boolean getOccupied() {
+		return this.occupied;
+	}
 	
-	
+	public void setOccupied(boolean input) {
+		this.occupied = input;
+	}
 	
 }
 

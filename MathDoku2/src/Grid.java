@@ -52,12 +52,6 @@ public class Grid extends GridPane {
 							current.setSelected(true);
 							selectedCell = current;
 						}
-						for(int i = 1; i <= dimensions*dimensions; i++) {
-							System.out.println("Neighbouring Cells for position " + i);
-							for(int j: adjacentCells(i)) {
-								System.out.println(j);
-							}
-						}
 				}
 					
 				});
@@ -327,6 +321,10 @@ public class Grid extends GridPane {
 	
 
 	public Cell getCell(int position) {
+		if(position > this.getDimensions() * this.getDimensions() || position < 1) {
+			System.out.println("Trying to access invalid index at " + position);
+			return cells[0][0];
+		}
 		Integer[] proper = this.getCords(position);
 		int x = proper[0];
 		int y = proper[1];
