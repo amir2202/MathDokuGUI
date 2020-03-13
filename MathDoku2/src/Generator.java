@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Random;
 
 import javafx.scene.text.Text;
@@ -89,45 +91,99 @@ public class Generator {
 					if(grid.getCell(pals.get(j)).getOccupied() == false) {
 						cageCells.add(pals.get(j));	
 						grid.getCell(pals.get(j)).setOccupied(true);
+						pals.remove(pals.get(j));
 					}
 				}
+				int more = random.nextInt(pals.size());
+				for(int l = more; l>=0; l--) {
+					if(grid.getCell(pals.get(l)).getOccupied() == false) {
+					cageCells.add(pals.get(l));
+					grid.getCell(pals.get(l)).setOccupied(true);
+					pals.remove(pals.get(l));
+					}
+				}
+				
 			}
 			pals.clear();
 			int[] args = new int[cageCells.size()];
 			for(int m = 0; m < cageCells.size();m++) {
 				args[m] = cageCells.get(m);			
 			}
+			setupCage(grid, args,random);
 			
 			
-			int operator = random.nextInt(4);
-			
+//			else if(operator == 2 && args.length != 0) {
+//				if(args.length == 1) {
+//					int result = grid.getCell(args[0]).getNumber();
+//					grid.setCage(String.valueOf(result), args[0]);
+//				}
+////				else if() {
+////					
+////					
+////				}
+//				else {
+//					
+//				ArrayList<Integer> numbers = new ArrayList<Integer>();
+//				for(int cagearg:args) {
+//					int temp = grid.getCell(cagearg).getNumber();
+//					numbers.add(temp);
+//				}
+//				Collections.sort(numbers);
+//				Collections.reverse(numbers);
+//				Integer div = numbers.get(0);
+//				for(int u = 1; u<numbers.size();u++) {
+//					div /= numbers.get(u);
+//				}
+//
+//				grid.setCage(div+"÷", args);
+//			}
+//			}
+//			
+//			else if(operator == 3 && args.length != 0) {
+//				ArrayList<Integer> numbers = new ArrayList<Integer>();
+//				for(int cagearg:args) {
+//					int temp = grid.getCell(cagearg).getNumber();
+//					numbers.add(temp);
+//				}
+//				Collections.sort(numbers);
+//				Collections.reverse(numbers);
+//				Integer minus = numbers.get(0);
+//				for(int u = 1; u<numbers.size();u++) {
+//					minus -= numbers.get(u);
+//				}
+//				grid.setCage(minus+"-", args);
+//			}
 		
-			switch (operator) {
-				case 0:
+			
+			
 					
-				case 1:
-					
-				case 2:
-				
-				case 3:
-					
-			}	
-					
-			
-			
-			int result = 0;
-			for(int cagearg: args) {
-				result += grid.getCell(cagearg).getNumber();
-			}
-			
-		
-			
-			
-			grid.setCage(result+"+", args);
+
 			cageCells.clear();
 		}
 	
-		
 				
+	}
+	public void setupCage(Grid grid, int[] args, Random random) {
+		int operator = random.nextInt(2);
+
+		//plus
+		if(operator == 0 && args.length != 0) {
+		int result = 0;
+		for(int cagearg: args) {
+			result += grid.getCell(cagearg).getNumber();
+		}	
+		grid.setCage(result+"+", args);
+		}
+		
+		//multipliation
+		
+		else if(operator == 1 && args.length != 0){
+		int result = 1;
+		for(int cagearg:args) {
+			result *= grid.getCell(cagearg).getNumber();
+		}
+		grid.setCage(result+"x", args);
+		}
+		
 	}
 }
