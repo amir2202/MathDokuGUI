@@ -25,6 +25,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -62,6 +63,7 @@ public class Main extends Application {
 		font.getItems().add("Big");
 		main.getChildren().add(grid);
 		main.setOnKeyPressed(new KeyHandler());
+		main.addEventHandler(ScrollEvent.ANY, new ScrollHandler());
 		HBox options = new HBox();
 		font.setOnAction(new EventHandler<ActionEvent>() {
 			public void handle(ActionEvent arg0) {
@@ -358,6 +360,27 @@ public class Main extends Application {
 				}
 			}
 		}
+	}
+	
+		class ScrollHandler implements EventHandler<ScrollEvent>{
+		@Override
+		public void handle(ScrollEvent arg0) {
+			double deltaY = arg0.getDeltaY();
+			//decrease
+			if(deltaY < 0) {
+				if(grid.getSelected() != null && grid.getSelected().getNumber() != 0) {
+					grid.getSelected().changeCell(false, grid.getDimensions());
+				}
+			}
+			else if(deltaY > 0) {
+				if(grid.getSelected() != null) {
+					grid.getSelected().changeCell(true, grid.getDimensions());
+				}
+				
+			}
+			
+		}
+		
 	}
 }
 

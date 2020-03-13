@@ -164,8 +164,19 @@ public class Cell extends StackPane{
 	public void increaseCell() {
 		this.numberOfText = this.numberOfText + 1;
 	}
-	public void decreaseCell() {
-		
+	
+	public Action changeCell(boolean increase, int limit) {
+		if(increase== true && this.numberOfText < limit) {
+			this.numberOfText++;
+			Action action = this.setText(new Text(String.valueOf(this.numberOfText)), true, this.numberOfText);
+			return action;
+		}
+		else if(increase == false && this.numberOfText > 1) {
+			this.numberOfText--;
+			Action action = this.setText(new Text(String.valueOf(this.numberOfText)), true, this.numberOfText);
+			return action;
+		}
+		return null;
 	}
 	
 	public void setNumber(int number) {

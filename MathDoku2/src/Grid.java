@@ -36,25 +36,27 @@ public class Grid extends GridPane {
 		for(int i= 0; i< this.dimensions;i++) {
 			for(int j = 0; j<this.dimensions;j++) {
 				cells[i][j] = new Cell(i,j);
-				cells[i][j].setOnMouseClicked(new EventHandler<MouseEvent>() {
+				cells[i][j].addEventHandler(MouseEvent.ANY, new EventHandler<MouseEvent>() {
 					public void handle(MouseEvent arg0) {
-						Cell current = (Cell) arg0.getSource();
-						if(current.getSelected() == true) {
-							current.setSelected(false);
-							selectedCell = null;
-							
-						}
-						else if(current.getSelected() == false) {
-							if(selectedCell == null) {
-								selectedCell = current;
+						if(arg0.getEventType() == MouseEvent.MOUSE_CLICKED) {
+							Cell current = (Cell) arg0.getSource();
+							if(current.getSelected() == true) {
+								current.setSelected(false);
+								selectedCell = null;
+								
 							}
-							selectedCell.setSelected(false);
-							current.setSelected(true);
-							selectedCell = current;
+							else if(current.getSelected() == false) {
+								if(selectedCell == null) {
+									selectedCell = current;
+								}
+								selectedCell.setSelected(false);
+								current.setSelected(true);
+								selectedCell = current;
+							}	
 						}
 				}
-					
-				});
+	
+				}); 
 				this.setVgrow(cells[i][j], Priority.ALWAYS);
 				this.setHgrow(cells[i][j], Priority.ALWAYS);
 				this.add(cells[i][j], i, j);
