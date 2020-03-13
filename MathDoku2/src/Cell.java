@@ -99,8 +99,13 @@ public class Cell extends StackPane{
 	}
 	
 	public void setCage(Cage cage) {
-		this.cage = cage;
-		this.cage.addCell(this);
+		if(cage == null) {
+			this.cage = null;
+		}
+		else {
+			this.cage = cage;
+			this.cage.addCell(this);	
+		}
 		
 	}
 	

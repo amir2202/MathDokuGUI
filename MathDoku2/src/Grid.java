@@ -75,8 +75,9 @@ public class Grid extends GridPane {
 	public void clearCells() {
 		for(int i = 0; i < cells.length; i++) {
 			for(int j = 0;j<cells.length;j++) {
-				cells[i][j].setText(new Text(" "),true, 0);
-				cells[i][j].resetStyle();
+				this.cells[i][j].setText(new Text(" "),true, 0);
+				this.cells[i][j].resetStyle();
+//				this.cells[i][j].setCage(null);
 			}
 		}
 	}

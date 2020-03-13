@@ -64,11 +64,11 @@ public class Generator {
 	}
 	public void generateCages(int difficulty, Grid grid) {
 		//Need a list of initial positions
-		//+, -, x or รท
+		//+, -, x or ๗
 		//0 = +
 		// 1 = -
 		// 2 = x
-		// 3 = รท
+		// 3 = ๗
 		Random random = new Random();
 		ArrayList<Integer> cageCells = new ArrayList<Integer>();
 		ArrayList<Integer> pals = new ArrayList<Integer>();
@@ -110,53 +110,6 @@ public class Generator {
 				args[m] = cageCells.get(m);			
 			}
 			setupCage(grid, args,random);
-			
-			
-//			else if(operator == 2 && args.length != 0) {
-//				if(args.length == 1) {
-//					int result = grid.getCell(args[0]).getNumber();
-//					grid.setCage(String.valueOf(result), args[0]);
-//				}
-////				else if() {
-////					
-////					
-////				}
-//				else {
-//					
-//				ArrayList<Integer> numbers = new ArrayList<Integer>();
-//				for(int cagearg:args) {
-//					int temp = grid.getCell(cagearg).getNumber();
-//					numbers.add(temp);
-//				}
-//				Collections.sort(numbers);
-//				Collections.reverse(numbers);
-//				Integer div = numbers.get(0);
-//				for(int u = 1; u<numbers.size();u++) {
-//					div /= numbers.get(u);
-//				}
-//
-//				grid.setCage(div+"รท", args);
-//			}
-//			}
-//			
-//			else if(operator == 3 && args.length != 0) {
-//				ArrayList<Integer> numbers = new ArrayList<Integer>();
-//				for(int cagearg:args) {
-//					int temp = grid.getCell(cagearg).getNumber();
-//					numbers.add(temp);
-//				}
-//				Collections.sort(numbers);
-//				Collections.reverse(numbers);
-//				Integer minus = numbers.get(0);
-//				for(int u = 1; u<numbers.size();u++) {
-//					minus -= numbers.get(u);
-//				}
-//				grid.setCage(minus+"-", args);
-//			}
-		
-			
-			
-					
 
 			cageCells.clear();
 		}

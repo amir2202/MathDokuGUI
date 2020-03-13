@@ -1,5 +1,6 @@
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.Optional;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Dialog;
+import javafx.scene.control.TextArea;
 import javafx.application.Application;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.MapChangeListener;
@@ -19,6 +21,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.KeyCode;
@@ -26,6 +29,7 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -40,6 +44,7 @@ public class Main extends Application {
 	private ArrayList<String> numbers;
 	private ActionHandler handler;
 	private Button redo; 
+	private Stage stage;
 	private Button undo;
 	final KeyCombination undocmb = new KeyCodeCombination(KeyCode.Z, KeyCombination.SHORTCUT_DOWN);
 	final KeyCombination redocmb = new KeyCodeCombination(KeyCode.Y, KeyCombination.SHORTCUT_DOWN);
@@ -50,9 +55,11 @@ public class Main extends Application {
 
 	@Override
 	public void start(Stage stage) throws Exception {
+		this.stage = stage;
 		handler = new ActionHandler();
 		VBox main = new VBox();
 		Scene scene = new Scene(main, 600,600);
+		stage.setTitle("MathDoku");
 		//Get grid
 		grid = new Grid(5);
 		grid.requestFocus();
@@ -85,9 +92,10 @@ public class Main extends Application {
 		generate.setOnAction(new EventHandler<ActionEvent>() {
 
 			public void handle(ActionEvent arg0) {
-				Generator generate = new Generator();
-				generate.generateSodukoGrid(0, grid);
-				
+				Generator gen = new Generator();
+				grid.clearCells();
+				gen.generateSodukoGrid(0, grid);
+				generate.setDisable(true);
 			}
 			
 		});
@@ -176,50 +184,51 @@ public class Main extends Application {
 //			
 //		});
 		
-		load.setOnAction(new EventHandler<ActionEvent>() {
-			public void handle(ActionEvent e){
-				FileChooser choseFiles = new FileChooser();
-				choseFiles.setTitle("Open a premade MathDoku game");
-				File game = null;
-				game = choseFiles.showOpenDialog(stage);
-				if(game != null && game.canRead() == true && game.exists() == true) {
-					try {
-						FileHandler handler = new FileHandler(game);
-						boolean temp = handler.readFile();
-						int dimensions = handler.getDimension();
-						Grid newgrid = new Grid(dimensions);
-						main.getChildren().remove(grid);
-						main.getChildren().remove(options);
-						grid = newgrid;
-						validInputNumber();
-						for(String cage:handler.getLines()){
-							String[] splitline = cage.split(" ");
-							String label = splitline[0];
-							String[] arguments;
-							arguments = splitline[1].split(",");
-							int[] args = new int[arguments.length];
-							for(int i = 0; i < args.length; i++) {
-								args[i] = Integer.valueOf(arguments[i]);
-							}
-							if(arguments.length == 0) {
-								grid.setCage(label, Integer.valueOf(splitline[1]));
-							}
-							else {
-							grid.setCage(label, args);	
-							}
-							
-						}			
-						main.setVgrow(grid, Priority.ALWAYS);
-						main.getChildren().add(grid);
-						grid.requestFocus();
-						main.getChildren().add(options);
-					} catch(Exception e2) {
-						System.out.println(e2.toString());
-					}
-					
-				}
-			}
-		});
+		load.setOnAction(new Loader());
+//		load.setOnAction(new EventHandler<ActionEvent>() {
+//		public void handle(ActionEvent e){
+//			FileChooser choseFiles = new FileChooser();
+//			choseFiles.setTitle("Open a premade MathDoku game");
+//			File game = null;
+//			game = choseFiles.showOpenDialog(stage);
+//			if(game != null && game.canRead() == true && game.exists() == true) {
+//				try {
+//					FileHandler handler = new FileHandler(game);
+//					boolean temp = handler.readFile();
+//					int dimensions = handler.getDimension();
+//					Grid newgrid = new Grid(dimensions);
+//					main.getChildren().remove(grid);
+//					main.getChildren().remove(options);
+//					grid = newgrid;
+//					validInputNumber();
+//					for(String cage:handler.getLines()){
+//						String[] splitline = cage.split(" ");
+//						String label = splitline[0];
+//						String[] arguments;
+//						arguments = splitline[1].split(",");
+//						int[] args = new int[arguments.length];
+//						for(int i = 0; i < args.length; i++) {
+//							args[i] = Integer.valueOf(arguments[i]);
+//						}
+//						if(arguments.length == 0) {
+//							grid.setCage(label, Integer.valueOf(splitline[1]));
+//						}
+//						else {
+//						grid.setCage(label, args);	
+//						}
+//						
+//					}			
+//					main.setVgrow(grid, Priority.ALWAYS);
+//					main.getChildren().add(grid);
+//					grid.requestFocus();
+//					main.getChildren().add(options);
+//				} catch(Exception e2) {
+//					System.out.println(e2.toString());
+//				}
+//				
+//			}
+//		}
+//	});
 	}
 	
 	public void validInputNumber() {
@@ -369,16 +378,55 @@ public class Main extends Application {
 			//decrease
 			if(deltaY < 0) {
 				if(grid.getSelected() != null && grid.getSelected().getNumber() != 0) {
-					grid.getSelected().changeCell(false, grid.getDimensions());
+					Action action = grid.getSelected().changeCell(false, grid.getDimensions());
+					handler.notify(action);
+					undo.setDisable(false);
+					redo.setDisable(false);
 				}
 			}
 			else if(deltaY > 0) {
 				if(grid.getSelected() != null) {
-					grid.getSelected().changeCell(true, grid.getDimensions());
+					Action action = grid.getSelected().changeCell(true, grid.getDimensions());
+					handler.notify(action);
+					undo.setDisable(false);
+					redo.setDisable(false);
 				}
 				
 			}
 			
+		}
+		
+	}
+	class Loader implements EventHandler<ActionEvent>{
+
+		public void handle(ActionEvent arg0) {
+			
+			Stage custom = new Stage();
+			custom.setTitle("Load your custom MathDoku game");
+			HBox choices = new HBox();
+			Button load = new Button("Load game");
+			load.setOnAction(e -> {
+				FileChooser chooser = new FileChooser();
+				chooser.setTitle("Choose your file");
+				File file = chooser.showOpenDialog(custom);
+				try {
+					FileHandler handler = new FileHandler(file);
+					int dim = handler.getDimension();
+					Grid newgrid = new Grid(dim);
+					
+				} catch (FileNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			});
+			VBox area = new VBox();
+			Scene second = new Scene(area);
+
+			TextArea txt = new TextArea();
+			area.getChildren().addAll(txt,choices);
+			choices.getChildren().add(load);
+			custom.setScene(second);
+			custom.show();
 		}
 		
 	}
