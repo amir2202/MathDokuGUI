@@ -186,46 +186,64 @@ public class Main extends Application {
 		
 		load.setOnAction(new EventHandler<ActionEvent>() {
 		public void handle(ActionEvent e){
-			FileChooser choseFiles = new FileChooser();
-			choseFiles.setTitle("Open a premade MathDoku game");
-			File game = null;
-			game = choseFiles.showOpenDialog(stage);
-			if(game != null && game.canRead() == true && game.exists() == true) {
-				try {
-					FileHandler handler = new FileHandler(game);
-					boolean temp = handler.readFile();
-					int dimensions = handler.getDimension();
-					Grid newgrid = new Grid(dimensions);
-					main.getChildren().remove(grid);
-					main.getChildren().remove(options);
-					grid = newgrid;
-					validInputNumber();
-					for(String cage:handler.getLines()){
-						String[] splitline = cage.split(" ");
-						String label = splitline[0];
-						String[] arguments;
-						arguments = splitline[1].split(",");
-						int[] args = new int[arguments.length];
-						for(int i = 0; i < args.length; i++) {
-							args[i] = Integer.valueOf(arguments[i]);
-						}
-						if(arguments.length == 0) {
-							grid.setCage(label, Integer.valueOf(splitline[1]));
-						}
-						else {
-						grid.setCage(label, args);	
+			Stage custom = new Stage();
+			custom.setTitle("Load your custom MathDoku game");
+			HBox choices = new HBox();
+			Button config = new Button("Load from text");
+			Button load = new Button("Chose file");	
+			VBox area = new VBox();
+			Scene second = new Scene(area);
+			TextArea txt = new TextArea();
+			area.getChildren().addAll(txt,choices);
+			area.setVgrow(txt, Priority.ALWAYS);
+			choices.getChildren().addAll(config,load);
+			custom.setScene(second);
+			custom.show();
+			load.setOnAction(new EventHandler<ActionEvent>() {
+				public void handle(ActionEvent z) {
+					FileChooser choseFiles = new FileChooser();
+					choseFiles.setTitle("Open a premade MathDoku game");
+					File game = choseFiles.showOpenDialog(stage);
+					if(game != null && game.canRead() == true && game.exists() == true) {
+						try {
+							FileHandler handler = new FileHandler(game);
+							boolean temp = handler.readFile();
+							int dimensions = handler.getDimension();
+							Grid newgrid = new Grid(dimensions);
+							main.getChildren().remove(grid);
+							main.getChildren().remove(options);
+							grid = newgrid;
+							validInputNumber();
+							for(String cage:handler.getLines()){
+								String[] splitline = cage.split(" ");
+								String label = splitline[0];
+								String[] arguments;
+								arguments = splitline[1].split(",");
+								int[] args = new int[arguments.length];
+								for(int i = 0; i < args.length; i++) {
+									args[i] = Integer.valueOf(arguments[i]);
+								}
+								if(arguments.length == 0) {
+									grid.setCage(label, Integer.valueOf(splitline[1]));
+								}
+								else {
+								grid.setCage(label, args);	
+								}
+								
+							}			
+							main.setVgrow(grid, Priority.ALWAYS);
+							main.getChildren().add(grid);
+							grid.requestFocus();
+							main.getChildren().add(options);
+						} catch(Exception e2) {
+							System.out.println(e2.toString());
 						}
 						
-					}			
-					main.setVgrow(grid, Priority.ALWAYS);
-					main.getChildren().add(grid);
-					grid.requestFocus();
-					main.getChildren().add(options);
-				} catch(Exception e2) {
-					System.out.println(e2.toString());
+					}
 				}
-				
-			}
+			});
+
+
 		}
 	});
 	}
@@ -396,59 +414,5 @@ public class Main extends Application {
 		}
 		
 	}
-//	class Loader implements EventHandler<ActionEvent>{
-//
-//		public void handle(ActionEvent arg0) {
-//			
-//			Stage custom = new Stage();
-//			custom.setTitle("Load your custom MathDoku game");
-//			HBox choices = new HBox();
-//			Button config = new Button("Load from text");
-//			Button load = new Button("Chose file");
-//			load.setOnAction(e -> {
-//				FileChooser chooser = new FileChooser();
-//				chooser.setTitle("Choose your file");
-//				File file = chooser.showOpenDialog(custom);
-//				main.getChildren().remove(grid);
-//				main.getChildren().remove(options);
-//				validInputNumber();
-//				try {
-//					FileHandler handler = new FileHandler(file);
-//					int dim = handler.getDimension();
-//					Grid newgrid = new Grid(dim);
-//					for(String cage:handler.getLines()){
-//					String[] splitline = cage.split(" ");
-//					String label = splitline[0];
-//					String[] arguments;
-//					arguments = splitline[1].split(",");
-//					int[] args = new int[arguments.length];
-//					for(int i = 0; i < args.length; i++) {
-//						args[i] = Integer.valueOf(arguments[i]);
-//					}
-//					if(arguments.length == 0) {
-//						grid.setCage(label, Integer.valueOf(splitline[1]));
-//					}
-//					else {
-//					grid.setCage(label, args);	
-//					}
-//					
-//				}	
-//					
-//				} catch (FileNotFoundException e1) {
-//					// TODO Auto-generated catch block
-//					e1.printStackTrace();
-//				}
-//			});
-//			VBox area = new VBox();
-//			Scene second = new Scene(area);
-//			TextArea txt = new TextArea();
-//			area.getChildren().addAll(txt,choices);
-//			area.setVgrow(txt, Priority.ALWAYS);
-//			choices.getChildren().addAll(config,load);
-//			custom.setScene(second);
-//			custom.show();
-//		}
-//		
-//	}
 }
 
