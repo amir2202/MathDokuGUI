@@ -184,7 +184,7 @@ public class Main extends Application {
 //			
 //		});
 		
-		load.setOnAction(new EventHandler<ActionEvent>() {
+		load.setOnAction(new EventHandler<ActionEvent>(){
 		public void handle(ActionEvent e){
 			Stage custom = new Stage();
 			custom.setTitle("Load your custom MathDoku game");
@@ -199,6 +199,41 @@ public class Main extends Application {
 			choices.getChildren().addAll(config,load);
 			custom.setScene(second);
 			custom.show();
+			//check existing lines//do in parser
+			config.setOnAction(new EventHandler<ActionEvent>(){
+				public void handle(ActionEvent arg0) {
+					String[] configlines = txt.getText().split("\n");
+					FileHandler manual = new FileHandler();
+					for(String cage:configlines) {
+						try {
+							if(manual.parseLine(cage) == true) {
+								String[] split = cage.split(" ");
+								String label = split[0];
+								String[] argum = split[1].split(",");
+								if(argum.length == 1) {
+									grid.setCage(label, Integer.valueOf(split[1]));
+								}
+								else {
+									int[] args = new int[argum.length];
+									for(int i = 0; i< args.length; i++) {
+										args[i] = Integer.valueOf(argum[i]);
+									}
+									grid.setCage(label, args);
+								}
+							}
+							
+						} catch(ConfigurationError e) {
+							System.out.print(e.getLocalizedMessage());
+						}
+					}
+					// check line element + 1 
+
+				}
+				
+			});
+			
+			
+			
 			load.setOnAction(new EventHandler<ActionEvent>() {
 				public void handle(ActionEvent z) {
 					FileChooser choseFiles = new FileChooser();

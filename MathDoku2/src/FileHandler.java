@@ -5,10 +5,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 
 public class FileHandler {
 	private BufferedReader reader;
 	private ArrayList<String> alllines;
+	private int FileDim;
+	public FileHandler() {}
 	public FileHandler(File file) throws FileNotFoundException {
 		reader = new BufferedReader(new FileReader(file));
 		alllines = new ArrayList<String>();
@@ -34,22 +37,34 @@ public class FileHandler {
 		return false;
 	}
 
-	public boolean parseLine(String line) {
-		boolean firstpart = false;
-		boolean secondpart = false;
+	public boolean parseLine(String line) throws ConfigurationError {
+		boolean formatfirst = false;
+		boolean formatsecond = false;
+		boolean input = false;
 		String[] part = line.split(" ");
 		if(part.length == 0) {
 			return false;
 		}
-		if(part[0].matches("[0-9]+[\\-+x÷]+$") || part[0].matches("[0-9]+")) {
-			firstpart = true;
+		if(part[0].matches("[0-9]+[\\-+x÷]+$") || part[0].matches("[0-9]")) {
+			formatfirst = true;
 		}
 		//rework later
-		if(part[1].split(",").length != -1){
-			secondpart = true;
+		if(part[1].matches("^\\d+(?:[ \t]*,[ \\t]*\\d+)+$")){
+			formatsecond = true;
 		}
-	
-		return firstpart && secondpart;
+		
+		if(formatfirst && formatsecond) {
+			String[] arguments = part[1].split(",");
+			HashSet unique = new HashSet();
+			for(String number:arguments) {
+				unique.add(Integer.valueOf(number));
+			}
+			if(arguments.length != unique.size()) {
+				throw new ConfigurationError("Duplicate coordinate entry in line ");
+			}
+			
+		}
+		return formatfirst && formatsecond &&input;
 	}
 
 	
@@ -63,6 +78,7 @@ public class FileHandler {
 			}
 		}
 		Collections.sort(allarguments);
+		this.FileDim = (int) Math.sqrt(allarguments.get(allarguments.size()-1));
 		return (int) Math.sqrt(allarguments.get(allarguments.size()-1));
 	}
 	
@@ -83,14 +99,15 @@ public class FileHandler {
 	
 	
 	//Check line for duplicates// check if cells are adjacent within cage 
-	
-	
-
-class ConfigurationError extends Exception{
-	public ConfigurationError(String message) {
-		super(message);
+	//
+	public boolean checkCages(String[] cages, int dimension) {
+		int arguments[] = new int[cages.length]; 
+		for(int i = 0; i <arguments.length;i++) {
+			
+		}
+		return false;
 	}
-}
+
 }
 
 

@@ -119,6 +119,10 @@ public class Generator {
 	public void setupCage(Grid grid, int[] args, Random random) {
 		int operator = random.nextInt(2);
 
+		if(args.length == 1) {
+			grid.setCage(String.valueOf(grid.getCell(args[0]).getNumber()), args[0]);
+			operator = -1;
+		}
 		//plus
 		if(operator == 0 && args.length != 0) {
 		int result = 0;

@@ -512,6 +512,86 @@ public class Grid extends GridPane {
 		
  	}
 	
+	public static ArrayList<Integer> adjacentCells(int position, int dimension) {
+		ArrayList<Integer> adjacentCells = new ArrayList<Integer>();
+		//starting corner
+		if(position == 1 && dimension != 1) {
+			adjacentCells.add(2);
+			adjacentCells.add((1 +dimension));
+			return adjacentCells;
+		}
+		//corner 1
+		if(position == dimension) {
+			adjacentCells.add(dimension -1);
+			adjacentCells.add(dimension + dimension);
+			return adjacentCells;
+		}
+		
+		//quadrant 3 corner
+		if(position == ((1+ (dimension * (dimension))))){
+			adjacentCells.add(position +1);
+			adjacentCells.add(position - dimension);
+			return adjacentCells;
+		}
+		
+		//end corner
+		if(position == dimension * dimension) {
+			adjacentCells.add((dimension * dimension) -1);
+			adjacentCells.add((dimension * dimension) -dimension);
+			return adjacentCells;
+		}
+		
+		//top border
+		for(int n = 0; n < dimension; n++) {
+			if(position <= dimension) {
+				adjacentCells.add(position -1);
+				adjacentCells.add(position +1);
+				adjacentCells.add(position + dimension);
+				return adjacentCells;
+			}
+		}
+		
+		//right border 
+		for(int n = 1; n < dimension; n++) {
+			if(position == dimension + (n*dimension)) {
+				adjacentCells.add((dimension + (n*dimension)) -1);
+				adjacentCells.add((n*dimension)); 
+				adjacentCells.add(2*dimension + (n*dimension));
+				return adjacentCells;
+			}
+		}
+		
+		//left border
+		for(int n = 1; n< dimension; n++) {
+			if(position == (1+(dimension*n))) {
+				adjacentCells.add(position - dimension);
+				adjacentCells.add(position + dimension);
+				adjacentCells.add(position +1);
+				return adjacentCells;
+			}
+		}
+		
+		//bottom border
+		for(int n = 0; n < dimension;n++) {
+			int d = dimension;
+			if((position < d * d) && position >= (d*(d-1)+1)) {
+				adjacentCells.add(position -1);
+				adjacentCells.add(position+1);
+				adjacentCells.add(position-d);
+				return adjacentCells;
+			}
+		}
+		
+		//otherwise
+		adjacentCells.add(position - dimension);
+		adjacentCells.add(position +1);
+		adjacentCells.add(position -1);
+		adjacentCells.add(position + dimension);
+		
+		return adjacentCells;
+		
+ 	}
+	
 	public void updateGrid() {
 		for(int x = 0; x < this.getDimensions(); x++) {
 		for(int y = 0; y < this.getDimensions(); y++) {
