@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 
@@ -62,6 +63,9 @@ public class FileHandler {
 			if(arguments.length != unique.size()) {
 				throw new ConfigurationError("Duplicate coordinate entry in line ");
 			}
+			else {
+				input = true;
+			}
 			
 		}
 		return formatfirst && formatsecond &&input;
@@ -98,13 +102,43 @@ public class FileHandler {
 	
 	
 	
-	//Check line for duplicates// check if cells are adjacent within cage 
+	//Check line for if cells are adjacent within cage 
+	//Its a union find problem
+	//Maybe order the cordinates ? 
+	//Yeah order the cordinates, check if second adjacent to first if it is, union it, then if third isnt, go next -> remember cordinates
 	//
 	public boolean checkCages(String[] cages, int dimension) {
 		int arguments[] = new int[cages.length]; 
 		for(int i = 0; i <arguments.length;i++) {
-			
+			arguments[i] = Integer.valueOf(cages[i]);
 		}
+		UnionFind union = new UnionFind(cages.length);
+		Arrays.sort(arguments);
+		for(int i = 0; i< arguments.length;i++) {
+				for(int j = 0; j < arguments.length;j++) {
+					if(Grid.adjacentCells(arguments[i], dimension).contains(arguments[j])) {
+						union.union(i, j);
+					}
+				}
+		}
+		
+		int count = 0;
+		for(int i = 0; i < arguments.length;i++) {
+			for(int j = 0; j < arguments.length;j++) {
+				if(union.isConnected(i, j) == true) {
+					count++;
+				}
+			}
+		}
+		if(count != cages.length) {
+			return false;
+		}
+		else if(count == cages.length){
+			return true;
+		}
+		
+		//If all have one connection to eachother its valid cage
+		
 		return false;
 	}
 

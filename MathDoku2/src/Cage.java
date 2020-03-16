@@ -68,6 +68,8 @@ public class Cage {
 	
 	public boolean isCageCorrect() {
 		//
+		//if there is no operator?
+		
 		if(operator == '+') {
 			int result = 0;
 			for(int i = 0; i < this.cagecells.size(); i++) {
@@ -117,6 +119,13 @@ public class Cage {
 				result /= cagenumbers.get(i); 
 			}
 			if(result != expected ) {
+				return false;
+			}
+		}
+		
+		else if(this.cagecells.size() == 1) {
+			int result = Integer.valueOf(this.label);
+			if (this.cagecells.get(0).getNumber()!= result) {
 				return false;
 			}
 		}
