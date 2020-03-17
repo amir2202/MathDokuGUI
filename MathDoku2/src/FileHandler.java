@@ -12,6 +12,8 @@ public class FileHandler {
 	private BufferedReader reader;
 	private ArrayList<String> alllines;
 	private int FileDim;
+	//Already stored thingies 
+	//then if contains also error
 	public FileHandler() {}
 	public FileHandler(File file) throws FileNotFoundException {
 		reader = new BufferedReader(new FileReader(file));
@@ -86,61 +88,35 @@ public class FileHandler {
 		return (int) Math.sqrt(allarguments.get(allarguments.size()-1));
 	}
 	
-	//call another method to store the values
-	//get the dimensions
-	
-	//for every line return label, and int[] args
-	//check for mistakes
+
 	public ArrayList<String> getLines(){
 		return this.alllines;
 	}
 	
-//	public boolean validCageInputs(String line) {
+	
+	public boolean checkCage(int[] cages, int dimension) {
+		UnionFind union = new UnionFind(dimension * dimension);
+		Arrays.sort(cages);
 		
-//	}
-	
-	
-	
-	
-	//Check line for if cells are adjacent within cage 
-	//Its a union find problem
-	//Maybe order the cordinates ? 
-	//Yeah order the cordinates, check if second adjacent to first if it is, union it, then if third isnt, go next -> remember cordinates
-	//
-	public boolean checkCages(String[] cages, int dimension) {
-		int arguments[] = new int[cages.length]; 
-		for(int i = 0; i <arguments.length;i++) {
-			arguments[i] = Integer.valueOf(cages[i]);
-		}
-		UnionFind union = new UnionFind(cages.length);
-		Arrays.sort(arguments);
-		for(int i = 0; i< arguments.length;i++) {
-				for(int j = 0; j < arguments.length;j++) {
-					if(Grid.adjacentCells(arguments[i], dimension).contains(arguments[j])) {
-						union.union(i, j);
+		for(int i = 0; i< cages.length;i++) {
+				for(int j = 0; j < cages.length;j++) {
+					if(Grid.adjacentCells(cages[i], dimension).contains(cages[j]) && i != j) {
+						union.union(cages[i], cages[j]);
 					}
 				}
 		}
 		
-		int count = 0;
-		for(int i = 0; i < arguments.length;i++) {
-			for(int j = 0; j < arguments.length;j++) {
-				if(union.isConnected(i, j) == true) {
-					count++;
+		for(int i = 0; i< cages.length;i++) {
+			for(int j = 0; j < cages.length;j++) {
+				if(union.isConnected(cages[i], cages[j]) != true) {
+					return false;
 				}
 			}
 		}
-		if(count != cages.length) {
-			return false;
-		}
-		else if(count == cages.length){
-			return true;
-		}
 		
-		//If all have one connection to eachother its valid cage
-		
-		return false;
+		return true;
 	}
+	
 
 }
 

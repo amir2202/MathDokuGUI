@@ -5,8 +5,8 @@ public class UnionFind {
 	private int[] id;
 	
 	public UnionFind(int N) {
-		id = new int[N];
-		for(int i = 0; i<N;i++) {
+		id = new int[N+1];
+		for(int i = 0; i<=N;i++) {
 			id[i] = i;
 		}
 	}
@@ -27,5 +27,5 @@ public class UnionFind {
 		id[i] = j;
 	}
 	
-	
+
 }

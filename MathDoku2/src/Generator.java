@@ -58,6 +58,17 @@ public class Generator {
 				grid.shuffleRow(three, four);
 			}
 		}
+		
+		//Check for deadly pattern --> if so reshuffle those cols/rows
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		generateCages(difficulty, grid);
 		//leave in temporarily 
 //		grid.updateGrid();
@@ -72,6 +83,7 @@ public class Generator {
 		Random random = new Random();
 		ArrayList<Integer> cageCells = new ArrayList<Integer>();
 		ArrayList<Integer> pals = new ArrayList<Integer>();
+		//rewrite this algorithm
 		for(int position = 1; position <= grid.getDimensions() * grid.getDimensions();position++) {
 			//if a cell is not occupied
 			if(grid.getCell(position).getOccupied() == false) {
@@ -117,30 +129,75 @@ public class Generator {
 				
 	}
 	public void setupCage(Grid grid, int[] args, Random random) {
-		int operator = random.nextInt(2);
-
+		int operator = random.nextInt(4);
+		if(args.length == 0) {return;}
 		if(args.length == 1) {
 			grid.setCage(String.valueOf(grid.getCell(args[0]).getNumber()), args[0]);
-			operator = -1;
+			return;
 		}
 		//plus
-		if(operator == 0 && args.length != 0) {
+		if(operator == 0) {
 		int result = 0;
 		for(int cagearg: args) {
 			result += grid.getCell(cagearg).getNumber();
 		}	
 		grid.setCage(result+"+", args);
+		return;
 		}
 		
 		//multipliation
 		
-		else if(operator == 1 && args.length != 0){
+		else if(operator == 1){
 		int result = 1;
 		for(int cagearg:args) {
 			result *= grid.getCell(cagearg).getNumber();
 		}
 		grid.setCage(result+"x", args);
+		return;
 		}
+		
+		else if(operator == 2) {
+			int numbers[] = new int[args.length];
+			for(int i = 0; i<args.length;i++) {
+				numbers[i] = grid.getCell(args[i]).getNumber();
+			}
+			Arrays.sort(numbers);
+			int result = numbers[numbers.length -2];
+			for(int j = numbers.length -2; j >= 0; j--) {
+				result -= numbers[j];
+			}
+			if(result == 0 || result < 0) {
+				setupCage(grid, args,random);
+			}
+			else {
+				for(int x:args) {System.out.println(x);}
+				grid.setCage(result+"-", args);
+			}
+			return;
+ 		}
+		
+		else if(operator == 3) {
+			int numbers[] = new int[args.length];
+			for(int i = 0; i<args.length;i++) {
+				numbers[i] = grid.getCell(args[i]).getNumber();
+			}
+			Arrays.sort(numbers);
+			double result = numbers[numbers.length -1];
+			for(int j = numbers.length -2; j >= 0; j--) {
+				result /= numbers[j];
+			}
+			if(result == 0 || result < 0 || (result % 1 != 0)) {
+				setupCage(grid, args,random);
+			}
+			else {
+				int real = (int) result;
+				grid.setCage(real+"÷", args);
+			}
+			return;
+		}
+		
+		
+		
 		
 	}
 }

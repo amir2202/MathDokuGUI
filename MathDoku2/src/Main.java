@@ -190,43 +190,51 @@ public class Main extends Application {
 			custom.setTitle("Load your custom MathDoku game");
 			HBox choices = new HBox();
 			Button config = new Button("Load from text");
-			Button load = new Button("Chose file");	
+			Button loadfiles = new Button("Chose file");	
 			VBox area = new VBox();
 			Scene second = new Scene(area);
 			TextArea txt = new TextArea();
 			area.getChildren().addAll(txt,choices);
 			area.setVgrow(txt, Priority.ALWAYS);
-			choices.getChildren().addAll(config,load);
+			choices.getChildren().addAll(config,loadfiles);
 			custom.setScene(second);
 			custom.show();
-			//check existing lines//do in parser
 			config.setOnAction(new EventHandler<ActionEvent>(){
 				public void handle(ActionEvent arg0) {
 					String[] configlines = txt.getText().split("\n");
 					FileHandler manual = new FileHandler();
-					for(String cage:configlines) {
 						try {
-							if(manual.parseLine(cage) == true) {
+							int line = 1;
+							for(String cage:configlines) {
+							if(manual.parseLine(cage) == false) {return;}
+							}
+							
+							for(String cage:configlines) {
 								String[] split = cage.split(" ");
 								String label = split[0];
 								String[] argum = split[1].split(",");
 								if(argum.length == 1) {
 									grid.setCage(label, Integer.valueOf(split[1]));
 								}
-								else {
-									int[] args = new int[argum.length];
-									for(int i = 0; i< args.length; i++) {
-										args[i] = Integer.valueOf(argum[i]);
-									}
-									grid.setCage(label, args);
+								int[] arguments = new int[argum.length];
+								for(int i = 0;i < arguments.length;i++) {
+									arguments[i] = Integer.valueOf(argum[i]);
 								}
+								///change this argument shit
+								if(manual.checkCage(arguments, 5) == true) {
+									grid.setCage(label, arguments);
+								}
+								else {
+									throw new ConfigurationError("Your cages are not adjacent check line, " + line);
+								}
+								line++;
 							}
 							
-						} catch(ConfigurationError e) {
-							System.out.print(e.getLocalizedMessage());
+							
+						} catch(Exception e) {
+							e.printStackTrace();
 						}
-					}
-					// check line element + 1 
+					
 
 				}
 				
@@ -234,7 +242,7 @@ public class Main extends Application {
 			
 			
 			
-			load.setOnAction(new EventHandler<ActionEvent>() {
+			loadfiles.setOnAction(new EventHandler<ActionEvent>() {
 				public void handle(ActionEvent z) {
 					FileChooser choseFiles = new FileChooser();
 					choseFiles.setTitle("Open a premade MathDoku game");
@@ -250,19 +258,21 @@ public class Main extends Application {
 							grid = newgrid;
 							validInputNumber();
 							for(String cage:handler.getLines()){
-								String[] splitline = cage.split(" ");
-								String label = splitline[0];
-								String[] arguments;
-								arguments = splitline[1].split(",");
-								int[] args = new int[arguments.length];
-								for(int i = 0; i < args.length; i++) {
-									args[i] = Integer.valueOf(arguments[i]);
-								}
-								if(arguments.length == 0) {
-									grid.setCage(label, Integer.valueOf(splitline[1]));
-								}
-								else {
-								grid.setCage(label, args);	
+								if(handler.parseLine(cage) == true) {
+									String[] splitline = cage.split(" ");
+									String label = splitline[0];
+									String[] arguments;
+									arguments = splitline[1].split(",");
+									int[] args = new int[arguments.length];
+									for(int i = 0; i < args.length; i++) {
+										args[i] = Integer.valueOf(arguments[i]);
+									}
+									if(arguments.length == 0) {
+										grid.setCage(label, Integer.valueOf(splitline[1]));
+									}
+									if(handler.checkCage(args, dimensions) == true) {
+										grid.setCage(label, args);	
+									}
 								}
 								
 							}			
@@ -271,7 +281,7 @@ public class Main extends Application {
 							grid.requestFocus();
 							main.getChildren().add(options);
 						} catch(Exception e2) {
-							System.out.println(e2.toString());
+							e2.printStackTrace();
 						}
 						
 					}
