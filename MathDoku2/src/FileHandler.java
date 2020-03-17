@@ -11,12 +11,16 @@ import java.util.HashSet;
 public class FileHandler {
 	private BufferedReader reader;
 	private ArrayList<String> alllines;
+	private ArrayList<Integer> allnumbers;
 	private int FileDim;
 	//Already stored thingies 
 	//then if contains also error
-	public FileHandler() {}
+	public FileHandler() {
+		allnumbers = new ArrayList<Integer>();
+	}
 	public FileHandler(File file) throws FileNotFoundException {
 		reader = new BufferedReader(new FileReader(file));
+		allnumbers = new ArrayList<Integer>();
 		alllines = new ArrayList<String>();
 	}
 
@@ -67,6 +71,9 @@ public class FileHandler {
 			}
 			else {
 				input = true;
+				for(String number: arguments) {
+					this.allnumbers.add(Integer.valueOf(number));
+				}
 			}
 			
 		}
@@ -75,17 +82,10 @@ public class FileHandler {
 
 	
 	public int getDimension() {
-		ArrayList<Integer> allarguments = new ArrayList<Integer>();
-		for(String line: this.getLines()) {
-			String[] split = line.split(" ");
-			String[] numbers = split[1].split(",");
-			for(String number: numbers) {
-				allarguments.add(Integer.valueOf(number));
-			}
-		}
+		ArrayList<Integer> allarguments = this.allnumbers;
 		Collections.sort(allarguments);
-		this.FileDim = (int) Math.sqrt(allarguments.get(allarguments.size()-1));
-		return (int) Math.sqrt(allarguments.get(allarguments.size()-1));
+		Collections.reverse(allarguments);
+		return (int) Math.sqrt(allarguments.get(0));
 	}
 	
 
@@ -117,6 +117,7 @@ public class FileHandler {
 		return true;
 	}
 	
+
 
 }
 

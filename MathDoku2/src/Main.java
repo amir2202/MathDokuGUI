@@ -208,7 +208,12 @@ public class Main extends Application {
 							for(String cage:configlines) {
 							if(manual.parseLine(cage) == false) {return;}
 							}
-							
+							int realdim = manual.getDimension();
+							Grid newgrid = new Grid(realdim);
+							main.getChildren().remove(grid);
+							main.getChildren().remove(options);
+							grid = newgrid;
+							validInputNumber();
 							for(String cage:configlines) {
 								String[] split = cage.split(" ");
 								String label = split[0];
@@ -219,9 +224,10 @@ public class Main extends Application {
 								int[] arguments = new int[argum.length];
 								for(int i = 0;i < arguments.length;i++) {
 									arguments[i] = Integer.valueOf(argum[i]);
+									System.out.println(arguments[i]);
 								}
 								///change this argument shit
-								if(manual.checkCage(arguments, 5) == true) {
+								if(manual.checkCage(arguments, realdim) == true) {
 									grid.setCage(label, arguments);
 								}
 								else {
@@ -229,6 +235,10 @@ public class Main extends Application {
 								}
 								line++;
 							}
+							main.setVgrow(grid, Priority.ALWAYS);
+							main.getChildren().add(grid);
+							grid.requestFocus();
+							main.getChildren().add(options);
 							
 							
 						} catch(Exception e) {
