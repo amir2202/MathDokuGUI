@@ -59,7 +59,6 @@ public class Generator {
 			}
 		}
 		
-		//Check for deadly pattern --> if so reshuffle those cols/rows
 		
 		
 		

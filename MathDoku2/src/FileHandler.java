@@ -72,6 +72,9 @@ public class FileHandler {
 			else {
 				input = true;
 				for(String number: arguments) {
+					if(this.allnumbers.contains(Integer.valueOf(number))) {
+						throw new ConfigurationError("You already have coordinate " +number + " assigned elsewhere" );
+					}
 					this.allnumbers.add(Integer.valueOf(number));
 				}
 			}
@@ -81,10 +84,13 @@ public class FileHandler {
 	}
 
 	
-	public int getDimension() {
+	public int getDimension() throws ConfigurationError {
 		ArrayList<Integer> allarguments = this.allnumbers;
 		Collections.sort(allarguments);
 		Collections.reverse(allarguments);
+		if(this.allnumbers.size() != allarguments.get(0)) {
+			throw new ConfigurationError("You are missing coordinates");
+		}
 		return (int) Math.sqrt(allarguments.get(0));
 	}
 	

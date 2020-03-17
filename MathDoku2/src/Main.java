@@ -241,7 +241,7 @@ public class Main extends Application {
 							main.getChildren().add(options);
 							
 							
-						} catch(Exception e) {
+						} catch(ConfigurationError e) {
 							e.printStackTrace();
 						}
 					
