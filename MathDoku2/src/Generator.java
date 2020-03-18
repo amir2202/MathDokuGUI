@@ -6,6 +6,8 @@ import java.util.Random;
 import javafx.scene.text.Text;
 
 public class Generator {
+	//stuff to add -> merge single cells/for higher difficulty
+	//ensure unique solution
 
 	public Generator() {
 		
@@ -81,52 +83,83 @@ public class Generator {
 		// 3 = ÷
 		Random random = new Random();
 		ArrayList<Integer> cageCells = new ArrayList<Integer>();
-		ArrayList<Integer> pals = new ArrayList<Integer>();
-		//rewrite this algorithm
+		ArrayList<Integer> availableCells = new ArrayList<Integer>();
 		for(int position = 1; position <= grid.getDimensions() * grid.getDimensions();position++) {
-			//if a cell is not occupied
-			if(grid.getCell(position).getOccupied() == false) {
-				cageCells.add(position);
-				grid.getCell(position).setOccupied(true);
-				
-				//adding neighbours to pals array
-				pals.addAll(grid.adjacentCells(position));
-				//how many neighbours will be chosen
-				int howmany = random.nextInt(pals.size());
-				while(howmany == 0) {
-					howmany = random.nextInt(pals.size());
-				}
-//				System.out.println(howmany);
-				//for each neighbour 
-				for(int j = 0; j < howmany;j++) {
-					if(grid.getCell(pals.get(j)).getOccupied() == false) {
-						cageCells.add(pals.get(j));	
-						grid.getCell(pals.get(j)).setOccupied(true);
-						pals.remove(pals.get(j));
-					}
-				}
-				int more = random.nextInt(pals.size());
-				for(int l = more; l>=0; l--) {
-					if(grid.getCell(pals.get(l)).getOccupied() == false) {
-					cageCells.add(pals.get(l));
-					grid.getCell(pals.get(l)).setOccupied(true);
-					pals.remove(pals.get(l));
-					}
-				}
-				
-			}
-			pals.clear();
-			int[] args = new int[cageCells.size()];
-			for(int m = 0; m < cageCells.size();m++) {
-				args[m] = cageCells.get(m);			
-			}
-			setupCage(grid, args,random);
-
-			cageCells.clear();
+			availableCells.add(position);
 		}
-	
+		//rewrite this algorithm
+		while(availableCells.size() != 0) {
+			//chosing a random position
+			int index;
+			if(availableCells.size() == 1) {
+				int[] oneel = new int[1];
+				oneel[0] = availableCells.get(0);
+				System.out.println("Setting cage at");
+				System.out.println(availableCells.get(0));
+				setupCage(grid, oneel, random);
+				break;
+			}
+			else {
+				index = random.nextInt(availableCells.size()-1);
+			}
+			
+			//if cell is not occupied
+			ArrayList<Integer> neighbours = new ArrayList<Integer>();
+			if(grid.getCell(availableCells.get(index)).getOccupied() == false) {
+				cageCells.add(availableCells.get(index));
+				grid.getCell(availableCells.get(index)).setOccupied(true);
+				neighbours.addAll(grid.adjacentCells(availableCells.get(index)));
+				availableCells.remove(Integer.valueOf(availableCells.get(index)));
+				int numberofneighbours = random.nextInt(neighbours.size());
+				//
 				
+				for(int i = 0; i<numberofneighbours;i++) {
+					int neighbourposition = neighbours.get(i);
+					//chose at max 2 neighbours of neighbours
+					if(grid.getCell(neighbourposition).getOccupied() == false) {
+						cageCells.add(neighbourposition);
+						grid.getCell(neighbourposition).setOccupied(true);
+						//brea
+						//only for difficult maybe do this??
+						
+						ArrayList<Integer> more = new ArrayList<Integer>();
+						more.addAll(grid.adjacentCells(neighbourposition));
+						int morestuff = random.nextInt(more.size());
+						for(int j = 0; j < morestuff; j++) {
+							if(grid.getCell(more.get(j)).getOccupied() == false) {
+								cageCells.add(more.get(j));
+								grid.getCell(more.get(j)).setOccupied(true);
+								availableCells.remove(Integer.valueOf(more.get(j)));
+							}
+						}
+						more.clear();
+						
+						
+						availableCells.remove(Integer.valueOf(neighbourposition));
+					}
+				}
+				
+				
+				System.out.println("Setting cage at");
+				int[] pass = new int[cageCells.size()];
+ 				for(int i = 0; i < pass.length;i++) {
+ 					pass[i] = cageCells.get(i);
+ 					System.out.println(cageCells.get(i));
+ 				}
+ 				Arrays.sort(pass);
+				setupCage(grid, pass, random);
+ 				cageCells.clear();
+				//loop through neighbours
+				//
+				//get the cell neighbours
+				
+			}
+		}
+
 	}
+	
+	
+	
 	public void setupCage(Grid grid, int[] args, Random random) {
 		int operator = random.nextInt(4);
 		if(args.length == 0) {return;}
