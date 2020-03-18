@@ -1,7 +1,12 @@
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -17,9 +22,11 @@ public class Grid extends GridPane {
 	private Cell[][] cells;
 	private Cell selectedCell;
 	private ArrayList<String> numbers;
+	private ArrayList<Cage> allcages; 
 	private HashMap<Integer,Integer[]> cords;
 	public Grid(int dimensions) {
 		super();
+		this.allcages = new ArrayList<Cage>();
 		this.numbers = new ArrayList<String>();
 		for(int i = 1; i <= this.getDimensions();i++) {
 			numbers.add(String.valueOf(i));
@@ -85,6 +92,7 @@ public class Grid extends GridPane {
 	public void setCage(String label, int... args) {
 		if (args.length == 1) {
 			Cage single = new Cage(label, args);
+			this.allcages.add(single);
 			Integer[] coordinates = this.getCords(args[0]);
 			int x = coordinates[0];
 			int y = coordinates[1];
@@ -101,6 +109,7 @@ public class Grid extends GridPane {
 					Integer[] cords = this.getCords(args[i]);
 					int x = cords[0];
 					int y = cords[1];
+					this.allcages.add(multiple);
 					cells[x][y].setLabel(label);
 				    cells[x][y].setCage(multiple);
 				    multiple.addCords(cords);
@@ -108,6 +117,7 @@ public class Grid extends GridPane {
 				else {
 					Integer[] other = this.getCords(args[i]);
 					int x = other[0];
+					this.allcages.add(multiple);
 					int y = other[1];
 					this.cells[x][y].setCage(multiple);
 					multiple.addCords(other);
@@ -417,18 +427,7 @@ public class Grid extends GridPane {
 	
 	public void win(boolean input) throws InterruptedException {
 		if(input == true) {
-			Cage temp = this.cells[0][0].getCage();
-			temp.setCorrect(true);
-		for(int x = 1; x <this.getDimensions(); x++) {
-			for(int y= 0; y < this.getDimensions();y++) {
-				if(temp != cells[x][y].getCage()) {
-					cells[x][y].getCage().setCorrect(true);
-				}
-			}
-		}
-		
-		//Winning animation 
-		
+			this.animateWin();
 		}
 	}
 	
@@ -598,8 +597,22 @@ public class Grid extends GridPane {
 			int number = this.getCell(x, y).getNumber();
 			Text update = new Text(String.valueOf(number));
 			this.setText(x,y,update, true, number);	
+		}
+		}	
 	}
-	}
+	
+	public void animateWin() {
+		KeyFrame frame = new KeyFrame(javafx.util.Duration.millis(250), new EventHandler<ActionEvent>() {
+			private int index = 0;
+			public void handle(ActionEvent e) {
+			allcages.get(index).setCorrect(true);
+			index++;
+			}
+		});
+		Timeline timeline = new Timeline(frame);
+		timeline.setCycleCount(this.allcages.size());
+		timeline.play();
+		
 	}
 	
 }

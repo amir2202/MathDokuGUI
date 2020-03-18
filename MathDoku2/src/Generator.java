@@ -96,7 +96,7 @@ public class Generator {
 				oneel[0] = availableCells.get(0);
 				System.out.println("Setting cage at");
 				System.out.println(availableCells.get(0));
-				setupCage(grid, oneel, random);
+				setupCage(grid, oneel, random);					
 				break;
 			}
 			else {
@@ -141,6 +141,39 @@ public class Generator {
 				
 				
 				System.out.println("Setting cage at");
+				if(cageCells.size() == 1) {
+					//do nothing if difficulty is 0(easy)
+					//intermediate (merge half of the cages)
+					if(difficulty == 1) {
+						int fifty = random.nextInt(2);
+						if(fifty == 1) {
+							neighbours.clear();
+							neighbours.addAll(grid.adjacentCells(cageCells.get(0)));
+							for(int neighbour: neighbours) {
+								if(grid.getCell(neighbour).getOccupied() == false) {
+									cageCells.add(neighbour);
+									grid.getCell(neighbour).setOccupied(true);
+									availableCells.remove(Integer.valueOf(neighbour));
+								}
+							}
+						}
+					}
+					
+					//hard (merge all possible single cells)
+					else if(difficulty ==2) {
+						neighbours.clear();
+						neighbours.addAll(grid.adjacentCells(cageCells.get(0)));
+						for(int neighbour: neighbours) {
+							if(grid.getCell(neighbour).getOccupied() == false) {
+								cageCells.add(neighbour);
+								grid.getCell(neighbour).setOccupied(true);
+								availableCells.remove(Integer.valueOf(neighbour));
+							}
+						}
+					}
+				}
+				
+				
 				int[] pass = new int[cageCells.size()];
  				for(int i = 0; i < pass.length;i++) {
  					pass[i] = cageCells.get(i);
@@ -149,6 +182,7 @@ public class Generator {
  				Arrays.sort(pass);
 				setupCage(grid, pass, random);
  				cageCells.clear();
+ 				neighbours.clear();
 				//loop through neighbours
 				//
 				//get the cell neighbours
@@ -161,6 +195,7 @@ public class Generator {
 	
 	
 	public void setupCage(Grid grid, int[] args, Random random) {
+		//rework --> check if division/subtraction possible IF YES CHOSE IT(apart from easy mode)
 		int operator = random.nextInt(4);
 		if(args.length == 0) {return;}
 		if(args.length == 1) {

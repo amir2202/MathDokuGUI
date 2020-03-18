@@ -94,7 +94,7 @@ public class Main extends Application {
 			public void handle(ActionEvent arg0) {
 				Generator gen = new Generator();
 				grid.clearCells();
-				gen.generateSodukoGrid(0, grid);
+				gen.generateSodukoGrid(2, grid);
 				generate.setDisable(true);
 			}
 			
@@ -259,6 +259,7 @@ public class Main extends Application {
 					File game = choseFiles.showOpenDialog(stage);
 					if(game != null && game.canRead() == true && game.exists() == true) {
 						try {
+							int line = 1;
 							FileHandler handler = new FileHandler(game);
 							boolean temp = handler.readFile();
 							int dimensions = handler.getDimension();
@@ -284,7 +285,7 @@ public class Main extends Application {
 										grid.setCage(label, args);	
 									}
 								}
-								
+								line++;
 							}			
 							main.setVgrow(grid, Priority.ALWAYS);
 							main.getChildren().add(grid);
