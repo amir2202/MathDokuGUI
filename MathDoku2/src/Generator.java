@@ -94,8 +94,8 @@ public class Generator {
 			if(availableCells.size() == 1) {
 				int[] oneel = new int[1];
 				oneel[0] = availableCells.get(0);
-				System.out.println("Setting cage at");
-				System.out.println(availableCells.get(0));
+//				System.out.println("Setting cage at");
+//				System.out.println(availableCells.get(0));
 				setupCage(grid, oneel, random);					
 				break;
 			}
@@ -140,7 +140,7 @@ public class Generator {
 				}
 				
 				
-				System.out.println("Setting cage at");
+//				System.out.println("Setting cage at");
 				if(cageCells.size() == 1) {
 					//do nothing if difficulty is 0(easy)
 					//intermediate (merge half of the cages)
@@ -177,7 +177,7 @@ public class Generator {
 				int[] pass = new int[cageCells.size()];
  				for(int i = 0; i < pass.length;i++) {
  					pass[i] = cageCells.get(i);
- 					System.out.println(cageCells.get(i));
+// 					System.out.println(cageCells.get(i));
  				}
  				Arrays.sort(pass);
 				setupCage(grid, pass, random);
@@ -202,6 +202,12 @@ public class Generator {
 			grid.setCage(String.valueOf(grid.getCell(args[0]).getNumber()), args[0]);
 			return;
 		}
+		
+		//division/subtraction possible
+		
+		
+		
+		
 		//plus
 		if(operator == 0) {
 		int result = 0;

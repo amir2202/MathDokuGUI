@@ -611,6 +611,12 @@ public class Grid extends GridPane {
 		});
 		Timeline timeline = new Timeline(frame);
 		timeline.setCycleCount(this.allcages.size());
+		timeline.setOnFinished(new EventHandler<ActionEvent>(){
+			public void handle(ActionEvent arg0) {
+				System.out.println("you win");
+			}
+			
+		});
 		timeline.play();
 		
 	}
