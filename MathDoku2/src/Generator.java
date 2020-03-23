@@ -278,7 +278,7 @@ public class Generator {
 			}
 			else {
 				int real = (int) result;
-				grid.setCage(real+"Ã·", args);
+				grid.setCage(real+"÷", args);
 			}
 			return;
 		}
