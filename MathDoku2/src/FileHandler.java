@@ -58,11 +58,11 @@ public class FileHandler {
 		if(part.length == 0) {
 			return false;
 		}
-		if(part[0].matches("[0-9]+[\\-+x÷]+$") || part[0].matches("[0-9]")) {
+		if(part[0].matches("[0-9]+[\\-+xÃ·]+$") || part[0].matches("[0-9]")) {
 			formatfirst = true;
 		}
 		//rework later
-		if(part[1].matches("^\\d+(?:[ \t]*,[ \\t]*\\d+)+$")){
+		if(part[1].matches("^\\d+(?:[ \t]*,[ \\t]*\\d+)+$") || part[1].matches("[0-9]")){
 			formatsecond = true;
 		}
 		

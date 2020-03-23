@@ -76,11 +76,11 @@ public class Generator {
 	}
 	public void generateCages(int difficulty, Grid grid) {
 		//Need a list of initial positions
-		//+, -, x or ÷
+		//+, -, x or ï¿½
 		//0 = +
 		// 1 = -
 		// 2 = x
-		// 3 = ÷
+		// 3 = ï¿½
 		Random random = new Random();
 		ArrayList<Integer> cageCells = new ArrayList<Integer>();
 		ArrayList<Integer> availableCells = new ArrayList<Integer>();
@@ -197,6 +197,20 @@ public class Generator {
 	public void setupCage(Grid grid, int[] args, Random random) {
 		//rework --> check if division/subtraction possible IF YES CHOSE IT(apart from easy mode)
 		int operator = random.nextInt(4);
+		//rework later 
+		///maybe add stuff in depending for difficulties
+		if(this.divisionPossible(grid, args) || this.subtractionPossible(grid, args) ) {
+//			int subtraction = random.nextInt(2);
+			int subtraction = 0;
+			if(subtraction == 1) {
+				operator = 4;
+			}
+			else if(subtraction == 0) {
+				operator = 3;
+			}
+		}
+		
+		
 		if(args.length == 0) {return;}
 		if(args.length == 1) {
 			grid.setCage(String.valueOf(grid.getCell(args[0]).getNumber()), args[0]);
@@ -264,7 +278,7 @@ public class Generator {
 			}
 			else {
 				int real = (int) result;
-				grid.setCage(real+"÷", args);
+				grid.setCage(real+"Ã·", args);
 			}
 			return;
 		}
@@ -272,5 +286,40 @@ public class Generator {
 		
 		
 		
+	}
+	
+	public boolean subtractionPossible(Grid grid, int[] args) {
+		int[] numbers = new int[args.length];
+		for(int i = 0;i<numbers.length;i++) {
+			numbers[i] = grid.getCell(args[i]).getNumber();
+		}
+		Arrays.sort(numbers);
+		int result = numbers[numbers.length -1];
+		for(int j = numbers.length -2; j>= 0;j--) {
+			result -= numbers[j];
+		}
+		if(result > 0) {
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean divisionPossible(Grid grid, int[] args) {
+		int[] numbers = new int[args.length];
+		for(int i = 0;i<numbers.length;i++) {
+			numbers[i] = grid.getCell(args[i]).getNumber();
+		}
+		Arrays.sort(numbers);
+		double result = numbers[numbers.length -1];
+		for(int i = numbers.length-2; i >= 0;i--) {
+			result /= numbers[i];
+		}
+		if(result % 1 == 0) {
+			return true;
+		}
+		//do later
+		
+		//check if result modulus %1 = 0
+		return false;
 	}
 }
