@@ -235,7 +235,7 @@ public class Generator {
 				numbers[i] = grid.getCell(args[i]).getNumber();
 			}
 			Arrays.sort(numbers);
-			int result = numbers[numbers.length -2];
+			int result = numbers[numbers.length -1];
 			for(int j = numbers.length -2; j >= 0; j--) {
 				result -= numbers[j];
 			}

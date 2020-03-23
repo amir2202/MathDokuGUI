@@ -1,15 +1,20 @@
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 
 public class FileHandler {
-	private BufferedReader reader;
+	private BufferedReader br;
+	private InputStreamReader reader;
 	private ArrayList<String> alllines;
 	private ArrayList<Integer> allnumbers;
 	private int FileDim;
@@ -18,17 +23,18 @@ public class FileHandler {
 	public FileHandler() {
 		allnumbers = new ArrayList<Integer>();
 	}
-	public FileHandler(File file) throws FileNotFoundException {
-		reader = new BufferedReader(new FileReader(file));
+	public FileHandler(File file) throws FileNotFoundException, UnsupportedEncodingException {
+		reader = new InputStreamReader(new FileInputStream(file), "utf-8");
+		br = new BufferedReader(reader);
 		allnumbers = new ArrayList<Integer>();
 		alllines = new ArrayList<String>();
 	}
-
+	
 	public boolean readFile() throws ConfigurationError {
 		try {
 			int linecount=1;
-			while(reader.ready() != false) {
-				String line = reader.readLine();
+			while(br.ready() != false) {
+				String line = br.readLine();
 				boolean temp = this.parseLine(line);
 				if(!temp) {
 					throw new ConfigurationError("Your configuration is wrong check line " + linecount);

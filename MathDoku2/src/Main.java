@@ -1,8 +1,11 @@
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
@@ -54,39 +57,23 @@ public class Main extends Application {
 	}
 
 	@Override
-	public void start(Stage stage) throws Exception {
-		this.stage = stage;
+	public void start(Stage stage) {
 		handler = new ActionHandler();
-		VBox main = new VBox();
-		Scene scene = new Scene(main, 600,600);
-		stage.setTitle("MathDoku");
-		//Get grid
-		grid = new Grid(5);
-		grid.requestFocus();
+		BorderPane pane = new BorderPane();
+		grid = new Grid(6);
 		this.validInputNumber();
-		ChoiceBox font = new ChoiceBox();
-		font.getItems().add("Small");
-		font.getItems().add("Medium");
-		font.getItems().add("Big");
-		main.getChildren().add(grid);
-		main.setOnKeyPressed(new KeyHandler());
-		main.addEventHandler(ScrollEvent.ANY, new ScrollHandler());
-		HBox options = new HBox();
-		font.setOnAction(new EventHandler<ActionEvent>() {
-			public void handle(ActionEvent arg0) {
-				if (font.getValue() == "Small") {
-					grid.setFont("small");
-				}
-				if (font.getValue() == "Medium") {
-					grid.setFont("medium");
-				}
-				if (font.getValue() == "Big") {
-					grid.setFont("large");
-				}
-			}
-			
-		});
-		main.setVgrow(grid, Priority.ALWAYS);
+		pane.setCenter(grid);
+		Scene scene = new Scene(pane,600,600);
+		stage.setScene(scene);
+		stage.show();
+		VBox left = new VBox();
+		VBox right = new VBox();
+		right.setAlignment(Pos.CENTER);
+		pane.setLeft(left);
+		HBox bottom = new HBox();
+		bottom.setAlignment(Pos.CENTER);
+		pane.setBottom(bottom);
+//		bottom
 		Button solve = new Button("Solve");
 		Button generate = new Button("Generate");
 		generate.setOnAction(new EventHandler<ActionEvent>() {
@@ -99,6 +86,7 @@ public class Main extends Application {
 			}
 			
 		});
+		left.getChildren().add(generate);
 		solve.setOnAction(new EventHandler<ActionEvent>() {
 			public void handle(ActionEvent event) {
 //				Task<Void> task = new Task<Void>() {
@@ -135,174 +123,268 @@ public class Main extends Application {
 			}
 			
 		});
-		
 		Button clear = new Button("Clear");
 		clear.setOnAction(new ClearHandler());
-//		clear.setOnAction(new EventHandler<ActionEvent>(){
-//			public void handle(ActionEvent e) {
-//				System.out.print(grid.rowDuplicates(0));
-////				Cell[] cols = grid.getColumncells(0);
-////				for(int i = 0; i <cols.length;i++ ) {
-////					System.out.print(cols[i].getNumber());
-////				}
-//			}
-//		});
+		bottom.getChildren().addAll(undo,redo,clear,solve);
 		
-		Button load = new Button("Load game");
-		CheckBox mistakes = new CheckBox("Show mistakes");
-		mistakes.setOnAction(new EventHandler<ActionEvent>() {
-			public void handle(ActionEvent e) {
-				if(mistakes.isSelected() == true) {
-					checking = true;
+		
+		
+		
+		ChoiceBox font = new ChoiceBox();
+		font.getItems().add("Small");
+		font.getItems().add("Medium");
+		font.getItems().add("Big");
+		pane.setOnKeyPressed(new KeyHandler());
+		pane.addEventHandler(ScrollEvent.ANY, new ScrollHandler());
+		HBox options = new HBox();
+		font.setOnAction(new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent arg0) {
+				if (font.getValue() == "Small") {
+					grid.setFont("small");
 				}
-				else if (mistakes.isSelected() == false) {
-					checking = false;
+				if (font.getValue() == "Medium") {
+					grid.setFont("medium");
 				}
-				
+				if (font.getValue() == "Big") {
+					grid.setFont("large");
+				}
 			}
 			
 		});
 		
-		options.getChildren().addAll(clear,undo,redo,load,font ,solve,mistakes,generate);
-		options.setHgrow(undo, Priority.ALWAYS);
-		options.setSpacing(2);
-		options.setAlignment(Pos.BASELINE_LEFT);
-		options.setHgrow(redo, Priority.ALWAYS);
-		options.setHgrow(load, Priority.ALWAYS);
-		options.setHgrow(mistakes, Priority.ALWAYS);
-		main.getChildren().add(options);
-		stage.setScene(scene);
-		stage.show();
+		left.getChildren().add(font);
+		left.setAlignment(Pos.CENTER);
 		
-		Dialog<String> dialog = new Dialog<>();
-//		load.setOnAction(new EventHandler<ActionEvent>() {
+	}
+	
+//	public void start(Stage stage) throws Exception {
+//		this.stage = stage;
+//		handler = new ActionHandler();
+//		VBox main = new VBox();
+//		stage.show();
+//		//Get grid
+//		grid = new Grid(5);
+//		Scene scene = new Scene(main, 600,600);
+//		stage.setTitle("MathDoku");
+//		stage.setScene(scene);
+//		this.validInputNumber();
+//		ChoiceBox font = new ChoiceBox();
+//		font.getItems().add("Small");
+//		font.getItems().add("Medium");
+//		font.getItems().add("Big");
+//		main.getChildren().add(grid);
+//		main.setOnKeyPressed(new KeyHandler());
+//		main.addEventHandler(ScrollEvent.ANY, new ScrollHandler());
+//		HBox options = new HBox();
+//		font.setOnAction(new EventHandler<ActionEvent>() {
 //			public void handle(ActionEvent arg0) {
-//				dialog.isShowing();
-//				// TODO Auto-generated method stub
+//				if (font.getValue() == "Small") {
+//					grid.setFont("small");
+//				}
+//				if (font.getValue() == "Medium") {
+//					grid.setFont("medium");
+//				}
+//				if (font.getValue() == "Big") {
+//					grid.setFont("large");
+//				}
+//			}
+//			
+//		});
+//		main.setVgrow(grid, Priority.ALWAYS);
+//		Button solve = new Button("Solve");
+//		Button generate = new Button("Generate");
+//		generate.setOnAction(new EventHandler<ActionEvent>() {
+//
+//			public void handle(ActionEvent arg0) {
+//				Generator gen = new Generator();
+//				grid.clearCells();
+//				gen.generateSodukoGrid(2, grid);
+//				generate.setDisable(true);
+//			}
+//			
+//		});
+//		solve.setOnAction(new EventHandler<ActionEvent>() {
+//			public void handle(ActionEvent event) {
+////				Task<Void> task = new Task<Void>() {
+////					protected Void call() {
+////						solve.setDisable(true);
+////						Solver.solve(grid);
+////						return null;
+////					}
+////				};
+////				Thread solving = new Thread(task);
+////				solving.start();
+//				Solver.solve(grid);
+//			}
+//		});
+//		
+//		
+//		undo = new Button("Undo");
+//		undo.setDisable(true);
+//		undo.setOnAction(new EventHandler<ActionEvent>(){
+//			public void handle(ActionEvent event) {
+//				if(handler.undoEmpty() == false) {
+//					handler.undo();
+//				}
+//			}
+//		});
+////		undo.
+//		redo = new Button("Redo");
+//		redo.setDisable(true);
+//		redo.setOnAction(new EventHandler<ActionEvent>() {
+//			public void handle(ActionEvent event) {
+//				if(handler.redoEmpty() == false) {
+//					handler.redo();
+//				}			
+//			}
+//			
+//		});
+//		
+//		Button clear = new Button("Clear");
+//		clear.setOnAction(new ClearHandler());
+//		Button load = new Button("Load game");
+//		CheckBox mistakes = new CheckBox("Show mistakes");
+//		mistakes.setOnAction(new EventHandler<ActionEvent>() {
+//			public void handle(ActionEvent e) {
+//				if(mistakes.isSelected() == true) {
+//					checking = true;
+//				}
+//				else if (mistakes.isSelected() == false) {
+//					checking = false;
+//				}
 //				
 //			}
 //			
 //		});
-		
-		load.setOnAction(new EventHandler<ActionEvent>(){
-		public void handle(ActionEvent e){
-			Stage custom = new Stage();
-			custom.setTitle("Load your custom MathDoku game");
-			HBox choices = new HBox();
-			Button config = new Button("Load from text");
-			Button loadfiles = new Button("Chose file");	
-			VBox area = new VBox();
-			Scene second = new Scene(area);
-			TextArea txt = new TextArea();
-			area.getChildren().addAll(txt,choices);
-			area.setVgrow(txt, Priority.ALWAYS);
-			choices.getChildren().addAll(config,loadfiles);
-			custom.setScene(second);
-			custom.show();
-			config.setOnAction(new EventHandler<ActionEvent>(){
-				public void handle(ActionEvent arg0) {
-					String[] configlines = txt.getText().split("\n");
-					FileHandler manual = new FileHandler();
-						try {
-							int line = 1;
-							for(String cage:configlines) {
-							if(manual.parseLine(cage) == false) {return;}
-							}
-							int realdim = manual.getDimension();
-							Grid newgrid = new Grid(realdim);
-							main.getChildren().remove(grid);
-							main.getChildren().remove(options);
-							grid = newgrid;
-							validInputNumber();
-							for(String cage:configlines) {
-								String[] split = cage.split(" ");
-								String label = split[0];
-								String[] argum = split[1].split(",");
-								if(argum.length == 1) {
-									grid.setCage(label, Integer.valueOf(split[1]));
-								}
-								int[] arguments = new int[argum.length];
-								for(int i = 0;i < arguments.length;i++) {
-									arguments[i] = Integer.valueOf(argum[i]);
-									System.out.println(arguments[i]);
-								}
-								///change this argument shit
-								if(manual.checkCage(arguments, realdim) == true) {
-									grid.setCage(label, arguments);
-								}
-								else {
-									throw new ConfigurationError("Your cages are not adjacent check line, " + line);
-								}
-								line++;
-							}
-							main.setVgrow(grid, Priority.ALWAYS);
-							main.getChildren().add(grid);
-							grid.requestFocus();
-							main.getChildren().add(options);
-							
-							
-						} catch(ConfigurationError e) {
-							e.printStackTrace();
-						}
-					
-
-				}
-				
-			});
-			
-			
-			
-			loadfiles.setOnAction(new EventHandler<ActionEvent>() {
-				public void handle(ActionEvent z) {
-					FileChooser choseFiles = new FileChooser();
-					choseFiles.setTitle("Open a premade MathDoku game");
-					File game = choseFiles.showOpenDialog(stage);
-					if(game != null && game.canRead() == true && game.exists() == true) {
-						try {
-							int line = 1;
-							FileHandler handler = new FileHandler(game);
-							boolean temp = handler.readFile();
-							int dimensions = handler.getDimension();
-							Grid newgrid = new Grid(dimensions);
-							main.getChildren().remove(grid);
-							main.getChildren().remove(options);
-							grid = newgrid;
-							validInputNumber();
-							for(String cage:handler.getLines()){
-								if(handler.parseLine(cage) == true) {
-									String[] splitline = cage.split(" ");
-									String label = splitline[0];
-									String[] arguments;
-									arguments = splitline[1].split(",");
-									int[] args = new int[arguments.length];
-									for(int i = 0; i < args.length; i++) {
-										args[i] = Integer.valueOf(arguments[i]);
-									}
-									if(arguments.length == 0) {
-										grid.setCage(label, Integer.valueOf(splitline[1]));
-									}
-									if(handler.checkCage(args, dimensions) == true) {
-										grid.setCage(label, args);	
-									}
-								}
-								line++;
-							}			
-							main.setVgrow(grid, Priority.ALWAYS);
-							main.getChildren().add(grid);
-							grid.requestFocus();
-							main.getChildren().add(options);
-						} catch(Exception e2) {
-							e2.printStackTrace();
-						}
-						
-					}
-				}
-			});
-
-
-		}
-	});
-	}
+//		
+//		options.getChildren().addAll(clear,undo,redo,load,font ,solve,mistakes,generate);
+//		options.setHgrow(undo, Priority.ALWAYS);
+//		options.setSpacing(2);
+//		options.setAlignment(Pos.BASELINE_LEFT);
+//		options.setHgrow(redo, Priority.ALWAYS);
+//		options.setHgrow(load, Priority.ALWAYS);
+//		options.setHgrow(mistakes, Priority.ALWAYS);
+//		main.getChildren().add(options);
+//		
+//		Dialog<String> dialog = new Dialog<>();
+//
+//		
+//		load.setOnAction(new EventHandler<ActionEvent>(){
+//		public void handle(ActionEvent e){
+//			Stage custom = new Stage();
+//			custom.setTitle("Load your custom MathDoku game");
+//			HBox choices = new HBox();
+//			Button config = new Button("Load from text");
+//			Button loadfiles = new Button("Chose file");	
+//			VBox area = new VBox();
+//			Scene second = new Scene(area);
+//			TextArea txt = new TextArea();
+//			area.getChildren().addAll(txt,choices);
+//			area.setVgrow(txt, Priority.ALWAYS);
+//			choices.getChildren().addAll(config,loadfiles);
+//			custom.setScene(second);
+//			custom.show();
+//			config.setOnAction(new EventHandler<ActionEvent>(){
+//				public void handle(ActionEvent arg0) {
+//					String[] configlines = txt.getText().split("\n");
+//					FileHandler manual = new FileHandler();
+//						try {
+//							int line = 1;
+//							for(String cage:configlines) {
+//							if(manual.parseLine(cage) == false) {return;}
+//							}
+//							int realdim = manual.getDimension();
+//							Grid newgrid = new Grid(realdim);
+//							main.getChildren().remove(grid);
+//							main.getChildren().remove(options);
+//							grid = newgrid;
+//							validInputNumber();
+//							for(String cage:configlines) {
+//								String[] split = cage.split(" ");
+//								String label = split[0];
+//								String[] argum = split[1].split(",");
+//								if(argum.length == 1) {
+//									grid.setCage(label, Integer.valueOf(split[1]));
+//								}
+//								int[] arguments = new int[argum.length];
+//								for(int i = 0;i < arguments.length;i++) {
+//									arguments[i] = Integer.valueOf(argum[i]);
+//									System.out.println(arguments[i]);
+//								}
+//								///change this argument shit
+//								if(manual.checkCage(arguments, realdim) == true) {
+//									grid.setCage(label, arguments);
+//								}
+//								else {
+//									throw new ConfigurationError("Your cages are not adjacent check line, " + line);
+//								}
+//								line++;
+//							}
+//							main.setVgrow(grid, Priority.ALWAYS);
+//							main.getChildren().add(grid);
+//							main.getChildren().add(options);
+//							
+//							
+//						} catch(ConfigurationError e) {
+//							e.printStackTrace();
+//						}
+//					
+//
+//				}
+//				
+//			});
+//			
+//			
+//			
+//			loadfiles.setOnAction(new EventHandler<ActionEvent>() {
+//				public void handle(ActionEvent z) {
+//					FileChooser choseFiles = new FileChooser();
+//					choseFiles.setTitle("Open a premade MathDoku game");
+//					File game = choseFiles.showOpenDialog(stage);
+//					if(game != null && game.canRead() == true && game.exists() == true) {
+//						try {
+//							int line = 1;
+//							FileHandler handler = new FileHandler(game);
+//							handler.readFile();
+//							int dimensions = handler.getDimension();
+//							Grid newgrid = new Grid(dimensions);
+//							main.getChildren().remove(grid);
+//							main.getChildren().remove(options);
+//							grid = newgrid;
+//							validInputNumber();
+//							for(String cage:handler.getLines()){
+//									String[] splitline = cage.split(" ");
+//									String label = splitline[0];
+//									String[] arguments;
+//									arguments = splitline[1].split(",");
+//									int[] args = new int[arguments.length];
+//									for(int i = 0; i < args.length; i++) {
+//										args[i] = Integer.valueOf(arguments[i]);
+//									}
+//									if(arguments.length == 0) {
+//										grid.setCage(label, Integer.valueOf(splitline[1]));
+//									}
+//									if(handler.checkCage(args, dimensions) == true) {
+//										grid.setCage(label, args);	
+//									}
+//								line++;
+//							}			
+//							main.setVgrow(grid, Priority.ALWAYS);
+//							main.getChildren().add(grid);
+//							grid.requestFocus();
+//							main.getChildren().add(options);
+//						} catch(Exception e2) {
+//							e2.printStackTrace();
+//						}
+//						
+//					}
+//				}
+//			});
+//
+//
+//		}
+//	});
+//	}
 	
 	public void validInputNumber() {
 		numbers = new ArrayList<String>();
@@ -433,6 +515,7 @@ public class Main extends Application {
 			}
 			
 			
+			//rework this
 			if(grid.isFilled()) {
 				try {
 					grid.win(grid.solved());
