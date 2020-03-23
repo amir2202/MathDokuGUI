@@ -55,13 +55,14 @@ public class Main extends Application {
 
 	@Override
 	public void start(Stage stage) throws Exception {
+		BorderPane layout = new BorderPane();
 		this.stage = stage;
 		handler = new ActionHandler();
 		VBox main = new VBox();
 		Scene scene = new Scene(main, 600,600);
 		stage.setTitle("MathDoku");
 		//Get grid
-		grid = new Grid(5);
+		grid = new Grid(4);
 		grid.requestFocus();
 		this.validInputNumber();
 		ChoiceBox font = new ChoiceBox();
@@ -447,6 +448,14 @@ public class Main extends Application {
 		class ScrollHandler implements EventHandler<ScrollEvent>{
 		@Override
 		public void handle(ScrollEvent arg0) {
+			if(grid.isFilled()) {
+				try {
+					grid.win(grid.solved());
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 			double deltaY = arg0.getDeltaY();
 			//decrease
 			if(deltaY < 0) {

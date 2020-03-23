@@ -14,7 +14,7 @@ public class Cage {
 		this.label = label;
 		this.cordinates = cordinates;
 		this.operator = label.charAt(label.length() -1);
-		if(this.label.charAt(this.label.length() -1 ) == '+' || this.label.charAt(this.label.length()-1) == '-' || this.label.charAt(this.label.length()-1) == 'x' || this.label.charAt(this.label.length()-1) == '÷'|| this.label.charAt(this.label.length()-1) == '/' || this.label.charAt(this.label.length()-1) == '*' ) {
+		if(this.label.charAt(this.label.length() -1 ) == '+' || this.label.charAt(this.label.length()-1) == '-' || this.label.charAt(this.label.length()-1) == 'x' || this.label.charAt(this.label.length()-1) == 'Ã·'|| this.label.charAt(this.label.length()-1) == '/' || this.label.charAt(this.label.length()-1) == '*' ) {
 			this.expected = Integer.valueOf(label.substring(0, label.length() -1));
 		}
 		else {
@@ -107,7 +107,7 @@ public class Cage {
 			}
 		}
 	
-		else if(operator =='÷' || operator == '/') {
+		else if(operator =='Ã·' || operator == '/') {
 			ArrayList<Integer> cagenumbers = new ArrayList<Integer>();
 			for(int i = 0; i < this.cagecells.size(); i++) {
 				cagenumbers.add(this.cagecells.get(i).getNumber());
