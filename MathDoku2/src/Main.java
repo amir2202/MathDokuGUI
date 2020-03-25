@@ -106,8 +106,11 @@ public class Main extends Application {
 				dif.getItems().add("Intermediate");
 				dif.getItems().add("Hard");
 				dif.getItems().add("Guru");
-				
+				dif.getSelectionModel().selectFirst();
+				dim.getSelectionModel().selectFirst();
 				generate.setOnAction(e -> {
+					grid.clearCells();
+					grid.eraseCages();
 					Generator gen = new Generator();
 					String dimensionstring = (String)dim.getValue();
 					dimensionstring = dimensionstring.substring(0, 1);
@@ -115,7 +118,21 @@ public class Main extends Application {
 					Grid newgrid = new Grid(chosendim);
 					newgrid.clearCells();
 					pane.getChildren().remove(grid);
-					gen.generateSodukoGrid(2, newgrid);
+					int chosendifficulty = 0;
+					//default
+					switch((String) dif.getValue()) {
+					case "Easy":
+						chosendifficulty = 0;
+					case "Intermediate":
+						chosendifficulty = 1;
+					case "Hard":
+						chosendifficulty = 2;
+					case "Guru":
+						chosendifficulty = 3;
+					}
+					
+						
+					gen.generateSodukoGrid(chosendifficulty, newgrid);
 					validInputNumber();
 					pane.setCenter(newgrid);
 					pane.setLeft(left);
@@ -131,17 +148,16 @@ public class Main extends Application {
 		});
 		solve.setOnAction(new EventHandler<ActionEvent>() {
 			public void handle(ActionEvent event) {
-//				Task<Void> task = new Task<Void>() {
-//					protected Void call() {
-//						solve.setDisable(true);
-//						Solver.solve(grid);
-//						return null;
-//					}
-//				};
-//				Thread solving = new Thread(task);
-//				solving.start();
-				Solver solver = new Solver();
-				solver.solve(grid);
+				Task<Void> task = new Task<Void>() {
+					protected Void call() {
+						Solver solver = new Solver();
+						solver.solve(grid);
+						return null;
+					}
+				};
+				Thread solving = new Thread(task);
+				solving.start();
+				grid.updateGrid();
 			}
 		});
 		

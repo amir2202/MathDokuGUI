@@ -25,7 +25,7 @@ public class Grid extends GridPane {
 	private ArrayList<String> numbers;
 	private ArrayList<Cage> allcages; 
 	private HashMap<Integer,Integer[]> cords;
-	private String fontSize = "small";;
+	private String fontSize = "small";
 	public Grid(int dimensions) {
 		super();
 		this.allcages = new ArrayList<Cage>();
@@ -620,6 +620,10 @@ public class Grid extends GridPane {
 	
 	public ArrayList<Cage> getAllCages(){
 		return this.allcages;
+	}
+	
+	public void eraseCages() {
+		this.allcages.clear();
 	}
 	
 }

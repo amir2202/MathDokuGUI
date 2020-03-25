@@ -159,7 +159,7 @@ public class Generator {
 					}
 					
 					//hard (merge all possible single cells)
-					else if(difficulty ==2) {
+					else if(difficulty >=2) {
 						neighbours.clear();
 						neighbours.addAll(grid.adjacentCells(cageCells.get(0)));
 						for(int neighbour: neighbours) {
