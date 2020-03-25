@@ -14,6 +14,7 @@ public class Cell extends StackPane{
 	private boolean occupied = false;
 	private boolean selected = false;
 	private Cage cage;
+	private boolean checked = false;
 	private Boolean correct;
 	private Boolean highlighted = false;
 	private Text number;
@@ -249,6 +250,14 @@ public class Cell extends StackPane{
 	
 	public void setOccupied(boolean input) {
 		this.occupied = input;
+	}
+	
+	public boolean getChecked() {
+		return this.checked;
+	}
+	
+	public void setChecked(boolean checked) {
+		this.checked = checked;
 	}
 	
 }

@@ -4,14 +4,14 @@ public class Solver {
 
 	
 	//Method to check if cell input is valid
-	public static boolean validCell(Grid grid, Cell cell) {
-		if(grid.validCellInput(cell, true) == false) {
+	public boolean validCell(Grid grid, Cell cell) {
+		if(grid.solvingGrid(cell) == false) {
 			return false;
 		}
 		return true;
 	}
 	
-	public static void solve(Grid grid) {
+	public void solve(Grid grid) {
 		grid.clearCells();
 		int index = 1;
 		int dim = grid.getDimensions();
@@ -23,7 +23,6 @@ public class Solver {
 			if(current.getNumber() == grid.getDimensions() +1) {
 				current.setNumber(0);
 			}
-			
 			while(current.getNumber() != 0 && (validCell(grid ,current) == false)) {
 				current.increaseCell();
 				if(current.getNumber() == grid.getDimensions() +1) {
@@ -45,8 +44,8 @@ public class Solver {
 				Text update = new Text(String.valueOf(number));
 				grid.setText(x,y,update, true, number);	
 		}
-		}
 		
+		}
 	}
 	
 

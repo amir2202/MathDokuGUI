@@ -13,8 +13,10 @@ import java.util.Optional;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.MapChangeListener;
 import javafx.concurrent.Task;
@@ -35,6 +37,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -48,6 +51,7 @@ public class Main extends Application {
 	private ActionHandler handler;
 	private Button redo; 
 	private Stage stage;
+	private BorderPane pane;
 	private Button undo;
 	final KeyCombination undocmb = new KeyCodeCombination(KeyCode.Z, KeyCombination.SHORTCUT_DOWN);
 	final KeyCombination redocmb = new KeyCodeCombination(KeyCode.Y, KeyCombination.SHORTCUT_DOWN);
@@ -59,8 +63,10 @@ public class Main extends Application {
 	@Override
 	public void start(Stage stage) {
 		handler = new ActionHandler();
-		BorderPane pane = new BorderPane();
-		grid = new Grid(6);
+		stage.setTitle("MathDoku");
+		pane = new BorderPane();
+		grid = new Grid(8);
+		pane.addEventHandler(ScrollEvent.ANY, new ScrollHandler());
 		this.validInputNumber();
 		pane.setCenter(grid);
 		Scene scene = new Scene(pane,600,600);
@@ -68,7 +74,8 @@ public class Main extends Application {
 		stage.show();
 		VBox left = new VBox();
 		VBox right = new VBox();
-		right.setAlignment(Pos.CENTER);
+		right.setAlignment(Pos.CENTER_LEFT);
+		pane.setRight(right);
 		pane.setLeft(left);
 		HBox bottom = new HBox();
 		bottom.setAlignment(Pos.CENTER);
@@ -79,14 +86,49 @@ public class Main extends Application {
 		generate.setOnAction(new EventHandler<ActionEvent>() {
 
 			public void handle(ActionEvent arg0) {
-				Generator gen = new Generator();
-				grid.clearCells();
-				gen.generateSodukoGrid(2, grid);
-				generate.setDisable(true);
+				VBox generating = new VBox();
+				generating.setAlignment(Pos.CENTER);
+				Label dimension = new Label("Dimension");
+				Label difficulty = new Label("Difficulty");
+				Button generate = new Button("Generate");
+				Button back = new Button("Go back");
+				back.setOnAction(e-> {pane.setLeft(left);});
+				ChoiceBox dim = new ChoiceBox();
+				dim.getItems().add("2x2");
+				dim.getItems().add("3x3");
+				dim.getItems().add("4x4");
+				dim.getItems().add("5x5");
+				dim.getItems().add("6x6");
+				dim.getItems().add("7x7");
+				dim.getItems().add("8x8");
+				ChoiceBox dif = new ChoiceBox();
+				dif.getItems().add("Easy");
+				dif.getItems().add("Intermediate");
+				dif.getItems().add("Hard");
+				dif.getItems().add("Guru");
+				
+				generate.setOnAction(e -> {
+					Generator gen = new Generator();
+					String dimensionstring = (String)dim.getValue();
+					dimensionstring = dimensionstring.substring(0, 1);
+					int chosendim = Integer.valueOf(dimensionstring);
+					Grid newgrid = new Grid(chosendim);
+					newgrid.clearCells();
+					pane.getChildren().remove(grid);
+					gen.generateSodukoGrid(2, newgrid);
+					validInputNumber();
+					pane.setCenter(newgrid);
+					pane.setLeft(left);
+					grid = newgrid;
+					
+				});
+				generating.setSpacing(20);
+				generating.getChildren().addAll(dimension,dim,difficulty,dif,generate, back);
+				pane.setLeft(generating);
+
 			}
 			
 		});
-		left.getChildren().add(generate);
 		solve.setOnAction(new EventHandler<ActionEvent>() {
 			public void handle(ActionEvent event) {
 //				Task<Void> task = new Task<Void>() {
@@ -98,7 +140,8 @@ public class Main extends Application {
 //				};
 //				Thread solving = new Thread(task);
 //				solving.start();
-				Solver.solve(grid);
+				Solver solver = new Solver();
+				solver.solve(grid);
 			}
 		});
 		
@@ -125,15 +168,49 @@ public class Main extends Application {
 		});
 		Button clear = new Button("Clear");
 		clear.setOnAction(new ClearHandler());
-		bottom.getChildren().addAll(undo,redo,clear,solve);
+		Button config = new Button("Print config");
+		config.setOnAction(new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent arg0) {
+				for(Cage cage:grid.getAllCages()) {
+					System.out.println(cage.toString());
+				}
+				
+			}
+			
+		});
+		bottom.getChildren().addAll(undo,redo,clear,solve,config);
 		
-		
+		CheckBox mistakes = new CheckBox("Show mistakes");
+		mistakes.setOnAction(new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent e) {
+				if(mistakes.isSelected() == true) {
+					checking = true;
+					int dimension = grid.getDimensions();
+					for(int i = 1; i <= dimension* dimension; i++) {
+						if(grid.getCell(i).getNumber() != 0 && !grid.getCell(i).getChecked()) {
+							grid.validCellInput(grid.getCell(i));
+						}
+					}
+				}
+				else if (mistakes.isSelected() == false) {
+					int dimension = grid.getDimensions();
+					for(int i = 1; i <= dimension*dimension; i++) {
+						grid.getCell(i).resetStyle();
+					}
+					checking = false;
+				}
+				
+			}
+			
+		});
+		right.getChildren().add(mistakes);
 		
 		
 		ChoiceBox font = new ChoiceBox();
 		font.getItems().add("Small");
 		font.getItems().add("Medium");
 		font.getItems().add("Big");
+		font.getSelectionModel().selectFirst();
 		pane.setOnKeyPressed(new KeyHandler());
 		pane.addEventHandler(ScrollEvent.ANY, new ScrollHandler());
 		HBox options = new HBox();
@@ -152,8 +229,119 @@ public class Main extends Application {
 			
 		});
 		
-		left.getChildren().add(font);
+		left.getChildren().addAll(new Label("Font Size"),font,generate);
 		left.setAlignment(Pos.CENTER);
+		Button load = new Button("Load games");
+		right.getChildren().add(load);
+		
+		load.setOnAction(new EventHandler<ActionEvent>(){
+		public void handle(ActionEvent e){
+			Stage custom = new Stage();
+			custom.setTitle("Load your custom MathDoku game");
+			HBox choices = new HBox();
+			Button config = new Button("Load from text");
+			Button loadfiles = new Button("Chose file");	
+			VBox area = new VBox();
+			Scene second = new Scene(area);
+			TextArea txt = new TextArea();
+			area.getChildren().addAll(txt,choices);
+			area.setVgrow(txt, Priority.ALWAYS);
+			choices.getChildren().addAll(config,loadfiles);
+			custom.setScene(second);
+			custom.show();
+			config.setOnAction(new EventHandler<ActionEvent>(){
+				public void handle(ActionEvent arg0) {
+					String[] configlines = txt.getText().split("\n");
+					FileHandler manual = new FileHandler();
+						try {
+							int line = 1;
+							for(String cage:configlines) {
+							if(manual.parseLine(cage) == false) {return;}
+							}
+							int realdim = manual.getDimension();
+							Grid newgrid = new Grid(realdim);
+							pane.getChildren().remove(grid);
+							grid = newgrid;
+							validInputNumber();
+							for(String cage:configlines) {
+								String[] split = cage.split(" ");
+								String label = split[0];
+								String[] argum = split[1].split(",");
+								if(argum.length == 1) {
+									grid.setCage(label, Integer.valueOf(split[1]));
+								}
+								int[] arguments = new int[argum.length];
+								for(int i = 0;i < arguments.length;i++) {
+									arguments[i] = Integer.valueOf(argum[i]);
+									System.out.println(arguments[i]);
+								}
+								///change this argument shit
+								if(manual.checkCage(arguments, realdim) == true) {
+									grid.setCage(label, arguments);
+								}
+								else {
+									throw new ConfigurationError("Your cages are not adjacent check line, " + line);
+								}
+								line++;
+							}
+							pane.setCenter(grid);
+							
+							
+						} catch(ConfigurationError e) {
+							e.printStackTrace();
+						}
+					
+
+				}
+				
+			});
+			
+			
+			
+			loadfiles.setOnAction(new EventHandler<ActionEvent>() {
+				public void handle(ActionEvent z) {
+					FileChooser choseFiles = new FileChooser();
+					choseFiles.setTitle("Open a premade MathDoku game");
+					File game = choseFiles.showOpenDialog(stage);
+					if(game != null && game.canRead() == true && game.exists() == true) {
+						try {
+							int line = 1;
+							FileHandler handler = new FileHandler(game);
+							handler.readFile();
+							int dimensions = handler.getDimension();
+							Grid newgrid = new Grid(dimensions);
+							pane.getChildren().remove(grid);
+							grid = newgrid;
+							validInputNumber();
+							for(String cage:handler.getLines()){
+									String[] splitline = cage.split(" ");
+									String label = splitline[0];
+									String[] arguments;
+									arguments = splitline[1].split(",");
+									int[] args = new int[arguments.length];
+									for(int i = 0; i < args.length; i++) {
+										args[i] = Integer.valueOf(arguments[i]);
+									}
+									if(arguments.length == 0) {
+										grid.setCage(label, Integer.valueOf(splitline[1]));
+									}
+									if(handler.checkCage(args, dimensions) == true) {
+										grid.setCage(label, args);	
+									}
+								line++;
+							}			
+							pane.setCenter(grid);
+						} catch(Exception e2) {
+							e2.printStackTrace();
+						}
+						
+					}
+				}
+			});
+
+
+		}
+	});
 		
 	}
 	
@@ -269,121 +457,7 @@ public class Main extends Application {
 //		Dialog<String> dialog = new Dialog<>();
 //
 //		
-//		load.setOnAction(new EventHandler<ActionEvent>(){
-//		public void handle(ActionEvent e){
-//			Stage custom = new Stage();
-//			custom.setTitle("Load your custom MathDoku game");
-//			HBox choices = new HBox();
-//			Button config = new Button("Load from text");
-//			Button loadfiles = new Button("Chose file");	
-//			VBox area = new VBox();
-//			Scene second = new Scene(area);
-//			TextArea txt = new TextArea();
-//			area.getChildren().addAll(txt,choices);
-//			area.setVgrow(txt, Priority.ALWAYS);
-//			choices.getChildren().addAll(config,loadfiles);
-//			custom.setScene(second);
-//			custom.show();
-//			config.setOnAction(new EventHandler<ActionEvent>(){
-//				public void handle(ActionEvent arg0) {
-//					String[] configlines = txt.getText().split("\n");
-//					FileHandler manual = new FileHandler();
-//						try {
-//							int line = 1;
-//							for(String cage:configlines) {
-//							if(manual.parseLine(cage) == false) {return;}
-//							}
-//							int realdim = manual.getDimension();
-//							Grid newgrid = new Grid(realdim);
-//							main.getChildren().remove(grid);
-//							main.getChildren().remove(options);
-//							grid = newgrid;
-//							validInputNumber();
-//							for(String cage:configlines) {
-//								String[] split = cage.split(" ");
-//								String label = split[0];
-//								String[] argum = split[1].split(",");
-//								if(argum.length == 1) {
-//									grid.setCage(label, Integer.valueOf(split[1]));
-//								}
-//								int[] arguments = new int[argum.length];
-//								for(int i = 0;i < arguments.length;i++) {
-//									arguments[i] = Integer.valueOf(argum[i]);
-//									System.out.println(arguments[i]);
-//								}
-//								///change this argument shit
-//								if(manual.checkCage(arguments, realdim) == true) {
-//									grid.setCage(label, arguments);
-//								}
-//								else {
-//									throw new ConfigurationError("Your cages are not adjacent check line, " + line);
-//								}
-//								line++;
-//							}
-//							main.setVgrow(grid, Priority.ALWAYS);
-//							main.getChildren().add(grid);
-//							main.getChildren().add(options);
-//							
-//							
-//						} catch(ConfigurationError e) {
-//							e.printStackTrace();
-//						}
-//					
-//
-//				}
-//				
-//			});
-//			
-//			
-//			
-//			loadfiles.setOnAction(new EventHandler<ActionEvent>() {
-//				public void handle(ActionEvent z) {
-//					FileChooser choseFiles = new FileChooser();
-//					choseFiles.setTitle("Open a premade MathDoku game");
-//					File game = choseFiles.showOpenDialog(stage);
-//					if(game != null && game.canRead() == true && game.exists() == true) {
-//						try {
-//							int line = 1;
-//							FileHandler handler = new FileHandler(game);
-//							handler.readFile();
-//							int dimensions = handler.getDimension();
-//							Grid newgrid = new Grid(dimensions);
-//							main.getChildren().remove(grid);
-//							main.getChildren().remove(options);
-//							grid = newgrid;
-//							validInputNumber();
-//							for(String cage:handler.getLines()){
-//									String[] splitline = cage.split(" ");
-//									String label = splitline[0];
-//									String[] arguments;
-//									arguments = splitline[1].split(",");
-//									int[] args = new int[arguments.length];
-//									for(int i = 0; i < args.length; i++) {
-//										args[i] = Integer.valueOf(arguments[i]);
-//									}
-//									if(arguments.length == 0) {
-//										grid.setCage(label, Integer.valueOf(splitline[1]));
-//									}
-//									if(handler.checkCage(args, dimensions) == true) {
-//										grid.setCage(label, args);	
-//									}
-//								line++;
-//							}			
-//							main.setVgrow(grid, Priority.ALWAYS);
-//							main.getChildren().add(grid);
-//							grid.requestFocus();
-//							main.getChildren().add(options);
-//						} catch(Exception e2) {
-//							e2.printStackTrace();
-//						}
-//						
-//					}
-//				}
-//			});
-//
-//
-//		}
-//	});
+
 //	}
 	
 	public void validInputNumber() {
@@ -503,11 +577,11 @@ public class Main extends Application {
 						redo.setDisable(false);
 						undo.setDisable(false);
 					}
-					if(grid.validCellInput(grid.getSelected(),false) == true)
+					if(grid.validCellInput(grid.getSelected()) == true)
 					{
 						grid.getSelected().setCorrect(true);
 					}
-					if(grid.validCellInput(grid.getSelected(),false) == false)
+					if(grid.validCellInput(grid.getSelected()) == false)
 					{
 						grid.getSelected().setCorrect(false);
 					}
@@ -534,18 +608,29 @@ public class Main extends Application {
 			//decrease
 			if(deltaY < 0) {
 				if(grid.getSelected() != null && grid.getSelected().getNumber() != 0) {
-					Action action = grid.getSelected().changeCell(false, grid.getDimensions());
-					handler.notify(action);
-					undo.setDisable(false);
-					redo.setDisable(false);
+					if(checking == false) {
+						Action action = grid.getSelected().changeCell(false, grid.getDimensions());
+						handler.notify(action);
+						undo.setDisable(false);
+						redo.setDisable(false);						
+					}
+					else if(checking == true) {
+						
+					}
+
 				}
 			}
 			else if(deltaY > 0) {
 				if(grid.getSelected() != null) {
-					Action action = grid.getSelected().changeCell(true, grid.getDimensions());
-					handler.notify(action);
-					undo.setDisable(false);
-					redo.setDisable(false);
+					if(checking == false) {
+						Action action = grid.getSelected().changeCell(true, grid.getDimensions());
+						handler.notify(action);
+						undo.setDisable(false);
+						redo.setDisable(false);	
+					}
+					else if(checking == true) {
+						
+					}
 				}
 				
 			}

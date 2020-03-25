@@ -72,7 +72,6 @@ public class Generator {
 		
 		generateCages(difficulty, grid);
 		//leave in temporarily 
-//		grid.updateGrid();
 	}
 	public void generateCages(int difficulty, Grid grid) {
 		//Need a list of initial positions
@@ -183,9 +182,7 @@ public class Generator {
 				setupCage(grid, pass, random);
  				cageCells.clear();
  				neighbours.clear();
-				//loop through neighbours
-				//
-				//get the cell neighbours
+
 				
 			}
 		}
@@ -196,19 +193,21 @@ public class Generator {
 	
 	public void setupCage(Grid grid, int[] args, Random random) {
 		//rework --> check if division/subtraction possible IF YES CHOSE IT(apart from easy mode)
+//		int operator = random.nextInt(4);
+		
+		
 		int operator = random.nextInt(4);
 		//rework later 
 		///maybe add stuff in depending for difficulties
-		if(this.divisionPossible(grid, args) || this.subtractionPossible(grid, args) ) {
+//		if(this.divisionPossible(grid, args) || this.subtractionPossible(grid, args) ) {
 //			int subtraction = random.nextInt(2);
-			int subtraction = 0;
-			if(subtraction == 1) {
-				operator = 4;
-			}
-			else if(subtraction == 0) {
-				operator = 3;
-			}
-		}
+//			if(subtraction == 1) {
+//				operator = 4;
+//			}
+//			else if(subtraction == 0) {
+//				operator = 3;
+//			}
+//		}
 		
 		
 		if(args.length == 0) {return;}
@@ -257,7 +256,6 @@ public class Generator {
 				setupCage(grid, args,random);
 			}
 			else {
-				for(int x:args) {System.out.println(x);}
 				grid.setCage(result+"-", args);
 			}
 			return;

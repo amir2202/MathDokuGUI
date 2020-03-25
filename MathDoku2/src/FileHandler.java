@@ -52,13 +52,13 @@ public class FileHandler {
 
 	public boolean parseLine(String line) throws ConfigurationError {
 		boolean formatfirst = false;
-		boolean formatsecond = false;
+		boolean formatsecond = true;
 		boolean input = false;
 		String[] part = line.split(" ");
 		if(part.length == 0) {
 			return false;
 		}
-		if(part[0].matches("[0-9]+[\\-+xÃ·]+$") || part[0].matches("[0-9]")) {
+		if(part[0].matches("[0-9]+[\\-+x÷]+$") || part[0].matches("[0-9]")) {
 			formatfirst = true;
 		}
 		//rework later

@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 
 public class Cage {
 	private String label;
@@ -8,6 +9,7 @@ public class Cage {
 	private int target;
 	private char operator;
 	private int expected;
+	private boolean checked = false;
 	private ArrayList<Cell> cagecells;
 	public Cage(String label, int... cordinates) {
 		cagecells = new ArrayList<Cell>();
@@ -53,22 +55,37 @@ public class Cage {
 		}
 		return true;
 	}
-	
-	public boolean cageDuplicates() {
-		if(this.cageDuplicates() == false) {
-			for(int i = 0; i < this.cagecells.size();i++) {
-				if((i != cagecells.size() -1 ) && (this.cagecells.get(i).getNumber() == this.cagecells.get(i +1).getNumber())) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
+
+	//unneeded method
+//	
+//	public boolean cageDuplicates() {
+//		HashSet real = new HashSet();
+//		int size = this.cagecells.size();
+//		for(Cell cell:this.cagecells) {
+//			if(cell.getNumber() == 0) {
+//				size--;
+//			}
+//			else {
+//				real.add(cell.getNumber());
+//			}
+//		}
+//		if(size == real.size()) {
+//			return false;
+//		}
+//		else {
+//			return true;
+//		}
+//	}
 	
 	public boolean isCageCorrect() {
 		//
 		//if there is no operator?
+		if(this.cagecells.size() == 1) {
+			int result = Integer.valueOf(this.label);
+			if (this.cagecells.get(0).getNumber()!= result) {
+				return false;
+			}
+		}
 		
 		if(operator == '+') {
 			int result = 0;
@@ -123,16 +140,32 @@ public class Cage {
 			}
 		}
 		
-		else if(this.cagecells.size() == 1) {
-			int result = Integer.valueOf(this.label);
-			if (this.cagecells.get(0).getNumber()!= result) {
-				return false;
-			}
-		}
 		return true; 
 		
 	}	
 	
+	public boolean getChecked() {
+		return this.checked;
+	}
 	
+	public void setChecked(boolean checked) {
+		this.checked = checked; 
+	}
+	
+	public String toString() {
+		String numbers = "";
+		if(this.cordinates.length == 1) {
+			numbers = String.valueOf(this.cordinates[0]);
+		}
+		else {
+			for(int i = 0; i < this.cordinates.length; i++) {
+				numbers += String.valueOf(this.cordinates[i]);
+				if(i != this.cordinates.length -1) {
+					numbers += ",";
+				}
+			}
+		}
+		return this.label + " " + numbers; 
+	}
 	
 }
