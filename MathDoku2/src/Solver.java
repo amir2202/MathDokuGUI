@@ -38,14 +38,14 @@ public class Solver {
 			}
 		}
 		
-//		for(int x = 0; x < grid.getDimensions(); x++) {
-//			for(int y = 0; y < grid.getDimensions(); y++) {
-//				int number = grid.getCell(x, y).getNumber();
-//				Text update = new Text(String.valueOf(number));
-//				grid.setText(x,y,update, true, number);	
-//		}
-//		
-//		}
+		for(int x = 0; x < grid.getDimensions(); x++) {
+			for(int y = 0; y < grid.getDimensions(); y++) {
+				int number = grid.getCell(x, y).getNumber();
+				Text update = new Text(String.valueOf(number));
+				grid.setText(x,y,update, true, number);	
+		}
+		
+		}
 	}
 	
 

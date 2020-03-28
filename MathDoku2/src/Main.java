@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Optional;
 
 import javafx.scene.control.CheckBox;
@@ -20,6 +21,7 @@ import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.MapChangeListener;
 import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -74,6 +76,7 @@ public class Main extends Application {
 		stage.show();
 		VBox left = new VBox();
 		VBox right = new VBox();
+		Button hint = new Button("Hint");
 		right.setAlignment(Pos.CENTER_LEFT);
 		pane.setRight(right);
 		pane.setLeft(left);
@@ -116,8 +119,9 @@ public class Main extends Application {
 					dimensionstring = dimensionstring.substring(0, 1);
 					int chosendim = Integer.valueOf(dimensionstring);
 					Grid newgrid = new Grid(chosendim);
-					newgrid.clearCells();
 					pane.getChildren().remove(grid);
+					grid = newgrid;
+					validInputNumber();
 					int chosendifficulty = 0;
 					//default
 					switch((String) dif.getValue()) {
@@ -131,34 +135,45 @@ public class Main extends Application {
 						chosendifficulty = 3;
 					}
 					
-						
-					gen.generateSodukoGrid(chosendifficulty, newgrid);
-					validInputNumber();
-					pane.setCenter(newgrid);
+	
+					gen.generateSodukoGrid(chosendifficulty, grid);
+					pane.setCenter(grid);
 					pane.setLeft(left);
-					grid = newgrid;
 					
 				});
 				generating.setSpacing(20);
 				generating.getChildren().addAll(dimension,dim,difficulty,dif,generate, back);
 				pane.setLeft(generating);
+				grid.clearCells();
 
 			}
 			
 		});
-		solve.setOnAction(new EventHandler<ActionEvent>() {
-			public void handle(ActionEvent event) {
-				Task<Void> task = new Task<Void>() {
-					protected Void call() {
-						Solver solver = new Solver();
-						solver.solve(grid);
-						return null;
+		solve.setOnAction(new EventHandler<ActionEvent>(){
+
+			@Override
+			public void handle(ActionEvent arg0) {
+				String[] config = new String[grid.getAllCages().size()];
+				for(int i = 0; i < config.length; i++) {
+					config[i] = grid.getAllCages().get(i).toString();
+				}
+				SolvingTask solve = new SolvingTask(config, grid.getDimensions());
+				solve.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+					public void handle(WorkerStateEvent arg0) {
+						HashMap<Integer,Integer> values = (HashMap) solve.getValue();
+						for(int position = 1; position <= grid.getDimensions() * grid.getDimensions(); position++) {
+							int value = values.get(position);
+							grid.getCell(position).setNumber(value);
+						}
+						grid.updateGrid();
 					}
-				};
-				Thread solving = new Thread(task);
-				solving.start();
-				grid.updateGrid();
+					
+				});
+				Thread thread = new Thread(solve);
+				thread.setDaemon(true);
+				thread.start();
 			}
+			
 		});
 		
 		
@@ -194,7 +209,7 @@ public class Main extends Application {
 			}
 			
 		});
-		bottom.getChildren().addAll(undo,redo,clear,solve,config);
+		bottom.getChildren().addAll(undo,redo,clear,solve,config,hint);
 		
 		CheckBox mistakes = new CheckBox("Show mistakes");
 		mistakes.setOnAction(new EventHandler<ActionEvent>() {
@@ -289,7 +304,6 @@ public class Main extends Application {
 								int[] arguments = new int[argum.length];
 								for(int i = 0;i < arguments.length;i++) {
 									arguments[i] = Integer.valueOf(argum[i]);
-									System.out.println(arguments[i]);
 								}
 								///change this argument shit
 								if(manual.checkCage(arguments, realdim) == true) {
@@ -361,120 +375,6 @@ public class Main extends Application {
 		
 	}
 	
-//	public void start(Stage stage) throws Exception {
-//		this.stage = stage;
-//		handler = new ActionHandler();
-//		VBox main = new VBox();
-//		stage.show();
-//		//Get grid
-//		grid = new Grid(5);
-//		Scene scene = new Scene(main, 600,600);
-//		stage.setTitle("MathDoku");
-//		stage.setScene(scene);
-//		this.validInputNumber();
-//		ChoiceBox font = new ChoiceBox();
-//		font.getItems().add("Small");
-//		font.getItems().add("Medium");
-//		font.getItems().add("Big");
-//		main.getChildren().add(grid);
-//		main.setOnKeyPressed(new KeyHandler());
-//		main.addEventHandler(ScrollEvent.ANY, new ScrollHandler());
-//		HBox options = new HBox();
-//		font.setOnAction(new EventHandler<ActionEvent>() {
-//			public void handle(ActionEvent arg0) {
-//				if (font.getValue() == "Small") {
-//					grid.setFont("small");
-//				}
-//				if (font.getValue() == "Medium") {
-//					grid.setFont("medium");
-//				}
-//				if (font.getValue() == "Big") {
-//					grid.setFont("large");
-//				}
-//			}
-//			
-//		});
-//		main.setVgrow(grid, Priority.ALWAYS);
-//		Button solve = new Button("Solve");
-//		Button generate = new Button("Generate");
-//		generate.setOnAction(new EventHandler<ActionEvent>() {
-//
-//			public void handle(ActionEvent arg0) {
-//				Generator gen = new Generator();
-//				grid.clearCells();
-//				gen.generateSodukoGrid(2, grid);
-//				generate.setDisable(true);
-//			}
-//			
-//		});
-//		solve.setOnAction(new EventHandler<ActionEvent>() {
-//			public void handle(ActionEvent event) {
-////				Task<Void> task = new Task<Void>() {
-////					protected Void call() {
-////						solve.setDisable(true);
-////						Solver.solve(grid);
-////						return null;
-////					}
-////				};
-////				Thread solving = new Thread(task);
-////				solving.start();
-//				Solver.solve(grid);
-//			}
-//		});
-//		
-//		
-//		undo = new Button("Undo");
-//		undo.setDisable(true);
-//		undo.setOnAction(new EventHandler<ActionEvent>(){
-//			public void handle(ActionEvent event) {
-//				if(handler.undoEmpty() == false) {
-//					handler.undo();
-//				}
-//			}
-//		});
-////		undo.
-//		redo = new Button("Redo");
-//		redo.setDisable(true);
-//		redo.setOnAction(new EventHandler<ActionEvent>() {
-//			public void handle(ActionEvent event) {
-//				if(handler.redoEmpty() == false) {
-//					handler.redo();
-//				}			
-//			}
-//			
-//		});
-//		
-//		Button clear = new Button("Clear");
-//		clear.setOnAction(new ClearHandler());
-//		Button load = new Button("Load game");
-//		CheckBox mistakes = new CheckBox("Show mistakes");
-//		mistakes.setOnAction(new EventHandler<ActionEvent>() {
-//			public void handle(ActionEvent e) {
-//				if(mistakes.isSelected() == true) {
-//					checking = true;
-//				}
-//				else if (mistakes.isSelected() == false) {
-//					checking = false;
-//				}
-//				
-//			}
-//			
-//		});
-//		
-//		options.getChildren().addAll(clear,undo,redo,load,font ,solve,mistakes,generate);
-//		options.setHgrow(undo, Priority.ALWAYS);
-//		options.setSpacing(2);
-//		options.setAlignment(Pos.BASELINE_LEFT);
-//		options.setHgrow(redo, Priority.ALWAYS);
-//		options.setHgrow(load, Priority.ALWAYS);
-//		options.setHgrow(mistakes, Priority.ALWAYS);
-//		main.getChildren().add(options);
-//		
-//		Dialog<String> dialog = new Dialog<>();
-//
-//		
-
-//	}
 	
 	public void validInputNumber() {
 		numbers = new ArrayList<String>();

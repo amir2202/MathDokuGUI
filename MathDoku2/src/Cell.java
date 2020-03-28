@@ -14,6 +14,7 @@ public class Cell extends StackPane{
 	private boolean occupied = false;
 	private boolean selected = false;
 	private Cage cage;
+	private String concurrentLabel;
 	private boolean checked = false;
 	private Boolean correct;
 	private Boolean highlighted = false;
@@ -32,11 +33,23 @@ public class Cell extends StackPane{
 	
 	
 	
-	public void setLabel(String label) {
+	public void setLabel(String label,boolean gui) {
+		if(gui == false) {
+			this.concurrentLabel = label;
+			return;
+		}
 		this.label = new Label(label);
 	    this.label.getStyleClass().add("small");
 		this.getChildren().add(this.label);
 		this.setAlignment(this.label, Pos.TOP_LEFT);
+	}
+	
+	public void setConcurrentLabel(String label) {
+		this.concurrentLabel = label;
+	}
+
+	public String getConcurrentLabel() {
+		return this.concurrentLabel;
 	}
 	
 	public Label getLabel() {

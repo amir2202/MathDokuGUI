@@ -98,7 +98,7 @@ public class Grid extends GridPane {
 			Integer[] coordinates = this.getCords(args[0]);
 			int x = coordinates[0];
 			int y = coordinates[1];
-			cells[x][y].setLabel(label);
+			cells[x][y].setLabel(label,true);
 			this.cells[x][y].setCage(single);
 			cells[x][y].cellThickenBorder();
 		}
@@ -112,7 +112,7 @@ public class Grid extends GridPane {
 					Integer[] cords = this.getCords(args[i]);
 					int x = cords[0];
 					int y = cords[1];
-					cells[x][y].setLabel(label);
+					cells[x][y].setLabel(label,true);
 				    cells[x][y].setCage(multiple);
 				    multiple.addCords(cords);
 				}
@@ -125,8 +125,44 @@ public class Grid extends GridPane {
 				
 			}
 			}
-			
-			this.setUpBorders();
+				this.setUpBorders();
+		}
+	}
+	
+	
+	public void setNonGuiCage(String label, int... args) {
+		if (args.length == 1) {
+			Cage single = new Cage(label, args);
+			this.allcages.add(single);
+			Integer[] coordinates = this.getCords(args[0]);
+			int x = coordinates[0];
+			int y = coordinates[1];
+//			cells[x][y].setLabel(label,false);
+			this.cells[x][y].setCage(single);
+		}
+
+		//now for args 
+		else if(args.length > 1) {
+			Cage multiple = new Cage(label,args);
+			this.allcages.add(multiple);
+			for(int i = 0; i < args.length;i++) {
+				if(i == 0) {
+					Integer[] cords = this.getCords(args[i]);
+					int x = cords[0];
+					int y = cords[1];
+//					cells[x][y].setLabel(label,false);
+				    cells[x][y].setCage(multiple);
+				    multiple.addCords(cords);
+				}
+				else {
+					Integer[] other = this.getCords(args[i]);
+					int x = other[0];
+					int y = other[1];
+					this.cells[x][y].setCage(multiple);
+					multiple.addCords(other);
+				
+			}
+			}
 		}
 	}
 	

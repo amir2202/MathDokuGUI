@@ -186,6 +186,7 @@ public class Generator {
 				
 			}
 		}
+		grid.clearCells();
 
 	}
 	
