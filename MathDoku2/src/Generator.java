@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Random;
 
 import javafx.scene.text.Text;
@@ -8,7 +9,7 @@ import javafx.scene.text.Text;
 public class Generator {
 	//stuff to add -> merge single cells/for higher difficulty
 	//ensure unique solution
-
+	
 	public Generator() {
 		
 	}
@@ -69,7 +70,6 @@ public class Generator {
 		
 		
 		
-		
 		generateCages(difficulty, grid);
 		//leave in temporarily 
 	}
@@ -95,7 +95,7 @@ public class Generator {
 				oneel[0] = availableCells.get(0);
 //				System.out.println("Setting cage at");
 //				System.out.println(availableCells.get(0));
-				setupCage(grid, oneel, random);					
+				setupCage(grid, oneel, random,difficulty);					
 				break;
 			}
 			else {
@@ -179,20 +179,24 @@ public class Generator {
 // 					System.out.println(cageCells.get(i));
  				}
  				Arrays.sort(pass);
-				setupCage(grid, pass, random);
+				setupCage(grid, pass, random,difficulty);
  				cageCells.clear();
  				neighbours.clear();
 
 				
 			}
 		}
+		
+		//if guru (make bigger cages)
+		
+
 		grid.clearCells();
 
 	}
 	
 	
 	
-	public void setupCage(Grid grid, int[] args, Random random) {
+	public void setupCage(Grid grid, int[] args, Random random, int difficulty) {
 		//rework --> check if division/subtraction possible IF YES CHOSE IT(apart from easy mode)
 //		int operator = random.nextInt(4);
 		
@@ -200,16 +204,18 @@ public class Generator {
 		int operator = random.nextInt(4);
 		//rework later 
 		///maybe add stuff in depending for difficulties
-//		if(this.divisionPossible(grid, args) || this.subtractionPossible(grid, args) ) {
+//		boolean subtract = this.subtractionPossible(grid, args);
+//		boolean division = this.divisionPossible(grid, args);
+//		if(subtract && division) {
 //			int subtraction = random.nextInt(2);
 //			if(subtraction == 1) {
-//				operator = 4;
+////				operator = 4;
+//				operator = 3;
 //			}
 //			else if(subtraction == 0) {
 //				operator = 3;
 //			}
 //		}
-		
 		
 		if(args.length == 0) {return;}
 		if(args.length == 1) {
@@ -254,7 +260,7 @@ public class Generator {
 				result -= numbers[j];
 			}
 			if(result == 0 || result < 0) {
-				setupCage(grid, args,random);
+				setupCage(grid, args,random,difficulty);
 			}
 			else {
 				grid.setCage(result+"-", args);
@@ -273,7 +279,7 @@ public class Generator {
 				result /= numbers[j];
 			}
 			if(result == 0 || result < 0 || (result % 1 != 0)) {
-				setupCage(grid, args,random);
+				setupCage(grid, args,random,difficulty);
 			}
 			else {
 				int real = (int) result;
@@ -300,7 +306,9 @@ public class Generator {
 		if(result > 0) {
 			return true;
 		}
-		return false;
+		else {
+			return false;	
+		}
 	}
 	
 	public boolean divisionPossible(Grid grid, int[] args) {
@@ -316,9 +324,127 @@ public class Generator {
 		if(result % 1 == 0) {
 			return true;
 		}
-		//do later
-		
-		//check if result modulus %1 = 0
+
 		return false;
 	}
+	
+	
+	//find deadly pattern given a grid
+	public boolean uniqueSolution(Grid grid) {
+		
+		return false;
+	}
+	
+	public boolean checkPermutations(Grid grid) {
+		int dim = grid.getDimensions();
+		for(int col = 0; col < dim; col++) {
+			int[][][] pairs = this.getColPairs(col, grid);
+			for(int col2 = 0; col2 < dim;col2++) {
+				if(col == col2) {
+					continue;
+				}
+				int[][][] pairs2 = this.getColPairs(col2, grid);
+				if(this.validInversePairExist(pairs, pairs2,grid)) {
+//					System.out.println(grid.solutions());
+					return true;
+				}
+				
+			}
+			
+			
+		}
+		
+		//now for row
+		return false;
+	}
+	
+	private int[][][] getColPairs(int x, Grid grid) {
+		int dim = grid.getDimensions();
+//		Cell collcells[] = grid.getColumncells(index);
+		int[][][] pairs = new int[dim * (dim -1)][2][3];
+		int pair = 0;
+		for(int rowindex = 0; rowindex < dim; rowindex++) {
+			for(int row2 = 0; row2 < dim; row2++) {
+				if(rowindex == row2) {
+					continue;
+				}
+				pairs[pair][0][0] = grid.getCell(x, rowindex).getNumber();
+				pairs[pair][0][1] = x;
+				pairs[pair][0][2] = rowindex;
+				pairs[pair][1][0] = grid.getCell(x, row2).getNumber();
+				pairs[pair][1][1] = x;
+				pairs[pair][1][2] = row2;
+				//pairs are added in same order so, can compare in same
+				//eg if pair 0 --> then check if 1 is equal to the 0 of the other
+				pair++;
+			}
+		}
+		
+		return pairs;
+	}
+	
+	
+	public static int[][][] getRowPairs(int index, Grid grid) {
+		int dim = grid.getDimensions();
+		int[][][] pairs = new int[dim * (dim -1)][2][3];
+		int pair = 0;
+		for(int rowelement = 0; rowelement < dim; rowelement++) {
+			for(int rowelement2 = 0; rowelement2 < dim; rowelement2++) {
+				if(rowelement == rowelement2) {
+					continue;
+				}
+				
+				pairs[pair][0][0] = grid.getCell(index,rowelement).getNumber();
+				pairs[pair][0][1] = rowelement;
+				pairs[pair][0][2] = index;
+				pairs[pair][1][0] = grid.getCell(index,rowelement2).getNumber();
+				pairs[pair][1][1] = rowelement2;
+				pairs[pair][1][2] = index;
+				pair++;
+			}
+		}
+		
+		return pairs;
+	}
+	
+	
+	private boolean validInversePairExist(int[][][] pair1, int[][][] pair2, Grid grid) {
+		boolean multiplesolution = false;
+		for(int i = 0; i < pair1.length; i++) {
+			int p1element1 = pair1[i][0][0];
+			int p1el1cordx = pair1[i][0][1];
+			int p1el1cordy = pair1[i][0][2];
+			int p1element2 = pair1[i][1][0];
+			int p1el2cordx = pair1[i][1][1];
+			int p1el2cordy = pair1[i][1][2];
+			
+			int p2element1 = pair2[i][0][0];
+			int p2el1cordx = pair2[i][0][1];
+			int p2el1cordy = pair2[i][0][2];
+			int p2element2 = pair2[i][1][0];
+			int p2el2cordx = pair2[i][1][1];
+			int p2el2cordy = pair2[i][1][2];
+//			if(i == 0) {
+//				System.out.println("Pair " + p1element1 + " " + p1element2);
+//				System.out.println("Pair " + p2element1 + " " + p2element2);
+//			}
+//			System.out.println(p1element1 == p2element2);
+			//&& (p1element2 == p2element) && (p1el2cordy == p2el2cordy) && (p1el1cordy == p2el1cordy)
+			if((p1element2 == p2element2) && (p1el2cordy == p2el2cordy) && (p1el1cordy == p2el1cordy)){
+				boolean swap = grid.validCellInput(p1el1cordx, p1el1cordy, p2element2);
+				boolean swap1 = grid.validCellInput(p1el2cordx, p1el2cordy, p2element1);
+				if(swap && swap1) {
+					grid.increaseSolution();
+					return true;
+				}
+				
+			}
+			
+
+		}
+		return multiplesolution;
+	}
+	
+	
+	
 }

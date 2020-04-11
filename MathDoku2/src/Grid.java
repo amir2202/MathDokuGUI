@@ -21,7 +21,10 @@ import javafx.scene.text.Text;
 public class Grid extends GridPane {
 	private int dimensions;
 	private Cell[][] cells;
+	private int solutions = 0;
 	private Cell selectedCell;
+	private boolean solved = false;
+	private HashMap<Integer,Integer> solution;
 	private ArrayList<String> numbers;
 	private ArrayList<Cage> allcages; 
 	private HashMap<Integer,Integer[]> cords;
@@ -232,6 +235,15 @@ public class Grid extends GridPane {
 				this.cells[i][j].setStyle("-fx-border-width: " +up + " " + right + " " + bottom+ " " + left);
 			}
 		}
+	}
+	
+	//called only for purpose of unique solution
+	public boolean validCellInput(int x, int y, int newvalue) {
+		int oldvalue = this.getCell(x,y).getNumber();
+		this.getCell(x, y).setNumber(newvalue);
+		boolean valid = this.validCellInput(this.getCell(x, y));
+		this.getCell(x, y).setNumber(oldvalue);
+		return valid;
 	}
 	
 	//public void setUpBorders(Cage cage, boolean mistakes)
@@ -662,4 +674,33 @@ public class Grid extends GridPane {
 		this.allcages.clear();
 	}
 	
+	public boolean alreadySolved() {
+		return this.solved;
+	}
+	
+	public void solved(boolean solved) {
+		this.solved = solved;
+	}
+	
+	public void setSolution(HashMap<Integer,Integer> solution) {
+		this.solution = solution;
+	}
+	
+	public HashMap<Integer,Integer> getSolution(){
+		return this.solution;
+	}
+	
+	public void increaseSolution() {
+		this.solutions++;
+	}
+	
+	public int solutions() {
+		return this.solutions;
+	}
+	
+//	public int getPosition(int x, int y) {
+//		if(x == 0 && y == 0) {
+//			return 0;
+//		}
+//	}
 }

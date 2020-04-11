@@ -16,6 +16,8 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
@@ -41,7 +43,13 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -77,6 +85,21 @@ public class Main extends Application {
 		VBox left = new VBox();
 		VBox right = new VBox();
 		Button hint = new Button("Hint");
+		Button animate = new Button("Animate");
+		animate.setOnAction(new EventHandler<ActionEvent>() {
+//			public void handle(ActionEvent e) {
+//				Winning win = new Winning(pane,scene.getHeight(), scene.getWidth()); 
+//				try {
+//					stage.setScene(win.getAnimation());
+//				} catch (Exit e1) {
+//					stage.setScene(scene);
+//				}	
+//			}
+			public void handle(ActionEvent e) {
+				Generator gen = new Generator();
+				System.out.println(gen.checkPermutations(grid));
+		}
+		});
 		right.setAlignment(Pos.CENTER_LEFT);
 		pane.setRight(right);
 		pane.setLeft(left);
@@ -84,7 +107,7 @@ public class Main extends Application {
 		bottom.setAlignment(Pos.CENTER);
 		pane.setBottom(bottom);
 //		bottom
-		Button solve = new Button("Solve");
+		Button solvebutton = new Button("Solve");
 		Button generate = new Button("Generate");
 		generate.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -149,10 +172,21 @@ public class Main extends Application {
 			}
 			
 		});
-		solve.setOnAction(new EventHandler<ActionEvent>(){
+		solvebutton.setOnAction(new EventHandler<ActionEvent>(){
 
 			@Override
 			public void handle(ActionEvent arg0) {
+				if(grid.alreadySolved() == true) {
+					HashMap<Integer,Integer> values = grid.getSolution();
+					for(int position = 1; position <= grid.getDimensions() * grid.getDimensions(); position++) {
+						int value = values.get(position);
+						grid.getCell(position).setNumber(value);
+					}
+					grid.updateGrid();
+					return;
+				}
+				else {
+					solvebutton.setDisable(true);
 				String[] config = new String[grid.getAllCages().size()];
 				for(int i = 0; i < config.length; i++) {
 					config[i] = grid.getAllCages().get(i).toString();
@@ -166,12 +200,16 @@ public class Main extends Application {
 							grid.getCell(position).setNumber(value);
 						}
 						grid.updateGrid();
+						grid.setSolution(values);
+						grid.solved(true);
+						solvebutton.setDisable(false);
 					}
 					
 				});
 				Thread thread = new Thread(solve);
 				thread.setDaemon(true);
 				thread.start();
+			}
 			}
 			
 		});
@@ -209,7 +247,7 @@ public class Main extends Application {
 			}
 			
 		});
-		bottom.getChildren().addAll(undo,redo,clear,solve,config,hint);
+		bottom.getChildren().addAll(undo,redo,clear,solvebutton,config,hint,animate);
 		
 		CheckBox mistakes = new CheckBox("Show mistakes");
 		mistakes.setOnAction(new EventHandler<ActionEvent>() {
@@ -554,5 +592,96 @@ public class Main extends Application {
 		}
 		
 	}
+		class Winning {
+			//first animate the grid
+			//create circle --> make it expand -> make it say you win
+			//play again
+			//create new stage--> hide other--> -> play again option 
+			private Scene scene;
+			private boolean inScene = true;
+			private BorderPane grid;
+			private StackPane pane;
+			double height;
+			double width;
+			public Winning(BorderPane grid,double height,double width) {
+				pane = new StackPane();
+				this.height = height;
+				this.grid = grid;
+				this.width = width;
+				this.scene = new Scene(pane,width,height);
+			}
+			
+			
+			public Scene getAnimation() throws Exit{
+				Circle circle = new Circle(2);
+				circle.setFill(Color.AQUA);
+				Button more = new Button("Play more!");
+				Button back = new Button("Go back");
+				Button reset = new Button("reset");
+				this.pane.getChildren().add(grid);
+				this.pane.getChildren().add(circle);
+				this.pane.setAlignment(circle, Pos.CENTER);
+				KeyFrame frame = new KeyFrame(javafx.util.Duration.millis(75), new EventHandler<ActionEvent>() {
+					public void handle(ActionEvent arg0) {
+						circle.setRadius(circle.getRadius() * 1.25);
+					}
+					
+				});
+				Timeline timeline = new Timeline(frame);
+				timeline.setCycleCount(40);
+				timeline.setOnFinished(new EventHandler<ActionEvent>(){
+					public void handle(ActionEvent e) {
+						Font font = Font.font("Algerian", FontWeight.BOLD, FontPosture.ITALIC, 36);
+						Text text = new Text("You win");
+						text.setFont(font);
+						pane.getChildren().add(text);
+						text.relocate(height/2, width/2);
+							KeyFrame moveup = new KeyFrame(javafx.util.Duration.millis(500), new EventHandler<ActionEvent>() {
+								public void handle(ActionEvent arg0) {
+									text.setTranslateY(-25);
+								}
+								
+							});
+							KeyFrame movedown = new KeyFrame(javafx.util.Duration.millis(500), new EventHandler<ActionEvent>() {
+								public void handle(ActionEvent arg0) {
+									text.setTranslateY(25);
+								}
+							});
+							Timeline movingtext = new Timeline(moveup,movedown);
+							movingtext.setCycleCount(500);
+							movingtext.play();
+							movingtext.setOnFinished(new EventHandler<ActionEvent>(){
+								public void handle(ActionEvent arg0) {
+									inScene = false;
+								}
+								
+							});
+					}
+				});
+				//dont hardcode cycle count
+				//on finished
+				timeline.play();
+				
+				
+				
+				
+				
+				
+				
+				
+				return this.scene;
+			}
+			
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 }
 
