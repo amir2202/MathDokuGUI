@@ -238,12 +238,24 @@ public class Grid extends GridPane {
 	}
 	
 	//called only for purpose of unique solution
-	public boolean validCellInput(int x, int y, int newvalue) {
-		int oldvalue = this.getCell(x,y).getNumber();
-		this.getCell(x, y).setNumber(newvalue);
-		boolean valid = this.validCellInput(this.getCell(x, y));
-		this.getCell(x, y).setNumber(oldvalue);
-		return valid;
+	public boolean validCellSwaps(int x, int y, int x2, int y2, int x3, int y3, int x4, int y4) {
+		int cell1oldvalue = this.getCell(x,y).getNumber();
+		int cell2oldvalue = this.getCell(x2, y2).getNumber();
+		int cell3oldvalue = this.getCell(x3,y3).getNumber();
+		int cell4oldvalue = this.getCell(x4,y4).getNumber();
+		this.getCell(x, y).setNumber(cell2oldvalue);
+		this.getCell(x2, y2).setNumber(cell1oldvalue);
+		this.getCell(x3, y3).setNumber(cell4oldvalue);
+		this.getCell(x4,y4).setNumber(cell3oldvalue);
+		boolean cell1 = this.solvingGrid(this.getCell(x, y));
+		boolean cell2 = this.solvingGrid(this.getCell(x2, y2));
+		boolean cell3 = this.solvingGrid(this.getCell(x3, y3));
+		boolean cell4 = this.solvingGrid(this.getCell(x4, y4));
+		this.getCell(x, y).setNumber(cell1oldvalue);
+		this.getCell(x2,y2).setNumber(cell2oldvalue);
+		this.getCell(x3,y3).setNumber(cell3oldvalue);
+		this.getCell(x4, y4).setNumber(cell4oldvalue);
+		return cell1 && cell2 && cell3 && cell4;
 	}
 	
 	//public void setUpBorders(Cage cage, boolean mistakes)

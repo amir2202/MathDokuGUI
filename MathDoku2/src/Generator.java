@@ -330,13 +330,10 @@ public class Generator {
 	
 	
 	//find deadly pattern given a grid
-	public boolean uniqueSolution(Grid grid) {
-		
-		return false;
-	}
-	
-	public boolean checkPermutations(Grid grid) {
+	public boolean multipleSolution(Grid grid) {
 		int dim = grid.getDimensions();
+		boolean multiple = false;
+		
 		for(int col = 0; col < dim; col++) {
 			int[][][] pairs = this.getColPairs(col, grid);
 			for(int col2 = 0; col2 < dim;col2++) {
@@ -345,18 +342,67 @@ public class Generator {
 				}
 				int[][][] pairs2 = this.getColPairs(col2, grid);
 				if(this.validInversePairExist(pairs, pairs2,grid)) {
-//					System.out.println(grid.solutions());
-					return true;
+					multiple = true;
 				}
 				
 			}
-			
-			
 		}
 		
 		//now for row
+		for(int row = 0; row < dim; row++) {
+			int[][][] pairs = this.getRowPairs(row, grid);
+			for(int row2 = 0; row2 < dim;row2++) {
+				if(row == row2) {
+					continue;
+				}
+				int[][][] pairs2 = this.getRowPairs(row2, grid);
+				if(this.validInversePairExist(pairs, pairs2,grid)) {
+					multiple = true;
+				}
+				
+			}
+		}
+		
 		return false;
 	}
+	
+//	public boolean checkPermutations(Grid grid) {
+//		int dim = grid.getDimensions();
+//		boolean  ;
+//		
+//		for(int col = 0; col < dim; col++) {
+//			int[][][] pairs = this.getColPairs(col, grid);
+//			for(int col2 = 0; col2 < dim;col2++) {
+//				if(col == col2) {
+//					continue;
+//				}
+//				int[][][] pairs2 = this.getColPairs(col2, grid);
+//				if(this.validInversePairExist(pairs, pairs2,grid)) {
+////					System.out.println(grid.solutions());
+//					return true;
+//				}
+//				
+//			}
+//		}
+//		
+//		//now for row
+//		for(int row = 0; row < dim; row++) {
+//			int[][][] pairs = this.getRowPairs(row, grid);
+//			for(int row2 = 0; row2 < dim;row2++) {
+//				if(row == row2) {
+//					continue;
+//				}
+//				int[][][] pairs2 = this.getRowPairs(row2, grid);
+//				if(this.validInversePairExist(pairs, pairs2,grid)) {
+////					System.out.println(grid.solutions());
+//					return true;
+//				}
+//				
+//			}
+//		}
+//		
+//		return false;
+//	}
 	
 	private int[][][] getColPairs(int x, Grid grid) {
 		int dim = grid.getDimensions();
@@ -424,16 +470,11 @@ public class Generator {
 			int p2element2 = pair2[i][1][0];
 			int p2el2cordx = pair2[i][1][1];
 			int p2el2cordy = pair2[i][1][2];
-//			if(i == 0) {
-//				System.out.println("Pair " + p1element1 + " " + p1element2);
-//				System.out.println("Pair " + p2element1 + " " + p2element2);
-//			}
-//			System.out.println(p1element1 == p2element2);
-			//&& (p1element2 == p2element) && (p1el2cordy == p2el2cordy) && (p1el1cordy == p2el1cordy)
-			if((p1element2 == p2element2) && (p1el2cordy == p2el2cordy) && (p1el1cordy == p2el1cordy)){
-				boolean swap = grid.validCellInput(p1el1cordx, p1el1cordy, p2element2);
-				boolean swap1 = grid.validCellInput(p1el2cordx, p1el2cordy, p2element1);
-				if(swap && swap1) {
+
+			if((p1element2 == p2element1) &&(p1el2cordy == p2el2cordy) && (p1el1cordy == p2el1cordy)){
+				// uneed to update the other cell value somehow and revert that too
+				boolean swap = grid.validCellSwaps(p1el1cordx, p1el1cordy, p2el1cordx, p2el1cordy,p1el2cordx, p1el2cordy, p2el2cordx, p2el2cordy);
+				if(swap) {
 					grid.increaseSolution();
 					return true;
 				}

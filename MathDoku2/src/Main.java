@@ -97,7 +97,8 @@ public class Main extends Application {
 //			}
 			public void handle(ActionEvent e) {
 				Generator gen = new Generator();
-				System.out.println(gen.checkPermutations(grid));
+				System.out.println(gen.multipleSolution(grid));
+				System.out.println(grid.solutions());
 		}
 		});
 		right.setAlignment(Pos.CENTER_LEFT);
