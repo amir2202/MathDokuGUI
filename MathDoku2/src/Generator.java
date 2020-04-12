@@ -366,43 +366,7 @@ public class Generator {
 		return false;
 	}
 	
-//	public boolean checkPermutations(Grid grid) {
-//		int dim = grid.getDimensions();
-//		boolean  ;
-//		
-//		for(int col = 0; col < dim; col++) {
-//			int[][][] pairs = this.getColPairs(col, grid);
-//			for(int col2 = 0; col2 < dim;col2++) {
-//				if(col == col2) {
-//					continue;
-//				}
-//				int[][][] pairs2 = this.getColPairs(col2, grid);
-//				if(this.validInversePairExist(pairs, pairs2,grid)) {
-////					System.out.println(grid.solutions());
-//					return true;
-//				}
-//				
-//			}
-//		}
-//		
-//		//now for row
-//		for(int row = 0; row < dim; row++) {
-//			int[][][] pairs = this.getRowPairs(row, grid);
-//			for(int row2 = 0; row2 < dim;row2++) {
-//				if(row == row2) {
-//					continue;
-//				}
-//				int[][][] pairs2 = this.getRowPairs(row2, grid);
-//				if(this.validInversePairExist(pairs, pairs2,grid)) {
-////					System.out.println(grid.solutions());
-//					return true;
-//				}
-//				
-//			}
-//		}
-//		
-//		return false;
-//	}
+
 	
 	private int[][][] getColPairs(int x, Grid grid) {
 		int dim = grid.getDimensions();
@@ -475,6 +439,12 @@ public class Generator {
 				// uneed to update the other cell value somehow and revert that too
 				boolean swap = grid.validCellSwaps(p1el1cordx, p1el1cordy, p2el1cordx, p2el1cordy,p1el2cordx, p1el2cordy, p2el2cordx, p2el2cordy);
 				if(swap) {
+					Random rand = new Random();
+					String color1 = "-fx-background-color: rgba(" + rand.nextInt(256) + "," + rand.nextInt(256) + "," + rand.nextInt(256) + ",1)";
+					grid.getCell(p1el1cordx, p1el1cordy).setStyle(color1);
+					grid.getCell(p2el1cordx, p2el1cordy).setStyle(color1);
+					grid.getCell(p1el2cordx, p1el2cordy).setStyle(color1);
+					grid.getCell(p2el2cordx, p2el2cordy).setStyle(color1);
 					grid.increaseSolution();
 					return true;
 				}
