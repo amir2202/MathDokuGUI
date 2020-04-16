@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 
 import javafx.scene.control.Label;
@@ -183,16 +184,30 @@ public class Cage {
 		if(this.cagecells.contains(cell)) {
 			String operator = "";
 			this.cagecells.remove(cell);
+			int pos = cell.getGrid().getPosition(cell.getX(), cell.getY());
+			this.removeCordinate(pos);
+			System.out.println("removing " + pos);
 			if(cell.getLabel() != null) {
-				Label temp = cell.getLabel();
-				this.getFirstCell().setLabel(temp.getText(), true);
 				cell.removeLabel();
 			}
 		}
 		else {
-			System.out.print("Cell not part of cage");
 		}
-		
+		System.out.println(this.toString() + " after change");
+	}
+	
+	public void removeCordinate(int pos) {
+		ArrayList<Integer> position = new ArrayList<Integer>();
+		for(int x: this.cordinates) {
+			if(x != pos) {
+			position.add(x);
+			}
+		}
+		int[] removed = new int[position.size()];
+		for(int i = 0; i < removed.length; i++) {
+			removed[i] = position.get(i);
+		}
+		this.cordinates = removed;
 	}
 	
 	public Cell getFirstCell() {
@@ -231,11 +246,15 @@ public class Cage {
 	}
 	
 	public static Cage join(Cage ...cage) {
+		HashMap<String,Integer> cageparam = new HashMap<String,Integer>();
 		ArrayList<Integer> numbers = new ArrayList<Integer>();
 		ArrayList<Integer> coordinates = new ArrayList<Integer>();
+		System.out.println("in newest");
+		System.out.println(cage.length);
 		for(Cage cages: cage) {
 			  for(int x: cages.getCords()) {
 				  coordinates.add(x);
+				  System.out.println("adding coordinate " + x);
 			  }
 			  for(Cell cell: cages.getCells()) {
 				  numbers.add(cell.getNumber());
@@ -248,7 +267,6 @@ public class Cage {
 			cords[i] = coordinates.get(i);
 			nrs[i] = numbers.get(i);
 		}
-		
 		int div = Generator.divPossible(nrs);
 		int sub = Generator.subtractionPossible(nrs);
 		if(sub != 0) {
@@ -262,7 +280,9 @@ public class Cage {
 		}
 		
 		else {
-			return null;
+			Cage created = new Cage(String.valueOf(Generator.multiply(nrs)) + "x", cords);
+			return created;
+			
 			//random between plus or mult
 			
 		}

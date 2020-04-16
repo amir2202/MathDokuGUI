@@ -96,7 +96,7 @@ public class Main extends Application {
 //				}	
 //			}
 			public void handle(ActionEvent e) {
-				Generator gen = new Generator();
+//				Generator gen = new Generator();
 				
 //				System.out.println(grid.getPosition(0, 1));
 //				System.out.println(gen.multipleSolution(grid));
@@ -167,8 +167,9 @@ public class Main extends Application {
 						public void handle(WorkerStateEvent arg0) {
 							
 							grid = null;
-							grid = (Grid) genTask.getValue();
-							pane.setCenter(grid);
+							Grid created = (Grid) genTask.getValue();
+							grid = created;
+							pane.setCenter(created);
 							pane.setLeft(left);
 							
 						}

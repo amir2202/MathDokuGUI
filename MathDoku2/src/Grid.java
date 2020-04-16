@@ -246,7 +246,6 @@ public class Grid extends GridPane {
 		int cell2oldvalue = this.getCell(x2, y2).getNumber();
 		int cell3oldvalue = this.getCell(x3,y3).getNumber();
 		int cell4oldvalue = this.getCell(x4,y4).getNumber();
-		System.out.println(cell1oldvalue);
 		this.getCell(x, y).setNumber(cell2oldvalue);
 		this.getCell(x2, y2).setNumber(cell1oldvalue);
 		this.getCell(x3, y3).setNumber(cell4oldvalue);
@@ -320,7 +319,6 @@ public class Grid extends GridPane {
 				
 				//Cage logic
 				if(cell.getCage().isCageFull() == false) {
-						System.out.println("cage isnt full");
 						return true;
 
 				}
@@ -737,6 +735,15 @@ public class Grid extends GridPane {
 		Cage todelete = main.getCage();
 		this.allcages.remove(todelete);
 		ArrayList<Cell> cells = todelete.getCells();
+		cells.get(0).removeLabel();
+		for(Cell cell: cells) {
+			cell.setCage(null);
+		}
+	}
+	
+	public void deleteCage(Cage cage) {
+		this.allcages.remove(cage);
+		ArrayList<Cell> cells = cage.getCells();
 		cells.get(0).removeLabel();
 		for(Cell cell: cells) {
 			cell.setCage(null);
