@@ -14,9 +14,11 @@ public class Cell extends StackPane{
 	private boolean occupied = false;
 	private boolean selected = false;
 	private Cage cage;
+	private int correctvalue;
 	private String concurrentLabel;
 	private boolean checked = false;
 	private Boolean correct;
+	private Grid grid;
 	private Boolean highlighted = false;
 	private Text number;
 	private int numberOfText;
@@ -31,6 +33,13 @@ public class Cell extends StackPane{
 		this.setNumber(0);
 	}
 	
+	public void setGrid(Grid grid) {
+		this.grid = grid;
+	}
+	
+	public Grid getGrid() {
+		return this.grid;
+	}
 	
 	
 	public void setLabel(String label,boolean gui) {
@@ -220,6 +229,10 @@ public class Cell extends StackPane{
 	
 	public void resetStyle() {
 		this.getStyleClass().clear();
+		if(this.getStyle().contains(";")) {
+			String style = this.getStyle();
+			this.setStyle(this.getStyle().split(";")[0]);
+		}
 		this.getStyleClass().add("borders");
 	}
 	
@@ -272,6 +285,21 @@ public class Cell extends StackPane{
 	public void setChecked(boolean checked) {
 		this.checked = checked;
 	}
+	
+	public void appendStyle(String style) {
+		String original = this.getStyle();
+		String result = original + ";" + style;
+		this.setStyle(result);
+	}
+	
+	public void setCorrectValue(int value) {
+		this.correctvalue = value;
+	}
+	
+	public int getCorrectValue() {
+		return this.correctvalue;
+	}
+	
 	
 }
 

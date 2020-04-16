@@ -21,11 +21,13 @@ import javafx.scene.text.Text;
 public class Grid extends GridPane {
 	private int dimensions;
 	private Cell[][] cells;
+	private HashMap<String, Integer> positions;
 	private int solutions = 0;
 	private Cell selectedCell;
 	private boolean solved = false;
 	private HashMap<Integer,Integer> solution;
 	private ArrayList<String> numbers;
+	private ArrayList<ArrayList<Cell>> swappablecells;
 	private ArrayList<Cage> allcages; 
 	private HashMap<Integer,Integer[]> cords;
 	private String fontSize = "small";
@@ -48,6 +50,7 @@ public class Grid extends GridPane {
 		for(int i= 0; i< this.dimensions;i++) {
 			for(int j = 0; j<this.dimensions;j++) {
 				cells[i][j] = new Cell(i,j);
+				cells[i][j].setGrid(this);
 				cells[i][j].addEventHandler(MouseEvent.ANY, new EventHandler<MouseEvent>() {
 					public void handle(MouseEvent arg0) {
 						if(arg0.getEventType() == MouseEvent.MOUSE_CLICKED) {
@@ -243,6 +246,7 @@ public class Grid extends GridPane {
 		int cell2oldvalue = this.getCell(x2, y2).getNumber();
 		int cell3oldvalue = this.getCell(x3,y3).getNumber();
 		int cell4oldvalue = this.getCell(x4,y4).getNumber();
+		System.out.println(cell1oldvalue);
 		this.getCell(x, y).setNumber(cell2oldvalue);
 		this.getCell(x2, y2).setNumber(cell1oldvalue);
 		this.getCell(x3, y3).setNumber(cell4oldvalue);
@@ -255,6 +259,19 @@ public class Grid extends GridPane {
 		this.getCell(x2,y2).setNumber(cell2oldvalue);
 		this.getCell(x3,y3).setNumber(cell3oldvalue);
 		this.getCell(x4, y4).setNumber(cell4oldvalue);
+		if(cell1 && cell2 && cell3 && cell4) {
+			if(this.swappablecells == null) {
+				this.swappablecells = new ArrayList<ArrayList<Cell>>();
+			}
+			else {
+				ArrayList<Cell> pair = new ArrayList<Cell>();
+				pair.add(this.getCell(x,y));
+				pair.add(this.getCell(x2,y2));
+				pair.add(this.getCell(x3,y3));
+				pair.add(this.getCell(x4,y4));
+				this.swappablecells.add(pair);
+			}
+		}
 		return cell1 && cell2 && cell3 && cell4;
 	}
 	
@@ -303,6 +320,7 @@ public class Grid extends GridPane {
 				
 				//Cage logic
 				if(cell.getCage().isCageFull() == false) {
+						System.out.println("cage isnt full");
 						return true;
 
 				}
@@ -401,6 +419,9 @@ public class Grid extends GridPane {
 	}
 
 	public Cell getCell(int x, int y) {
+		if(x >= this.getDimensions() || y >= this.getDimensions() || x < 0 || y < 0 ){
+			return null;
+		}
 		return this.cells[x][y];
 	}
 	
@@ -710,9 +731,41 @@ public class Grid extends GridPane {
 		return this.solutions;
 	}
 	
-//	public int getPosition(int x, int y) {
-//		if(x == 0 && y == 0) {
-//			return 0;
-//		}
-//	}
+
+	public void deleteCage(int position) {
+		Cell main = this.getCell(position);
+		Cage todelete = main.getCage();
+		this.allcages.remove(todelete);
+		ArrayList<Cell> cells = todelete.getCells();
+		cells.get(0).removeLabel();
+		for(Cell cell: cells) {
+			cell.setCage(null);
+		}
+	}
+	
+	public ArrayList<ArrayList<Cell>> getSwappableCells(){
+		return this.swappablecells;
+	}
+	
+	public void intPosition() {
+		int position = 0;
+		for(int x = 0; x < this.dimensions; x++) {
+			for(int y= 0; y< this.dimensions;y++) {
+				position++;
+				String cord = String.valueOf(x) + String.valueOf(y);
+				this.positions.put(cord, position);
+			}
+		}
+		
+	}
+	public int getPosition(int x, int y) {
+		if(this.positions == null) {
+			this.positions = new HashMap<String, Integer>();
+			this.intPosition();
+		}
+		String temp = String.valueOf(x) + String.valueOf(y);
+		return this.positions.get(temp);
+		
+	}
+	
 }

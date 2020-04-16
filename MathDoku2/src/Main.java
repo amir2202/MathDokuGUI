@@ -97,8 +97,12 @@ public class Main extends Application {
 //			}
 			public void handle(ActionEvent e) {
 				Generator gen = new Generator();
-				System.out.println(gen.multipleSolution(grid));
-				System.out.println(grid.solutions());
+				
+//				System.out.println(grid.getPosition(0, 1));
+//				System.out.println(gen.multipleSolution(grid));
+//				gen.makeUnique(grid);
+//				Cage test = grid.getAllCages().get(0);
+//				test.removeCell(test.getCells().get(0));
 		}
 		});
 		right.setAlignment(Pos.CENTER_LEFT);
@@ -114,6 +118,7 @@ public class Main extends Application {
 
 			public void handle(ActionEvent arg0) {
 				VBox generating = new VBox();
+				boolean unique = true;
 				generating.setAlignment(Pos.CENTER);
 				Label dimension = new Label("Dimension");
 				Label difficulty = new Label("Difficulty");
@@ -138,7 +143,6 @@ public class Main extends Application {
 				generate.setOnAction(e -> {
 					grid.clearCells();
 					grid.eraseCages();
-					Generator gen = new Generator();
 					String dimensionstring = (String)dim.getValue();
 					dimensionstring = dimensionstring.substring(0, 1);
 					int chosendim = Integer.valueOf(dimensionstring);
@@ -158,11 +162,20 @@ public class Main extends Application {
 					case "Guru":
 						chosendifficulty = 3;
 					}
-					
-	
-					gen.generateSodukoGrid(chosendifficulty, grid);
-					pane.setCenter(grid);
-					pane.setLeft(left);
+					GeneratingTask genTask = new GeneratingTask(chosendim,chosendifficulty,true);
+					genTask.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+						public void handle(WorkerStateEvent arg0) {
+							
+							grid = null;
+							grid = (Grid) genTask.getValue();
+							pane.setCenter(grid);
+							pane.setLeft(left);
+							
+						}
+						
+					});
+					Thread genThread = new Thread(genTask);
+					genThread.start();
 					
 				});
 				generating.setSpacing(20);

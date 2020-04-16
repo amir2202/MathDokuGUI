@@ -4,20 +4,87 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Random;
 
+import javafx.concurrent.WorkerStateEvent;
+import javafx.event.EventHandler;
 import javafx.scene.text.Text;
 
 public class Generator {
 	//stuff to add -> merge single cells/for higher difficulty
 	//ensure unique solution
 	
-	public Generator() {
-		
-	}
+
+//	public Generator(int dimension, int difficulty, boolean unique) {
+//		this.dimension = dimension;
+//		this.difficulty = difficulty;
+//		this.unique = unique;
+//	}
+	
 	public boolean validCell(Grid grid,Cell cell) {
 		if(grid.columnDuplicates(cell.getX()) || grid.rowDuplicates(cell.getY()) || cell.getNumber() == 0) {
 			return false;
 		}
 		return true;
+	}
+	
+	
+	public Grid generate(int dimension,int difficulty, boolean unique) throws InterruptedException {
+		Grid created = new Grid(dimension);
+		this.generateSodukoGrid(difficulty, created);
+		
+		
+		String[] config = new String[created.getAllCages().size()];
+		for(int i = 0; i < config.length; i++) {
+			config[i] = created.getAllCages().get(i).toString();
+//			System.out.println(config[i]);
+		}
+		HashMap values = new HashMap<Integer,Integer>();
+		ThreadSolve solver = new ThreadSolve();
+		Grid temp = new Grid(dimension);
+		for(String cage:config) {
+			String[] split = cage.split(" ");
+			String label = split[0];
+			String[] argum = split[1].split(",");
+			if(argum.length == 1) {
+				temp.setCage(label, Integer.valueOf(split[1]));
+			}
+			else {
+				int[] arguments = new int[argum.length];
+				for(int i = 0;i < arguments.length;i++) {
+					arguments[i] = Integer.valueOf(argum[i]);
+				}
+				temp.setCage(label, arguments);
+			}
+		}
+		solver.solve(temp);
+		for(int position = 1; position <= temp.getDimensions() * temp.getDimensions(); position++) {
+			values.put(position, temp.getCell(position).getNumber());
+		}
+		
+		for(int position =1; position <= temp.getDimensions() * temp.getDimensions();position++) {
+			created.getCell(position).setNumber((Integer)values.get(position));
+			created.getCell(position).setCorrectValue((Integer)values.get(position));
+		}
+
+		
+		
+		
+		return this.generateOnceSolved(created, unique);	
+	}
+	
+	private Grid generateOnceSolved(Grid grid, boolean unique) {
+		if(unique == true) {
+			if(this.multipleSolution(grid) == false) {
+				return grid;
+			}
+			else {
+				this.makeUnique(grid);
+				return grid;
+			}
+			
+		}
+		else {
+			return grid;
+		}
 	}
 	
 	
@@ -73,7 +140,7 @@ public class Generator {
 		generateCages(difficulty, grid);
 		//leave in temporarily 
 	}
-	public void generateCages(int difficulty, Grid grid) {
+	private void generateCages(int difficulty, Grid grid) {
 		//Need a list of initial positions
 		//+, -, x or �
 		//0 = +
@@ -189,14 +256,17 @@ public class Generator {
 		
 		//if guru (make bigger cages)
 		
-
+		for(int position = 1; position <= grid.getDimensions() * grid.getDimensions(); position++) {
+			int corr = grid.getCell(position).getNumber();
+			grid.getCell(position).setCorrectValue(corr);
+		}
 		grid.clearCells();
 
 	}
 	
 	
 	
-	public void setupCage(Grid grid, int[] args, Random random, int difficulty) {
+	private void setupCage(Grid grid, int[] args, Random random, int difficulty) {
 		//rework --> check if division/subtraction possible IF YES CHOSE IT(apart from easy mode)
 //		int operator = random.nextInt(4);
 		
@@ -293,40 +363,35 @@ public class Generator {
 		
 	}
 	
-	public boolean subtractionPossible(Grid grid, int[] args) {
-		int[] numbers = new int[args.length];
-		for(int i = 0;i<numbers.length;i++) {
-			numbers[i] = grid.getCell(args[i]).getNumber();
-		}
+	public static int subtractionPossible(int[] numbers) {
 		Arrays.sort(numbers);
 		int result = numbers[numbers.length -1];
-		for(int j = numbers.length -2; j>= 0;j--) {
-			result -= numbers[j];
+		for(int i = numbers.length -2; i >= 0;i--) {
+			result -= numbers[i];
 		}
 		if(result > 0) {
-			return true;
+			return result;
 		}
 		else {
-			return false;	
+		return 0;
 		}
 	}
 	
-	public boolean divisionPossible(Grid grid, int[] args) {
-		int[] numbers = new int[args.length];
-		for(int i = 0;i<numbers.length;i++) {
-			numbers[i] = grid.getCell(args[i]).getNumber();
-		}
+	public static int divPossible(int[] numbers) {
 		Arrays.sort(numbers);
-		double result = numbers[numbers.length -1];
-		for(int i = numbers.length-2; i >= 0;i--) {
-			result /= numbers[i];
+		int initial = numbers[numbers.length-1];
+		for(int i = numbers.length -2; i >= 0; i--) {
+			if(initial % numbers[i] != 0) {
+				return 0;
+			}
+			else {
+				initial /= numbers[i];
+			}
 		}
-		if(result % 1 == 0) {
-			return true;
-		}
-
-		return false;
+		return initial;
 	}
+	
+
 	
 	
 	//find deadly pattern given a grid
@@ -362,8 +427,10 @@ public class Generator {
 				
 			}
 		}
-		
-		return false;
+		for(Cage cage: grid.getAllCages()) {
+			System.out.println(cage.toString());
+		}
+		return multiple;
 	}
 	
 
@@ -378,10 +445,10 @@ public class Generator {
 				if(rowindex == row2) {
 					continue;
 				}
-				pairs[pair][0][0] = grid.getCell(x, rowindex).getNumber();
+				pairs[pair][0][0] = grid.getCell(x, rowindex).getCorrectValue();
 				pairs[pair][0][1] = x;
 				pairs[pair][0][2] = rowindex;
-				pairs[pair][1][0] = grid.getCell(x, row2).getNumber();
+				pairs[pair][1][0] = grid.getCell(x, row2).getCorrectValue();
 				pairs[pair][1][1] = x;
 				pairs[pair][1][2] = row2;
 				//pairs are added in same order so, can compare in same
@@ -404,10 +471,10 @@ public class Generator {
 					continue;
 				}
 				
-				pairs[pair][0][0] = grid.getCell(index,rowelement).getNumber();
+				pairs[pair][0][0] = grid.getCell(index,rowelement).getCorrectValue();
 				pairs[pair][0][1] = rowelement;
 				pairs[pair][0][2] = index;
-				pairs[pair][1][0] = grid.getCell(index,rowelement2).getNumber();
+				pairs[pair][1][0] = grid.getCell(index,rowelement2).getCorrectValue();
 				pairs[pair][1][1] = rowelement2;
 				pairs[pair][1][2] = index;
 				pair++;
@@ -441,12 +508,15 @@ public class Generator {
 				if(swap) {
 					Random rand = new Random();
 					String color1 = "-fx-background-color: rgba(" + rand.nextInt(256) + "," + rand.nextInt(256) + "," + rand.nextInt(256) + ",1)";
-					grid.getCell(p1el1cordx, p1el1cordy).setStyle(color1);
-					grid.getCell(p2el1cordx, p2el1cordy).setStyle(color1);
-					grid.getCell(p1el2cordx, p1el2cordy).setStyle(color1);
-					grid.getCell(p2el2cordx, p2el2cordy).setStyle(color1);
+					grid.getCell(p1el1cordx, p1el1cordy).appendStyle(color1);
+					grid.getCell(p2el1cordx, p2el1cordy).appendStyle(color1);
+					grid.getCell(p1el2cordx, p1el2cordy).appendStyle(color1);
+					grid.getCell(p2el2cordx, p2el2cordy).appendStyle(color1);
 					grid.increaseSolution();
-					return true;
+					multiplesolution = true;
+					//get cage 
+					//remove cage method
+					//remove cell from cage?
 				}
 				
 			}
@@ -457,5 +527,37 @@ public class Generator {
 	}
 	
 	
-	
+	public void makeUnique(Grid grid) {
+		ArrayList<ArrayList<Cell>> swappable = grid.getSwappableCells();
+		for(ArrayList<Cell> lists: swappable) {
+			this.makeUnswappable(lists,grid);
+		}
+		grid.setUpBorders();	
 }
+	private boolean makeUnswappable(ArrayList<Cell> toswap,Grid grid) {
+		for(Cell cell: toswap) {
+			ArrayList<Cell> edgecells = cell.getCage().getEdgeOfCage();
+			if (edgecells.contains(cell)) {
+				cell.getCage().removeCell(cell);
+				int pos = grid.getPosition(cell.getX(), cell.getY());
+				int[] poss = new int[1];
+				poss[0] = pos;
+				this.setupCage(grid, poss, new Random(), 1);
+				
+				for(Cage cage:grid.getAllCages()) {
+					System.out.println("NEW GRID");
+					System.out.println(cage.toString());
+				}
+				return true;
+			}
+		}
+		
+		//
+		
+		//check top,right,left,bottom --> needs to be at edge of cage 
+		
+		//Set cell to single cell --> 
+		
+		return false;
+	}
+}	

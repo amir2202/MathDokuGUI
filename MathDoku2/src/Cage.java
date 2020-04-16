@@ -1,6 +1,10 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
+
+import javafx.scene.control.Label;
 
 public class Cage {
 	private String label;
@@ -28,6 +32,10 @@ public class Cage {
 		
 	}
 	
+	public ArrayList<Cell> getCells() {
+		return this.cagecells;
+	}
+	
 	public void setCorrect(boolean input) {
 		for(Cell cell: this.cagecells) {
 			cell.setCorrect(input);
@@ -41,6 +49,8 @@ public class Cage {
 	public int[] getCords() {
 		return this.cordinates;
 	}
+	
+
 	
 	public String getLabel() {
 		return this.label;
@@ -167,5 +177,97 @@ public class Cage {
 		}
 		return this.label + " " + numbers; 
 	}
+	
+	public void removeCell(Cell cell) {
+		//if cell has label reshift the label(to highest position)
+		if(this.cagecells.contains(cell)) {
+			String operator = "";
+			this.cagecells.remove(cell);
+			if(cell.getLabel() != null) {
+				Label temp = cell.getLabel();
+				this.getFirstCell().setLabel(temp.getText(), true);
+				cell.removeLabel();
+			}
+		}
+		else {
+			System.out.print("Cell not part of cage");
+		}
+		
+	}
+	
+	public Cell getFirstCell() {
+		
+		int[][] cagecords = new int[this.cagecells.size()][2]; 
+		for(int i = 0; i < cagecells.size();i++) {
+			Cell temp = cagecells.get(i);
+			cagecords[i][0] = temp.getX();
+			cagecords[i][1] = temp.getY();
+		}
+		Arrays.sort(cagecords, Comparator.comparingInt(o -> o[0]));
+		int x = cagecords[0][0];
+		int y = cagecords[0][1];
+		for(int i = 0; i < cagecells.size();i++) {
+			Cell temp = cagecells.get(i);
+			if(temp.getX() == x && temp.getY() == y) {
+				return temp;
+			}
+		}
+		return null;
+	}
+	
+	public ArrayList<Cell> getEdgeOfCage() {
+		ArrayList<Cell> edgecells = new ArrayList<Cell>();
+		for(Cell cell: this.cagecells) {
+			int x = cell.getX();
+			Grid grid = cell.getGrid();
+			int y = cell.getY();
+			System.out.println(grid.getCell(x-1,y));
+			if(!this.cagecells.contains(grid.getCell(x+1,y)) || !this.cagecells.contains(grid.getCell(x-1,y)) || !this.cagecells.contains(grid.getCell(x,y-1)) || !this.cagecells.contains(grid.getCell(x-1,y-1)))
+			{
+				edgecells.add(cell);
+			}
+		}
+		return edgecells;
+	}
+	
+	public static Cage join(Cage ...cage) {
+		ArrayList<Integer> numbers = new ArrayList<Integer>();
+		ArrayList<Integer> coordinates = new ArrayList<Integer>();
+		for(Cage cages: cage) {
+			  for(int x: cages.getCords()) {
+				  coordinates.add(x);
+			  }
+			  for(Cell cell: cages.getCells()) {
+				  numbers.add(cell.getNumber());
+			  }
+		}
+		
+		int[] cords = new int[coordinates.size()];
+		int[] nrs = new int[coordinates.size()];
+		for(int i = 0; i < coordinates.size(); i++) {
+			cords[i] = coordinates.get(i);
+			nrs[i] = numbers.get(i);
+		}
+		
+		int div = Generator.divPossible(nrs);
+		int sub = Generator.subtractionPossible(nrs);
+		if(sub != 0) {
+			Cage created = new Cage(String.valueOf(sub)+"-", cords);
+			return created;
+		}
+		//chose new operator here easiest way
+		if(div != 0) {
+			Cage created = new Cage(String.valueOf(div)+ "÷", cords);
+			return created;
+		}
+		
+		else {
+			return null;
+			//random between plus or mult
+			
+		}
+		
+	}
+	
 	
 }
