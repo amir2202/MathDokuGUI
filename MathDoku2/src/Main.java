@@ -59,11 +59,11 @@ import javafx.stage.Stage;
 public class Main extends Application {
 	private boolean checking = false;
 	private Grid grid;
+	private Stage stage;
 	private ArrayList<String> numbers;
 	private Scene scene;
 	private ActionHandler handler;
 	private Button redo; 
-	private Stage stage;
 	private BorderPane pane;
 	private Button undo;
 	final KeyCombination undocmb = new KeyCodeCombination(KeyCode.Z, KeyCombination.SHORTCUT_DOWN);
@@ -73,8 +73,12 @@ public class Main extends Application {
 	
 	}
 
+	public Scene getScene() {
+		return this.scene;
+	}
 	@Override
 	public void start(Stage stage) {
+		this.stage = stage;
 		handler = new ActionHandler();
 		stage.setTitle("MathDoku");
 		pane = new BorderPane();
@@ -108,7 +112,7 @@ public class Main extends Application {
 //				}	
 //			}
 			public void handle(ActionEvent e) {
-				SolvingTask2 solve = new SolvingTask2(grid.getConfig(),grid.getDimensions());
+				SolvingTask solve = new SolvingTask(grid.getConfig(),grid.getDimensions(),false);
 				Thread thread = new Thread(solve);
 				solve.setOnSucceeded(new EventHandler<WorkerStateEvent>(){
 
@@ -244,7 +248,7 @@ public class Main extends Application {
 				for(int i = 0; i < config.length; i++) {
 					config[i] = grid.getAllCages().get(i).toString();
 				}
-				SolvingTask solve = new SolvingTask(config, grid.getDimensions());
+				SolvingTask solve = new SolvingTask(config, grid.getDimensions(),true);
 				solve.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 					public void handle(WorkerStateEvent arg0) {
 						HashMap<Integer,Integer> values = (HashMap) solve.getValue();
@@ -597,22 +601,23 @@ public class Main extends Application {
 			
 			
 			//rework this
-//			if(grid.isFilled()) {
-//				try {
-//					if(grid.win(grid.solved())){
-////						Winning win = new Winning(pane,scene.getHeight(), scene.getWidth()); 
-////						stage.setScene(win.getAnimation());
-//					}
-//							
-//					//edit here
-//				} catch (InterruptedException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				} catch (Exit e) {
-//					// TODO Auto-generated catch block
-//					stage.setScene(scene);
-//				}
-//			}
+			if(grid.isFilled()) {
+				try {
+					if(grid.win(grid.solved())){
+						Winning win = new Winning(pane,scene.getHeight(), scene.getWidth()); 
+						
+						stage.setScene(win.getAnimation());
+					}
+							
+					//edit here
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (Exit e) {
+					// TODO Auto-generated catch block
+//					this.stage.setScene(scene);
+				}
+			}
 		}
 	}
 	
@@ -662,18 +667,18 @@ public class Main extends Application {
 			//create circle --> make it expand -> make it say you win
 			//play again
 			//create new stage--> hide other--> -> play again option 
-			private Scene scene;
+			private Scene sceneanother;
 			private boolean inScene = true;
 			private BorderPane grid;
-			private StackPane pane;
+			private StackPane paneanimation;
 			double height;
 			double width;
 			public Winning(BorderPane grid,double height,double width) {
-				pane = new StackPane();
+				this.paneanimation = new StackPane();
 				this.height = height;
 				this.grid = grid;
 				this.width = width;
-				this.scene = new Scene(pane,width,height);
+				this.sceneanother = new Scene(paneanimation,width,height);
 			}
 			
 			
@@ -682,10 +687,14 @@ public class Main extends Application {
 				circle.setFill(Color.AQUA);
 				Button more = new Button("Play more!");
 				Button back = new Button("Go back");
-				Button reset = new Button("reset");
-				this.pane.getChildren().add(grid);
-				this.pane.getChildren().add(circle);
-				this.pane.setAlignment(circle, Pos.CENTER);
+				back.setOnAction(e->{
+					stage.setScene(scene);
+				});
+				more.setOnAction(e->{
+					
+				});
+				this.paneanimation.getChildren().add(grid);
+				this.paneanimation.getChildren().add(circle);
 				KeyFrame frame = new KeyFrame(javafx.util.Duration.millis(75), new EventHandler<ActionEvent>() {
 					public void handle(ActionEvent arg0) {
 						circle.setRadius(circle.getRadius() * 1.25);
@@ -699,28 +708,36 @@ public class Main extends Application {
 						Font font = Font.font("Algerian", FontWeight.BOLD, FontPosture.ITALIC, 36);
 						Text text = new Text("You win");
 						text.setFont(font);
-						pane.getChildren().add(text);
-						text.relocate(height/2, width/2);
-							KeyFrame moveup = new KeyFrame(javafx.util.Duration.millis(500), new EventHandler<ActionEvent>() {
-								public void handle(ActionEvent arg0) {
-									text.setTranslateY(-25);
-								}
-								
-							});
-							KeyFrame movedown = new KeyFrame(javafx.util.Duration.millis(500), new EventHandler<ActionEvent>() {
-								public void handle(ActionEvent arg0) {
-									text.setTranslateY(25);
-								}
-							});
-							Timeline movingtext = new Timeline(moveup,movedown);
-							movingtext.setCycleCount(500);
-							movingtext.play();
-							movingtext.setOnFinished(new EventHandler<ActionEvent>(){
-								public void handle(ActionEvent arg0) {
-									inScene = false;
-								}
-								
-							});
+						paneanimation.getChildren().add(text);
+						back.relocate((height/4) * 3, width/3);
+						more.relocate((height/4) * 3, 2* width/3);
+						paneanimation.getChildren().add(back);
+						paneanimation.setAlignment(back, Pos.CENTER_LEFT);
+						paneanimation.setAlignment(more, Pos.CENTER_RIGHT);
+						paneanimation.getChildren().add(more);
+//						text.relocate(height/2, width/2);
+//							KeyFrame moveup = new KeyFrame(javafx.util.Duration.millis(500), new EventHandler<ActionEvent>() {
+//								public void handle(ActionEvent arg0) {
+//									text.setTranslateY(-25);
+//								}
+//								
+//							});
+//							KeyFrame movedown = new KeyFrame(javafx.util.Duration.millis(500), new EventHandler<ActionEvent>() {
+//								public void handle(ActionEvent arg0) {
+//									text.setTranslateY(25);
+//								}
+//							});
+//							Timeline movingtext = new Timeline(moveup,movedown);
+//							movingtext.setCycleCount(500);
+//							movingtext.play();
+//							movingtext.setOnFinished(new EventHandler<ActionEvent>(){
+//								public void handle(ActionEvent arg0) {
+//									inScene = false;
+//								}
+//								
+//							});
+						
+						
 					}
 				});
 				//dont hardcode cycle count
@@ -734,7 +751,7 @@ public class Main extends Application {
 				
 				
 				
-				return this.scene;
+				return this.sceneanother;
 			}
 			
 		}

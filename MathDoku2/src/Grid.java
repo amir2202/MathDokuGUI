@@ -784,7 +784,7 @@ public class Grid extends GridPane {
 	
 	public boolean showHint() {
 		if(this.solved ==false) {
-			SolvingTask solve = new SolvingTask(this.getConfig(),this.getDimensions());
+			SolvingTask solve = new SolvingTask(this.getConfig(),this.getDimensions(),true);
 			HashMap<Integer,Integer> result = solve.solveNoThread();
 		}
 		
