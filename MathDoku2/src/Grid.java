@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Random;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -21,6 +22,8 @@ import javafx.scene.text.Text;
 public class Grid extends GridPane {
 	private int dimensions;
 	private Cell[][] cells;
+	public int hints = 3; 
+	private ArrayList<Integer> givenhints; 
 	private HashMap<String, Integer> positions;
 	private int solutions = 0;
 	private Cell selectedCell;
@@ -501,9 +504,12 @@ public class Grid extends GridPane {
 		}
 	}
 	
-	public void win(boolean input) throws InterruptedException {
+	public boolean win(boolean input) throws InterruptedException {
 		if(input == true) {
-			this.animateWin();
+			return this.animateWin();
+		}
+		else {
+			return false;
 		}
 	}
 	
@@ -677,7 +683,7 @@ public class Grid extends GridPane {
 		}	
 	}
 	
-	public void animateWin() {
+	public boolean animateWin() {
 		KeyFrame frame = new KeyFrame(javafx.util.Duration.millis(250), new EventHandler<ActionEvent>() {
 			private int index = 0;
 			public void handle(ActionEvent e) {
@@ -689,11 +695,12 @@ public class Grid extends GridPane {
 		timeline.setCycleCount(this.allcages.size());
 		timeline.setOnFinished(new EventHandler<ActionEvent>(){
 			public void handle(ActionEvent arg0) {
-				System.out.println("you win");
+			
 			}
 			
 		});
 		timeline.play();
+		return true;
 		
 	}
 	
@@ -773,6 +780,46 @@ public class Grid extends GridPane {
 		String temp = String.valueOf(x) + String.valueOf(y);
 		return this.positions.get(temp);
 		
+	}
+	
+	public boolean showHint() {
+		if(this.solved ==false) {
+			SolvingTask solve = new SolvingTask(this.getConfig(),this.getDimensions());
+			HashMap<Integer,Integer> result = solve.solveNoThread();
+		}
+		
+		if(this.hints == 0) {
+			return false;
+		}
+		
+		else {
+			this.hints--;
+			Random random = new Random();
+			boolean valid = false;
+			while(!valid) {
+				int rand = random.nextInt(this.dimensions * this.dimensions);
+				if(this.givenhints == null) {
+					this.givenhints = new ArrayList<Integer>();
+					this.givenhints.add(rand);
+					Cell cell = this.getCell(rand);
+					cell.setNumber(cell.getCorrectValue());
+					
+					return true;
+				}
+				else {
+					//check if isnt a hint already
+				}
+			}
+			return true;
+		}
+	}
+	
+	public String[] getConfig() {
+		String config[] = new String[this.allcages.size()];
+		for(int i = 0; i < config.length;i++) {
+			config[i] = this.allcages.get(i).toString();
+		}
+		return config;
 	}
 	
 }

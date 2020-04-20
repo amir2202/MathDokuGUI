@@ -186,14 +186,12 @@ public class Cage {
 			this.cagecells.remove(cell);
 			int pos = cell.getGrid().getPosition(cell.getX(), cell.getY());
 			this.removeCordinate(pos);
-			System.out.println("removing " + pos);
 			if(cell.getLabel() != null) {
 				cell.removeLabel();
 			}
 		}
 		else {
 		}
-		System.out.println(this.toString() + " after change");
 	}
 	
 	public void removeCordinate(int pos) {
@@ -236,7 +234,6 @@ public class Cage {
 			int x = cell.getX();
 			Grid grid = cell.getGrid();
 			int y = cell.getY();
-			System.out.println(grid.getCell(x-1,y));
 			if(!this.cagecells.contains(grid.getCell(x+1,y)) || !this.cagecells.contains(grid.getCell(x-1,y)) || !this.cagecells.contains(grid.getCell(x,y-1)) || !this.cagecells.contains(grid.getCell(x-1,y-1)))
 			{
 				edgecells.add(cell);
@@ -249,8 +246,6 @@ public class Cage {
 		HashMap<String,Integer> cageparam = new HashMap<String,Integer>();
 		ArrayList<Integer> numbers = new ArrayList<Integer>();
 		ArrayList<Integer> coordinates = new ArrayList<Integer>();
-		System.out.println("in newest");
-		System.out.println(cage.length);
 		for(Cage cages: cage) {
 			  for(int x: cages.getCords()) {
 				  coordinates.add(x);

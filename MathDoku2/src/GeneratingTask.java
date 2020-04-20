@@ -12,7 +12,7 @@ public class GeneratingTask extends Task{
 	protected Object call() throws Exception {
 		// TODO Auto-generated method stub
 		Generator gen = new Generator();
-		Grid generated = gen.generate(this.dimension,this.difficulty,true);
+		Grid generated = gen.generate(this.dimension,this.difficulty,this.unique);
 		return generated;
 	}
 

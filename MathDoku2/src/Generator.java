@@ -37,9 +37,11 @@ public class Generator {
 			config[i] = created.getAllCages().get(i).toString();
 //			System.out.println(config[i]);
 		}
+		
 		HashMap values = new HashMap<Integer,Integer>();
 		ThreadSolve solver = new ThreadSolve();
 		Grid temp = new Grid(dimension);
+		if(unique) {
 		for(String cage:config) {
 			String[] split = cage.split(" ");
 			String label = split[0];
@@ -64,7 +66,7 @@ public class Generator {
 			created.getCell(position).setNumber((Integer)values.get(position));
 			created.getCell(position).setCorrectValue((Integer)values.get(position));
 		}
-
+	}
 		
 		
 		
@@ -574,7 +576,6 @@ public class Generator {
 		ArrayList<ArrayList<Cell>> swappable = grid.getSwappableCells();
 		for(ArrayList<Cell> lists: swappable) {
 			if(this.makeUnswappable(lists)) {
-				break;
 			};
 		}
 }

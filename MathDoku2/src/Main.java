@@ -37,6 +37,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -58,6 +60,7 @@ public class Main extends Application {
 	private boolean checking = false;
 	private Grid grid;
 	private ArrayList<String> numbers;
+	private Scene scene;
 	private ActionHandler handler;
 	private Button redo; 
 	private Stage stage;
@@ -79,13 +82,22 @@ public class Main extends Application {
 		pane.addEventHandler(ScrollEvent.ANY, new ScrollHandler());
 		this.validInputNumber();
 		pane.setCenter(grid);
-		Scene scene = new Scene(pane,600,600);
+		scene = new Scene(pane,600,600);
 		stage.setScene(scene);
 		stage.show();
 		VBox left = new VBox();
 		VBox right = new VBox();
 		Button hint = new Button("Hint");
-		Button animate = new Button("Animate");
+		hint.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent arg0) {
+				//RUN ON different thread
+				
+			}
+			
+		});
+		Button animate = new Button("Temporary");
 		animate.setOnAction(new EventHandler<ActionEvent>() {
 //			public void handle(ActionEvent e) {
 //				Winning win = new Winning(pane,scene.getHeight(), scene.getWidth()); 
@@ -96,13 +108,36 @@ public class Main extends Application {
 //				}	
 //			}
 			public void handle(ActionEvent e) {
-//				Generator gen = new Generator();
-				
-//				System.out.println(grid.getPosition(0, 1));
-//				System.out.println(gen.multipleSolution(grid));
-//				gen.makeUnique(grid);
-//				Cage test = grid.getAllCages().get(0);
-//				test.removeCell(test.getCells().get(0));
+				SolvingTask2 solve = new SolvingTask2(grid.getConfig(),grid.getDimensions());
+				Thread thread = new Thread(solve);
+				solve.setOnSucceeded(new EventHandler<WorkerStateEvent>(){
+
+					@Override
+					public void handle(WorkerStateEvent arg0) {
+//						HashMap<Integer,Integer> values = (HashMap) solve.getValue();
+//						for(int position = 1; position <= grid.getDimensions() * grid.getDimensions(); position++) {
+//							int value = values.get(position);
+//							grid.getCell(position).setNumber(value);
+//						}
+//						grid.updateGrid();
+//						grid.setSolution(values);
+//						grid.solved(true);
+						ArrayList<Integer[]> sol =(ArrayList<Integer[]>) solve.getValue();
+						System.out.println(sol.size());
+						for(Integer[] solu: sol) {
+							System.out.println("SOLUTION");
+							for(int x = 0; x < solu.length; x++) {
+								System.out.print(solu[x] + " ");
+								if((x +1) % (grid.getDimensions()) == 0) {
+									System.out.println();
+								}
+							}
+						}
+					}
+					
+				});
+				thread.start();
+
 		}
 		});
 		right.setAlignment(Pos.CENTER_LEFT);
@@ -138,6 +173,8 @@ public class Main extends Application {
 				dif.getItems().add("Intermediate");
 				dif.getItems().add("Hard");
 				dif.getItems().add("Guru");
+				CheckBox checkbox = new CheckBox("Unique");
+				
 				dif.getSelectionModel().selectFirst();
 				dim.getSelectionModel().selectFirst();
 				generate.setOnAction(e -> {
@@ -148,7 +185,8 @@ public class Main extends Application {
 					int chosendim = Integer.valueOf(dimensionstring);
 					Grid newgrid = new Grid(chosendim);
 					pane.getChildren().remove(grid);
-					grid = newgrid;
+					Main.this.grid = newgrid;
+//					grid = newgrid;
 					validInputNumber();
 					int chosendifficulty = 0;
 					//default
@@ -162,14 +200,14 @@ public class Main extends Application {
 					case "Guru":
 						chosendifficulty = 3;
 					}
-					GeneratingTask genTask = new GeneratingTask(chosendim,chosendifficulty,true);
+					GeneratingTask genTask = new GeneratingTask(chosendim,chosendifficulty,checkbox.isSelected());
 					genTask.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 						public void handle(WorkerStateEvent arg0) {
 							
 							grid = null;
 							Grid created = (Grid) genTask.getValue();
-							grid = created;
-							pane.setCenter(created);
+							Main.this.grid = created;
+							pane.setCenter(Main.this.grid);
 							pane.setLeft(left);
 							
 						}
@@ -180,7 +218,7 @@ public class Main extends Application {
 					
 				});
 				generating.setSpacing(20);
-				generating.getChildren().addAll(dimension,dim,difficulty,dif,generate, back);
+				generating.getChildren().addAll(dimension,dim,difficulty,dif,checkbox,generate, back);
 				pane.setLeft(generating);
 				grid.clearCells();
 
@@ -559,14 +597,22 @@ public class Main extends Application {
 			
 			
 			//rework this
-			if(grid.isFilled()) {
-				try {
-					grid.win(grid.solved());
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
+//			if(grid.isFilled()) {
+//				try {
+//					if(grid.win(grid.solved())){
+////						Winning win = new Winning(pane,scene.getHeight(), scene.getWidth()); 
+////						stage.setScene(win.getAnimation());
+//					}
+//							
+//					//edit here
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				} catch (Exit e) {
+//					// TODO Auto-generated catch block
+//					stage.setScene(scene);
+//				}
+//			}
 		}
 	}
 	
@@ -606,7 +652,11 @@ public class Main extends Application {
 			
 		}
 		
-	}
+	}	
+		
+		
+		
+		
 		class Winning {
 			//first animate the grid
 			//create circle --> make it expand -> make it say you win

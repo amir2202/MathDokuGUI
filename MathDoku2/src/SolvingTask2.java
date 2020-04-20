@@ -1,18 +1,19 @@
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import javafx.concurrent.Task;
 
-public class SolvingTask extends Task {
+public class SolvingTask2 extends Task {
 	private String[] gridconfig;
 	private int dimension; 
-	public SolvingTask(String[] config, int dimension) {
+	public SolvingTask2(String[] config, int dimension) {
 		this.gridconfig = config;
 		this.dimension = dimension;
 	}
 	
 	protected Object call() throws Exception {
 			HashMap values = new HashMap<Integer,Integer>();
-			ThreadSolve solver = new ThreadSolve();
+			ThreadSolve2 solver = new ThreadSolve2();
 			Grid temp = new Grid(this.dimension);
 			for(String cage:this.gridconfig) {
 				String[] split = cage.split(" ");
@@ -34,7 +35,9 @@ public class SolvingTask extends Task {
 				values.put(position, temp.getCell(position).getNumber());
 			}
 			
-			return values;
+			ArrayList<Integer[]> solutions = solver.getSolutions();
+			
+			return solutions;
 	}
 	
 	public HashMap<Integer,Integer> solveNoThread() {
