@@ -12,12 +12,7 @@ public class Generator {
 	//stuff to add -> merge single cells/for higher difficulty
 	//ensure unique solution
 	
-
-//	public Generator(int dimension, int difficulty, boolean unique) {
-//		this.dimension = dimension;
-//		this.difficulty = difficulty;
-//		this.unique = unique;
-//	}
+	//special 2x2 case
 	
 	private Grid grid;
 	public boolean validCell(Grid grid,Cell cell) {
@@ -37,11 +32,7 @@ public class Generator {
 			config[i] = created.getAllCages().get(i).toString();
 //			System.out.println(config[i]);
 		}
-		
-		HashMap values = new HashMap<Integer,Integer>();
-		ThreadSolve solver = new ThreadSolve();
 		Grid temp = new Grid(dimension);
-		if(unique) {
 		for(String cage:config) {
 			String[] split = cage.split(" ");
 			String label = split[0];
@@ -57,37 +48,146 @@ public class Generator {
 				temp.setCage(label, arguments);
 			}
 		}
-		solver.solve(temp);
-		for(int position = 1; position <= temp.getDimensions() * temp.getDimensions(); position++) {
-			values.put(position, temp.getCell(position).getNumber());
+		
+
+		if(unique) {
+			ThreadSolve solve = new ThreadSolve();
+			solve.solve(temp,true);
+
+			if(solve.getSolutions().size() == 1) {
+				ArrayList<Integer[]> solutions = solve.getSolutions();
+				for(int i = 0; i < solutions.get(0).length;i++) {
+					temp.getCell(i+1).setNumber(solutions.get(0)[i]);
+				}
+				return temp;
+			}
+			if(solve.getSolutions().size() == 0) {
+				this.generate(dimension, difficulty, unique);
+			}
+			else if(solve.getSolutions().size() > 1) {
+				Grid uniquegrid = this.makeUnique(temp,dimension,difficulty);
+				return uniquegrid;
+			}
+			return null;	
 		}
 		
-		for(int position =1; position <= temp.getDimensions() * temp.getDimensions();position++) {
-			created.getCell(position).setNumber((Integer)values.get(position));
-			created.getCell(position).setCorrectValue((Integer)values.get(position));
+		else {
+			return temp;
 		}
-	}
-		
-		
-		
-		return this.generateOnceSolved(created, unique);	
 	}
 	
-	private Grid generateOnceSolved(Grid grid, boolean unique) {
-		if(unique == true) {
-			if(this.multipleSolution(grid) == false) {
-				return grid;
+	public Grid makeUnique(Grid grid, int dimension, int difficulty) {
+		//Generate 6 grids if dim is below 7
+		if(grid.getDimensions() < 7) {
+			for(int i = 0; i < 5; i++) {
+				Grid uniquegrid = this.tryUnique(dimension,difficulty);
+				if(uniquegrid != null) {
+					for(Cage cage: uniquegrid.getAllCages()) {
+						System.out.println(cage);
+					}
+					return uniquegrid;
+				}
+				
+			}
+		}
+		
+		
+		//otherwise
+		boolean unique = false;
+		while(!unique) {
+				System.out.println("reaches1");
+				this.addSingleCage(grid);
+				System.out.println("reaches2");
+				ThreadSolve solve = new ThreadSolve();
+				solve.solve(grid,false);
+				if(solve.getSolutions().size() == 1) {
+					unique = true;
+					ArrayList<Integer[]> solutions = solve.getSolutions();
+					for(int i = 0; i < solutions.get(0).length;i++) {
+						grid.getCell(i+1).setNumber(solutions.get(0)[i]);
+					}
+					return grid;
+					
+				}
+		}
+		
+		
+//		this.addSingleCage(grid);
+		return null;
+	}
+	
+	
+	
+	private Grid tryUnique(int dimension, int difficulty) {
+		Grid generate = new Grid(dimension);
+		this.generateSodukoGrid(difficulty, generate);
+		String[] config = new String[generate.getAllCages().size()];
+		for(int i = 0; i < config.length; i++) {
+			config[i] = generate.getAllCages().get(i).toString();
+		}
+		
+		Grid fresh = new Grid(dimension);
+		for(String cage:config) {
+			String[] split = cage.split(" ");
+			String label = split[0];
+			String[] argum = split[1].split(",");
+			if(argum.length == 1) {
+				fresh.setCage(label, Integer.valueOf(split[1]));
 			}
 			else {
-				System.out.println("Not unique, gonna make grid unique");
-				this.makeUnique();
-				return grid;
+				int[] arguments = new int[argum.length];
+				for(int i = 0;i < arguments.length;i++) {
+					arguments[i] = Integer.valueOf(argum[i]);
+				}
+				fresh.setCage(label, arguments);
 			}
-			
+		}
+		
+		ThreadSolve solve = new ThreadSolve();
+		solve.solve(fresh,false);
+		ArrayList<Integer[]> solutions = solve.getSolutions();
+		if(solutions.size() == 1) {
+			return fresh;
 		}
 		else {
-			return grid;
+			return null;	
 		}
+		
+	}
+	
+	
+	
+	public boolean addSingleCage(Grid grid) {
+		System.out.println("reaches3");
+		for(Cage cage:grid.getAllCages()) {
+			if(cage.getCords().length != 1) {
+				ArrayList<Cell> tochange = cage.getEdgeOfCage();
+				if(tochange.size() > 0) {
+					Cell stff = tochange.get(0);
+					Cage tobedeleted = stff.getCage();
+					int num = stff.getNumber();
+					int[] args2 = new int[tobedeleted.getCells().size() -1];
+					int[] args = new int[1];
+					args[0] = grid.getPosition(stff.getX(), stff.getY());
+					tobedeleted.removeCell(stff);
+					
+					for(int i = 0; i < args2.length;i++) {
+						args2[i] = tobedeleted.getCords()[i];
+					}
+					grid.deleteCage(tobedeleted);
+					
+//					System.out.println(grid.getAllCages());
+//					System.out.println("AFTER");
+					this.setupCage(grid, args, new Random(), 1);
+					this.setupCage(grid, args2, new Random(), 1);
+					System.out.println("reaches4");
+					return true;
+//					System.out.println(grid.getAllCages());
+				}
+			}
+		}
+		
+		return false;
 	}
 	
 	
@@ -145,11 +245,11 @@ public class Generator {
 	}
 	private void generateCages(int difficulty, Grid grid) {
 		//Need a list of initial positions
-		//+, -, x or �
+		//+, -, x or ÷
 		//0 = +
 		// 1 = -
 		// 2 = x
-		// 3 = �
+		// 3 = ÷
 		Random random = new Random();
 		ArrayList<Integer> cageCells = new ArrayList<Integer>();
 		ArrayList<Integer> availableCells = new ArrayList<Integer>();
@@ -356,7 +456,7 @@ public class Generator {
 			}
 			else {
 				int real = (int) result;
-				grid.setCage(real+"�", args);
+				grid.setCage(real+"÷", args);
 			}
 			return;
 		}
@@ -406,212 +506,212 @@ public class Generator {
 	
 	
 	//find deadly pattern given a grid
-	private boolean multipleSolution(Grid grid) {
-		int dim = grid.getDimensions();
-		boolean multiple = false;
-		
-		for(int col = 0; col < dim; col++) {
-			int[][][] pairs = this.getColPairs(col, grid);
-			for(int col2 = 0; col2 < dim;col2++) {
-				if(col == col2) {
-					continue;
-				}
-				int[][][] pairs2 = this.getColPairs(col2, grid);
-				if(this.validInversePairExist(pairs, pairs2,grid,false)) {
-					multiple = true;
-				}
-				
-			}
-		}
-		
-		//now for row
-		for(int row = 0; row < dim; row++) {
-			int[][][] pairs = this.getRowPairs(row, grid);
-			for(int row2 = 0; row2 < dim;row2++) {
-				if(row == row2) {
-					continue;
-				}
-				int[][][] pairs2 = this.getRowPairs(row2, grid);
-				if(this.validInversePairExist(pairs, pairs2,grid,false)) {
-					multiple = true;
-				}
-				
-			}
-		}
-		return multiple;
-	}
+//	private boolean multipleSolution(Grid grid) {
+//		int dim = grid.getDimensions();
+//		boolean multiple = false;
+//		
+//		for(int col = 0; col < dim; col++) {
+//			int[][][] pairs = this.getColPairs(col, grid);
+//			for(int col2 = 0; col2 < dim;col2++) {
+//				if(col == col2) {
+//					continue;
+//				}
+//				int[][][] pairs2 = this.getColPairs(col2, grid);
+//				if(this.validInversePairExist(pairs, pairs2,grid,false)) {
+//					multiple = true;
+//				}
+//				
+//			}
+//		}
+//		
+//		//now for row
+//		for(int row = 0; row < dim; row++) {
+//			int[][][] pairs = this.getRowPairs(row, grid);
+//			for(int row2 = 0; row2 < dim;row2++) {
+//				if(row == row2) {
+//					continue;
+//				}
+//				int[][][] pairs2 = this.getRowPairs(row2, grid);
+//				if(this.validInversePairExist(pairs, pairs2,grid,false)) {
+//					multiple = true;
+//				}
+//				
+//			}
+//		}
+//		return multiple;
+//	}
 	
-	public boolean multipleSolution(Grid grid,boolean gui) {
-		int dim = grid.getDimensions();
-		boolean multiple = false;
-		
-		for(int col = 0; col < dim; col++) {
-			int[][][] pairs = this.getColPairs(col, grid);
-			for(int col2 = 0; col2 < dim;col2++) {
-				if(col == col2) {
-					continue;
-				}
-				int[][][] pairs2 = this.getColPairs(col2, grid);
-				if(this.validInversePairExist(pairs, pairs2,grid,gui)) {
-					multiple = true;
-				}
-				
-			}
-		}
-		
-		//now for row
-		for(int row = 0; row < dim; row++) {
-			int[][][] pairs = this.getRowPairs(row, grid);
-			for(int row2 = 0; row2 < dim;row2++) {
-				if(row == row2) {
-					continue;
-				}
-				int[][][] pairs2 = this.getRowPairs(row2, grid);
-				if(this.validInversePairExist(pairs, pairs2,grid,gui)) {
-					multiple = true;
-				}
-				
-			}
-		}
-		return multiple;
-	}
+//	public boolean multipleSolution(Grid grid,boolean gui) {
+//		int dim = grid.getDimensions();
+//		boolean multiple = false;
+//		
+//		for(int col = 0; col < dim; col++) {
+//			int[][][] pairs = this.getColPairs(col, grid);
+//			for(int col2 = 0; col2 < dim;col2++) {
+//				if(col == col2) {
+//					continue;
+//				}
+//				int[][][] pairs2 = this.getColPairs(col2, grid);
+//				if(this.validInversePairExist(pairs, pairs2,grid,gui)) {
+//					multiple = true;
+//				}
+//				
+//			}
+//		}
+//		
+//		//now for row
+//		for(int row = 0; row < dim; row++) {
+//			int[][][] pairs = this.getRowPairs(row, grid);
+//			for(int row2 = 0; row2 < dim;row2++) {
+//				if(row == row2) {
+//					continue;
+//				}
+//				int[][][] pairs2 = this.getRowPairs(row2, grid);
+//				if(this.validInversePairExist(pairs, pairs2,grid,gui)) {
+//					multiple = true;
+//				}
+//				
+//			}
+//		}
+//		return multiple;
+//	}
 	
 
 	
-	private int[][][] getColPairs(int x, Grid grid) {
-		int dim = grid.getDimensions();
-//		Cell collcells[] = grid.getColumncells(index);
-		int[][][] pairs = new int[dim * (dim -1)][2][3];
-		int pair = 0;
-		for(int rowindex = 0; rowindex < dim; rowindex++) {
-			for(int row2 = 0; row2 < dim; row2++) {
-				if(rowindex == row2) {
-					continue;
-				}
-				pairs[pair][0][0] = grid.getCell(x, rowindex).getCorrectValue();
-				pairs[pair][0][1] = x;
-				pairs[pair][0][2] = rowindex;
-				pairs[pair][1][0] = grid.getCell(x, row2).getCorrectValue();
-				pairs[pair][1][1] = x;
-				pairs[pair][1][2] = row2;
-				//pairs are added in same order so, can compare in same
-				//eg if pair 0 --> then check if 1 is equal to the 0 of the other
-				pair++;
-			}
-		}
-		
-		return pairs;
-	}
+//	private int[][][] getColPairs(int x, Grid grid) {
+//		int dim = grid.getDimensions();
+////		Cell collcells[] = grid.getColumncells(index);
+//		int[][][] pairs = new int[dim * (dim -1)][2][3];
+//		int pair = 0;
+//		for(int rowindex = 0; rowindex < dim; rowindex++) {
+//			for(int row2 = 0; row2 < dim; row2++) {
+//				if(rowindex == row2) {
+//					continue;
+//				}
+//				pairs[pair][0][0] = grid.getCell(x, rowindex).getCorrectValue();
+//				pairs[pair][0][1] = x;
+//				pairs[pair][0][2] = rowindex;
+//				pairs[pair][1][0] = grid.getCell(x, row2).getCorrectValue();
+//				pairs[pair][1][1] = x;
+//				pairs[pair][1][2] = row2;
+//				//pairs are added in same order so, can compare in same
+//				//eg if pair 0 --> then check if 1 is equal to the 0 of the other
+//				pair++;
+//			}
+//		}
+//		
+//		return pairs;
+//	}
+	
+//	
+//	public static int[][][] getRowPairs(int index, Grid grid) {
+//		int dim = grid.getDimensions();
+//		int[][][] pairs = new int[dim * (dim -1)][2][3];
+//		int pair = 0;
+//		for(int rowelement = 0; rowelement < dim; rowelement++) {
+//			for(int rowelement2 = 0; rowelement2 < dim; rowelement2++) {
+//				if(rowelement == rowelement2) {
+//					continue;
+//				}
+//				
+//				pairs[pair][0][0] = grid.getCell(index,rowelement).getCorrectValue();
+//				pairs[pair][0][1] = rowelement;
+//				pairs[pair][0][2] = index;
+//				pairs[pair][1][0] = grid.getCell(index,rowelement2).getCorrectValue();
+//				pairs[pair][1][1] = rowelement2;
+//				pairs[pair][1][2] = index;
+//				pair++;
+//			}
+//		}
+//		
+//		return pairs;
+//	}
 	
 	
-	public static int[][][] getRowPairs(int index, Grid grid) {
-		int dim = grid.getDimensions();
-		int[][][] pairs = new int[dim * (dim -1)][2][3];
-		int pair = 0;
-		for(int rowelement = 0; rowelement < dim; rowelement++) {
-			for(int rowelement2 = 0; rowelement2 < dim; rowelement2++) {
-				if(rowelement == rowelement2) {
-					continue;
-				}
-				
-				pairs[pair][0][0] = grid.getCell(index,rowelement).getCorrectValue();
-				pairs[pair][0][1] = rowelement;
-				pairs[pair][0][2] = index;
-				pairs[pair][1][0] = grid.getCell(index,rowelement2).getCorrectValue();
-				pairs[pair][1][1] = rowelement2;
-				pairs[pair][1][2] = index;
-				pair++;
-			}
-		}
-		
-		return pairs;
-	}
+//	private boolean validInversePairExist(int[][][] pair1, int[][][] pair2, Grid grid,boolean gui) {
+//		boolean multiplesolution = false;
+//		for(int i = 0; i < pair1.length; i++) {
+//			int p1element1 = pair1[i][0][0];
+//			int p1el1cordx = pair1[i][0][1];
+//			int p1el1cordy = pair1[i][0][2];
+//			int p1element2 = pair1[i][1][0];
+//			int p1el2cordx = pair1[i][1][1];
+//			int p1el2cordy = pair1[i][1][2];
+//			
+//			int p2element1 = pair2[i][0][0];
+//			int p2el1cordx = pair2[i][0][1];
+//			int p2el1cordy = pair2[i][0][2];
+//			int p2element2 = pair2[i][1][0];
+//			int p2el2cordx = pair2[i][1][1];
+//			int p2el2cordy = pair2[i][1][2];
+//
+//			if((p1element2 == p2element1) &&(p1el2cordy == p2el2cordy) && (p1el1cordy == p2el1cordy)){
+//				// uneed to update the other cell value somehow and revert that too
+//				boolean swap = grid.validCellSwaps(p1el1cordx, p1el1cordy, p2el1cordx, p2el1cordy,p1el2cordx, p1el2cordy, p2el2cordx, p2el2cordy);
+//				if(swap) {
+//					Random rand = new Random();
+//					if(gui) {
+//					String color1 = "-fx-background-color: rgba(" + rand.nextInt(256) + "," + rand.nextInt(256) + "," + rand.nextInt(256) + ",1)";
+//					grid.getCell(p1el1cordx, p1el1cordy).appendStyle(color1);
+//					grid.getCell(p2el1cordx, p2el1cordy).appendStyle(color1);
+//					grid.getCell(p1el2cordx, p1el2cordy).appendStyle(color1);
+//					grid.getCell(p2el2cordx, p2el2cordy).appendStyle(color1);
+//					}
+//					grid.increaseSolution();
+//					multiplesolution = true;
+//					//get cage 
+//					//remove cage method
+//					//remove cell from cage?
+//				}
+//				
+//			}
+//			
+//
+//		}
+//		return multiplesolution;
+//	}
 	
 	
-	private boolean validInversePairExist(int[][][] pair1, int[][][] pair2, Grid grid,boolean gui) {
-		boolean multiplesolution = false;
-		for(int i = 0; i < pair1.length; i++) {
-			int p1element1 = pair1[i][0][0];
-			int p1el1cordx = pair1[i][0][1];
-			int p1el1cordy = pair1[i][0][2];
-			int p1element2 = pair1[i][1][0];
-			int p1el2cordx = pair1[i][1][1];
-			int p1el2cordy = pair1[i][1][2];
-			
-			int p2element1 = pair2[i][0][0];
-			int p2el1cordx = pair2[i][0][1];
-			int p2el1cordy = pair2[i][0][2];
-			int p2element2 = pair2[i][1][0];
-			int p2el2cordx = pair2[i][1][1];
-			int p2el2cordy = pair2[i][1][2];
-
-			if((p1element2 == p2element1) &&(p1el2cordy == p2el2cordy) && (p1el1cordy == p2el1cordy)){
-				// uneed to update the other cell value somehow and revert that too
-				boolean swap = grid.validCellSwaps(p1el1cordx, p1el1cordy, p2el1cordx, p2el1cordy,p1el2cordx, p1el2cordy, p2el2cordx, p2el2cordy);
-				if(swap) {
-					Random rand = new Random();
-					if(gui) {
-					String color1 = "-fx-background-color: rgba(" + rand.nextInt(256) + "," + rand.nextInt(256) + "," + rand.nextInt(256) + ",1)";
-					grid.getCell(p1el1cordx, p1el1cordy).appendStyle(color1);
-					grid.getCell(p2el1cordx, p2el1cordy).appendStyle(color1);
-					grid.getCell(p1el2cordx, p1el2cordy).appendStyle(color1);
-					grid.getCell(p2el2cordx, p2el2cordy).appendStyle(color1);
-					}
-					grid.increaseSolution();
-					multiplesolution = true;
-					//get cage 
-					//remove cage method
-					//remove cell from cage?
-				}
-				
-			}
-			
-
-		}
-		return multiplesolution;
-	}
-	
-	
-	public void makeUnique() {
-		ArrayList<ArrayList<Cell>> swappable = grid.getSwappableCells();
-		for(ArrayList<Cell> lists: swappable) {
-			if(this.makeUnswappable(lists)) {
-			};
-		}
-}
-	private boolean makeUnswappable(ArrayList<Cell> toswap) {
-		
-		
-		for(Cell cell: toswap) {
-			ArrayList<Cell> edgecells = cell.getCage().getEdgeOfCage();
-			if(edgecells.contains(cell)) {
-				int[] pos = cell.getCage().getCords();
-				int[] pos2 = new int[pos.length -1];
-				for(int i = 0; i < pos2.length;i++) {
-					pos2[i] = pos[i];
-				}
-				int[] pos3 = new int[1];
-				pos3[0] = pos[pos.length-1];
-				grid.deleteCage(cell.getCage());
-				this.setupCage(grid, pos3, new Random(), 1);
-				this.setupCage(grid, pos2, new Random(), 1);
-				ArrayList<Cage> tt = grid.getAllCages();
-				
-				
-				
-				
-				
-				
-				
-				return true;
-			}
-		}
-		//
-		
-		//check top,right,left,bottom --> needs to be at edge of cage 
-		
-		//Set cell to single cell --> 
-		
-		return false;
-	}
+//	public void makeUnique() {
+//		ArrayList<ArrayList<Cell>> swappable = grid.getSwappableCells();
+//		for(ArrayList<Cell> lists: swappable) {
+//			if(this.makeUnswappable(lists)) {
+//			};
+//		}
+//}
+//	private boolean makeUnswappable(ArrayList<Cell> toswap) {
+//		
+//		
+//		for(Cell cell: toswap) {
+//			ArrayList<Cell> edgecells = cell.getCage().getEdgeOfCage();
+//			if(edgecells.contains(cell)) {
+//				int[] pos = cell.getCage().getCords();
+//				int[] pos2 = new int[pos.length -1];
+//				for(int i = 0; i < pos2.length;i++) {
+//					pos2[i] = pos[i];
+//				}
+//				int[] pos3 = new int[1];
+//				pos3[0] = pos[pos.length-1];
+//				grid.deleteCage(cell.getCage());
+//				this.setupCage(grid, pos3, new Random(), 1);
+//				this.setupCage(grid, pos2, new Random(), 1);
+//				ArrayList<Cage> tt = grid.getAllCages();
+//				
+//				
+//				
+//				
+//				
+//				
+//				
+//				return true;
+//			}
+//		}
+//		//
+//		
+//		//check top,right,left,bottom --> needs to be at edge of cage 
+//		
+//		//Set cell to single cell --> 
+//		
+//		return false;
+//	}
 }	

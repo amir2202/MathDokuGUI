@@ -96,7 +96,9 @@ public class Main extends Application {
 
 			@Override
 			public void handle(ActionEvent arg0) {
-				//RUN ON different thread
+				if(grid.showHint()) {
+					
+				};
 				
 			}
 			
@@ -765,5 +767,11 @@ public class Main extends Application {
 		
 		
 		
+}
+
+class Exit extends Exception{
+public Exit(String msg) {
+	super(msg);
+}
 }
 

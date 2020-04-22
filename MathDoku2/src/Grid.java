@@ -784,8 +784,11 @@ public class Grid extends GridPane {
 	
 	public boolean showHint() {
 		if(this.solved ==false) {
-			SolvingTask solve = new SolvingTask(this.getConfig(),this.getDimensions(),true);
-			HashMap<Integer,Integer> result = solve.solveNoThread();
+			
+			//FIXX THISSS
+//			BasicSolve solve = new BasicSolve(this.getConfig(),this.getDimensions(),true);
+//			HashMap<Integer,Integer> result = solve.solveNoThread();
+			this.solved = true;
 		}
 		
 		if(this.hints == 0) {
@@ -793,7 +796,6 @@ public class Grid extends GridPane {
 		}
 		
 		else {
-			this.hints--;
 			Random random = new Random();
 			boolean valid = false;
 			while(!valid) {
@@ -803,11 +805,25 @@ public class Grid extends GridPane {
 					this.givenhints.add(rand);
 					Cell cell = this.getCell(rand);
 					cell.setNumber(cell.getCorrectValue());
+					cell.updateText();
 					
 					return true;
 				}
 				else {
-					//check if isnt a hint already
+					boolean given = true;
+					while(given) {
+						int chosen = random.nextInt(this.dimensions*this.dimensions);
+						if(this.givenhints.contains(chosen)) {
+							continue;
+						}
+						else {
+							given = false;
+							Cell cell = this.getCell(rand);
+							cell.setNumber(cell.getCorrectValue());
+							cell.updateText();
+							this.hints--;
+						}
+					}
 				}
 			}
 			return true;

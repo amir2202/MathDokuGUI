@@ -60,7 +60,7 @@ public class SolvingTask extends Task {
 						temp.setCage(label, arguments);
 					}
 				}
-				solver.solve(temp);
+				solver.solve(temp,true);
 				ArrayList<Integer[]> solutions = solver.getSolutions();
 				return solutions;
 			}
@@ -88,7 +88,7 @@ public class SolvingTask extends Task {
 				temp.setCage(label, arguments);
 			}
 		}
-		solver.solve(temp);
+		solver.solve(temp,false);
 		for(int position = 1; position <= temp.getDimensions() * temp.getDimensions(); position++) {
 			values.put(position, temp.getCell(position).getNumber());
 		}

@@ -16,7 +16,7 @@ public class ThreadSolve {
 		return this.solutionset;
 	}
 	
-	public void solve(Grid grid) {
+	public void solve(Grid grid,boolean showall) {
 		solutionset = new ArrayList<Integer[]>();
 		grid.clearCells();
 		int index = 1;

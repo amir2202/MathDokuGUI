@@ -83,6 +83,12 @@ public class Cell extends StackPane{
 		return this.number;
 	}
 	
+	public void updateText() {
+		this.getChildren().remove(this.getText());
+		Text newest = new Text(String.valueOf(this.getNumber()));
+		this.getChildren().add(newest);
+		this.number = newest;
+	}
 	
 	public Action setText(Text newtext, boolean updateGrid, int actualvalue) {
 		if(updateGrid == true) {
@@ -112,6 +118,8 @@ public class Cell extends StackPane{
 		}
 		return null;
 	}
+	
+	
 	
 	public String getStringText() {
 		return this.getText().getText();
@@ -216,6 +224,8 @@ public class Cell extends StackPane{
 		if(input == true) {
 			this.getStyleClass().add("correct");
 			this.correct = true;
+//			this.correct = true;
+//			this.getStyleClass().remove("wrong");
 		}
 		if(input == false) {
 			this.getStyleClass().add("wrong");
