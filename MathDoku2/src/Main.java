@@ -104,6 +104,13 @@ public class Main extends Application {
 			
 		});
 		Button animate = new Button("Temporary");
+//		animate.setOnAction(e->{
+//			Generator gen = new Generator();
+//			gen.addSingleCage(grid);
+//		});
+		
+		
+		
 		animate.setOnAction(new EventHandler<ActionEvent>() {
 //			public void handle(ActionEvent e) {
 //				Winning win = new Winning(pane,scene.getHeight(), scene.getWidth()); 

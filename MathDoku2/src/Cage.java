@@ -185,6 +185,7 @@ public class Cage {
 			String operator = "";
 			this.cagecells.remove(cell);
 			int pos = cell.getGrid().getPosition(cell.getX(), cell.getY());
+			System.out.println("REMOVVINGG " + pos);
 			this.removeCordinate(pos);
 			if(cell.getLabel() != null) {
 				cell.removeLabel();
@@ -229,13 +230,39 @@ public class Cage {
 	}
 	
 	public ArrayList<Cell> getEdgeOfCage() {
+		//special
+		
+		//fix case here--> if special but then must have 3 corner atleast too
+		//has 3 borders
+	
 		ArrayList<Cell> edgecells = new ArrayList<Cell>();
 		for(Cell cell: this.cagecells) {
 			int x = cell.getX();
 			Grid grid = cell.getGrid();
 			int y = cell.getY();
-			if(!this.cagecells.contains(grid.getCell(x+1,y)) || !this.cagecells.contains(grid.getCell(x-1,y)) || !this.cagecells.contains(grid.getCell(x,y-1)) || !this.cagecells.contains(grid.getCell(x-1,y-1)))
-			{
+			//special 
+			int dim = grid.getDimensions();
+//			boolean specialcases = this.cagecells.contains(grid.getCell(1)) || this.cagecells.contains(grid.getCell(dim)) || this.cagecells.contains(grid.getCell(dim * dim)) || this.cagecells.contains((dim * dim) - (dim -1));
+//			if(specialcases && this.cagecells.size() >1) {
+//				edgecells.add(cell);
+//				System.out.println("executes at " + this);
+//				return edgecells;
+//			}
+			
+			
+			
+			boolean[] borders = new boolean[4];
+			borders[0] = !this.cagecells.contains(grid.getCell(x+1, y));
+			borders[1] = !this.cagecells.contains(grid.getCell(x-1, y));
+			borders[2] = !this.cagecells.contains(grid.getCell(x,y+1));
+			borders[3] = !this.cagecells.contains(grid.getCell(x,y-1));
+			int count = 0;
+			for(int i = 0; i < borders.length;i++) {
+				if(borders[i] == true) {
+					count++;
+				}
+			}
+			if(count == 3) {
 				edgecells.add(cell);
 			}
 		}

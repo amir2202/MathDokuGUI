@@ -52,7 +52,7 @@ public class Generator {
 
 		if(unique) {
 			ThreadSolve solve = new ThreadSolve();
-			solve.solve(temp,true);
+			solve.solve(temp,false);
 
 			if(solve.getSolutions().size() == 1) {
 				ArrayList<Integer[]> solutions = solve.getSolutions();
@@ -82,9 +82,11 @@ public class Generator {
 			for(int i = 0; i < 5; i++) {
 				Grid uniquegrid = this.tryUnique(dimension,difficulty);
 				if(uniquegrid != null) {
+//					System.out.println("UNIQUEEEEEE");
 					for(Cage cage: uniquegrid.getAllCages()) {
 						System.out.println(cage);
 					}
+					System.out.println("DELIMITER");
 					return uniquegrid;
 				}
 				
@@ -95,9 +97,15 @@ public class Generator {
 		//otherwise
 		boolean unique = false;
 		while(!unique) {
-				System.out.println("reaches1");
+//				System.out.println("reaches1");
+//				for(Cage cage:grid.getAllCages()) {
+//					System.out.println(cage);
+//				}
 				this.addSingleCage(grid);
-				System.out.println("reaches2");
+//				System.out.println("--------------------------------------");
+//				for(Cage cage:grid.getAllCages()) {
+//					System.out.println(cage);
+//				}
 				ThreadSolve solve = new ThreadSolve();
 				solve.solve(grid,false);
 				if(solve.getSolutions().size() == 1) {
@@ -109,6 +117,7 @@ public class Generator {
 					return grid;
 					
 				}
+				System.out.println("still not unique");
 		}
 		
 		
@@ -144,7 +153,7 @@ public class Generator {
 		}
 		
 		ThreadSolve solve = new ThreadSolve();
-		solve.solve(fresh,false);
+		solve.solve(fresh,true);
 		ArrayList<Integer[]> solutions = solve.getSolutions();
 		if(solutions.size() == 1) {
 			return fresh;
@@ -158,36 +167,57 @@ public class Generator {
 	
 	
 	public boolean addSingleCage(Grid grid) {
-		System.out.println("reaches3");
-		for(Cage cage:grid.getAllCages()) {
-			if(cage.getCords().length != 1) {
-				ArrayList<Cell> tochange = cage.getEdgeOfCage();
-				if(tochange.size() > 0) {
-					Cell stff = tochange.get(0);
-					Cage tobedeleted = stff.getCage();
-					int num = stff.getNumber();
-					int[] args2 = new int[tobedeleted.getCells().size() -1];
-					int[] args = new int[1];
-					args[0] = grid.getPosition(stff.getX(), stff.getY());
-					tobedeleted.removeCell(stff);
-					
-					for(int i = 0; i < args2.length;i++) {
-						args2[i] = tobedeleted.getCords()[i];
-					}
-					grid.deleteCage(tobedeleted);
-					
-//					System.out.println(grid.getAllCages());
-//					System.out.println("AFTER");
-					this.setupCage(grid, args, new Random(), 1);
-					this.setupCage(grid, args2, new Random(), 1);
-					System.out.println("reaches4");
-					return true;
-//					System.out.println(grid.getAllCages());
-				}
-			}
+//		for(Cage cage: grid.getAllCages()) {
+//			System.out.println("CAGE EDGECELLS " + cage.getEdgeOfCage());
+//		}
+//		return false;
+		Random random = new Random();
+		System.out.println("INITIAL ALL CAGES");
+		for(Cage stuff2: grid.getAllCages()) {
+			System.out.println(stuff2);
 		}
+		//infintie loop deal with later
+		Cage cage = null;
+		for(int i = 0; i < grid.getAllCages().size();i++) {
+			cage = grid.getAllCages().get(i);
+					if(cage.getEdgeOfCage().size() > 0 && cage.getCords().length > 1) {
+						break;
+					}
+					else {
+						System.out.println("Setting to null");
+						cage = null;
+					}
 		
-		return false;
+		}
+
+		if(cage == null) {
+			System.out.println("no single cages left");
+			return false;
+		}
+		System.out.println("fixing " + cage);
+		ArrayList<Cell> replace = cage.getEdgeOfCage();
+		System.out.println("its edge " + replace);
+		Cell delete = cage.getEdgeOfCage().get(cage.getEdgeOfCage().size() -1);
+		int pos = grid.getPosition(delete.getX(), delete.getY());
+		int[] args = new int[1];
+		args[0] = pos;
+		System.out.println("CAGE COORDINATES BEFORE REMOVING SIZE" + cage.getCords().length);
+		cage.removeCell(delete);
+		System.out.println("CAGE COORDINATES AFTER REMOVING SIZE" + cage.getCords().length);
+		System.out.println("removing" + delete);
+		int[] args2 = cage.getCords();
+		System.out.println("arg" + args.length);
+		System.out.println("arg2" + args2.length);
+		grid.deleteCage(cage);
+		this.setupCage(grid, args, new Random(), 1);
+		this.setupCage(grid, args2, new Random(), 1);
+		System.out.println("AFTER CAGES");
+		
+		for(Cage stuff: grid.getAllCages()) {
+			System.out.println(stuff);
+		}
+		return true;
+	
 	}
 	
 	

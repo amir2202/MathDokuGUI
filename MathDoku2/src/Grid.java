@@ -763,10 +763,11 @@ public class Grid extends GridPane {
 	
 	public void intPosition() {
 		int position = 0;
-		for(int x = 0; x < this.dimensions; x++) {
-			for(int y= 0; y< this.dimensions;y++) {
+		//FIX THIS PIDERAS CYKA IDI NAHUI
+		for(int row = 0; row < this.dimensions; row++) {
+			for(int col= 0; col< this.dimensions;col++) {
 				position++;
-				String cord = String.valueOf(x) + String.valueOf(y);
+				String cord = String.valueOf(col) + String.valueOf(row);
 				this.positions.put(cord, position);
 			}
 		}

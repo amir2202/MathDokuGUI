@@ -52,7 +52,9 @@ public class ThreadSolve {
 					solution[i-1] = grid.getCell(i).getNumber();
 				}
 				solutionset.add(solution);
-				
+				if(!showall && this.solutionset.size() > 1) {
+					return;
+				}
 				while(index > lastbacktrack) {
 					grid.getCell(index).setNumber(0);
 					index--;

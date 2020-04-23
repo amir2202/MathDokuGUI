@@ -310,6 +310,9 @@ public class Cell extends StackPane{
 		return this.correctvalue;
 	}
 	
+	public String toString() {
+		return String.valueOf(this.x) + String.valueOf(this.y);
+	}
 	
 }
 
