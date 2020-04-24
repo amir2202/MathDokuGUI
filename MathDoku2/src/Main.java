@@ -599,11 +599,11 @@ public class Main extends Application {
 					}
 					if(grid.validCellInput(grid.getSelected()) == true)
 					{
-						grid.getSelected().setCorrect(true);
+						grid.getSelected().setCorrect(true,false);
 					}
 					if(grid.validCellInput(grid.getSelected()) == false)
 					{
-						grid.getSelected().setCorrect(false);
+						grid.getSelected().setCorrect(false,true);
 					}
 				}
 			}

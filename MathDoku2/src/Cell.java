@@ -220,12 +220,10 @@ public class Cell extends StackPane{
 	}
 
 	
-	public void setCorrect(boolean input) {
+	public void setCorrect(boolean input,boolean gui) {
 		if(input == true) {
-			this.getStyleClass().add("correct");
 			this.correct = true;
-//			this.correct = true;
-//			this.getStyleClass().remove("wrong");
+			this.getStyleClass().add("correct");
 		}
 		if(input == false) {
 			this.getStyleClass().add("wrong");

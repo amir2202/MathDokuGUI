@@ -294,7 +294,7 @@ public class Grid extends GridPane {
 					}
 					if(!this.cells[cell.getX()][y].getCorrect() && this.cells[cell.getX()][y].getHighlighted()) {
 						this.cells[cell.getX()][y].resetStyle();
-						this.cells[cell.getX()][y].setCorrect(false);
+						this.cells[cell.getX()][y].setCorrect(false,true);
 					}
 				}
 			}
@@ -305,7 +305,7 @@ public class Grid extends GridPane {
 					}
 					if(!this.cells[x][cell.getY()].getCorrect() && this.cells[x][cell.getY()].getHighlighted()) {
 						this.cells[x][cell.getY()].resetStyle();
-						this.cells[x][cell.getY()].setCorrect(false);
+						this.cells[x][cell.getY()].setCorrect(false,true);
 					}
 					
 				}
@@ -787,8 +787,12 @@ public class Grid extends GridPane {
 		if(this.solved ==false) {
 			
 			//FIXX THISSS
-//			BasicSolve solve = new BasicSolve(this.getConfig(),this.getDimensions(),true);
-//			HashMap<Integer,Integer> result = solve.solveNoThread();
+			ThreadSolve  solve = new ThreadSolve();
+			solve.solve(this, false);
+			Integer[] sols = solve.getSolutions().get(0);
+			for(int i = 0; i < sols.length;i++) {
+				this.getCell(i+1).setNumber(sols[i]);
+			}
 			this.solved = true;
 		}
 		

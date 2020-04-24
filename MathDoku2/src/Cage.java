@@ -39,7 +39,7 @@ public class Cage {
 	
 	public void setCorrect(boolean input) {
 		for(Cell cell: this.cagecells) {
-			cell.setCorrect(input);
+			cell.setCorrect(input,false);
 		}
 	}
 	

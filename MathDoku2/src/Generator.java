@@ -53,7 +53,12 @@ public class Generator {
 		if(unique) {
 			ThreadSolve solve = new ThreadSolve();
 			solve.solve(temp,false);
-
+			if(temp.getDimensions() == 2) {
+				System.out.println("executes fix 2x2");
+				Grid makeunique = this.makeUnique(temp, 2, 1);
+				return makeunique;
+				
+			}
 			if(solve.getSolutions().size() == 1) {
 				ArrayList<Integer[]> solutions = solve.getSolutions();
 				for(int i = 0; i < solutions.get(0).length;i++) {
@@ -78,6 +83,28 @@ public class Generator {
 	
 	public Grid makeUnique(Grid grid, int dimension, int difficulty) {
 		//Generate 6 grids if dim is below 7
+		if(grid.getDimensions() == 2) {
+			ThreadSolve solve = new ThreadSolve();
+			solve.solve(grid,false);
+			Integer[] sol = solve.getSolutions().get(0);
+			boolean uniq = true;
+			for(int i = 0; i < sol.length;i++) {
+				grid.getCell(i+1).setNumber(sol[i]);
+			}
+			
+			for(Cage cage:grid.getAllCages()) {
+				if(cage.getCells().size() == 2) {
+					uniq = false;
+					System.out.println("ADDING SINGLE CAGE IN");
+					this.addSingleCage(grid);
+					return grid;
+				}
+			}
+			
+			return grid;
+		}
+		
+		
 		if(grid.getDimensions() < 7) {
 			for(int i = 0; i < 5; i++) {
 				Grid uniquegrid = this.tryUnique(dimension,difficulty);
