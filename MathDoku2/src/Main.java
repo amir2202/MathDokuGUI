@@ -243,10 +243,10 @@ public class Main extends Application {
 			@Override
 			public void handle(ActionEvent arg0) {
 				if(grid.alreadySolved() == true) {
-					HashMap<Integer,Integer> values = grid.getSolution();
-					for(int position = 1; position <= grid.getDimensions() * grid.getDimensions(); position++) {
-						int value = values.get(position);
-						grid.getCell(position).setNumber(value);
+					ArrayList<Integer[]> allvalues = grid.getSolution();
+					Integer[] values = allvalues.get(0);
+					for(int i = 0; i < grid.getDimensions() * grid.getDimensions(); i++) {
+						grid.getCell(i +1).setNumber(values[i]);
 					}
 					grid.updateGrid();
 					return;
@@ -257,16 +257,16 @@ public class Main extends Application {
 				for(int i = 0; i < config.length; i++) {
 					config[i] = grid.getAllCages().get(i).toString();
 				}
-				SolvingTask solve = new SolvingTask(config, grid.getDimensions(),true);
+				SolvingTask solve = new SolvingTask(config, grid.getDimensions(),false);
 				solve.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 					public void handle(WorkerStateEvent arg0) {
-						HashMap<Integer,Integer> values = (HashMap) solve.getValue();
-						for(int position = 1; position <= grid.getDimensions() * grid.getDimensions(); position++) {
-							int value = values.get(position);
-							grid.getCell(position).setNumber(value);
+						ArrayList<Integer[]> allvalues = (ArrayList<Integer[]>) solve.getValue();
+						Integer[] values = allvalues.get(0);
+						for(int i = 0; i < grid.getDimensions() * grid.getDimensions();i++) {
+							grid.getCell(i +1).setNumber(values[i]);
 						}
 						grid.updateGrid();
-						grid.setSolution(values);
+						grid.setSolutions(allvalues);
 						grid.solved(true);
 						solvebutton.setDisable(false);
 					}

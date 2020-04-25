@@ -224,6 +224,9 @@ public class Cell extends StackPane{
 		if(input == true) {
 			this.correct = true;
 			this.getStyleClass().add("correct");
+			if(!gui) {
+				this.resetStyle();
+			}
 		}
 		if(input == false) {
 			this.getStyleClass().add("wrong");

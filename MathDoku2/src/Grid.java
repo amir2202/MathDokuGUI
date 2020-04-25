@@ -28,7 +28,8 @@ public class Grid extends GridPane {
 	private int solutions = 0;
 	private Cell selectedCell;
 	private boolean solved = false;
-	private HashMap<Integer,Integer> solution;
+//	private HashMap<Integer,Integer> solution;
+	private ArrayList<Integer[]> solution;
 	private ArrayList<String> numbers;
 	private ArrayList<ArrayList<Cell>> swappablecells;
 	private ArrayList<Cage> allcages; 
@@ -281,12 +282,17 @@ public class Grid extends GridPane {
 	//Indicate whether it used for solving purpose
 	public boolean validCellInput(Cell cell) {
 		//Row column logic 
-		if(!cell.getCage().isCageFull()|| !cell.getCage().isCageCorrect()) {
-			cell.getCage().setCorrect(false);
+		boolean valid = true;
+		if(cell.getCage().isCageFull() == true) {
+			if(!cell.getCage().isCageCorrect()) {
+				cell.getCage().setCorrect(false);
+				valid = false;
+			}
+			else {
+				cell.getCage().setCorrect(true);
+			}
 		}
-		if(cell.getCage().isCageFull() == true && cell.getCage().isCageCorrect() == true) {
-			cell.getCage().setCorrect(true);
-		}
+		
 		if(columnDuplicates(cell.getX()) == true) {
 				for(int y = 0; y < this.dimensions;y++) {
 					if(this.cells[cell.getX()][y].getCorrect() != false) {
@@ -294,24 +300,27 @@ public class Grid extends GridPane {
 					}
 					if(!this.cells[cell.getX()][y].getCorrect() && this.cells[cell.getX()][y].getHighlighted()) {
 						this.cells[cell.getX()][y].resetStyle();
-						this.cells[cell.getX()][y].setCorrect(false,true);
+						this.cells[cell.getX()][y].setCorrect(false,false);
 					}
 				}
-			}
-			if(rowDuplicates(cell.getY()) == true) {
+				valid = false;
+		}
+		if(rowDuplicates(cell.getY()) == true) {
+			valid = false;
 				for(int x = 0; x < this.dimensions;x++) {
 					if(this.cells[x][cell.getY()].getCorrect() != false) {
 						this.cells[x][cell.getY()].setHighlighted(true);	
 					}
 					if(!this.cells[x][cell.getY()].getCorrect() && this.cells[x][cell.getY()].getHighlighted()) {
 						this.cells[x][cell.getY()].resetStyle();
-						this.cells[x][cell.getY()].setCorrect(false,true);
+						this.cells[x][cell.getY()].setCorrect(false,false);
 					}
 					
 				}
+				valid = false;
 			}
 			
-			return false;
+		return valid;
 	}
 	
 	
@@ -720,11 +729,19 @@ public class Grid extends GridPane {
 		this.solved = solved;
 	}
 	
-	public void setSolution(HashMap<Integer,Integer> solution) {
+	public void setSolutions(ArrayList<Integer[]> solution) {
 		this.solution = solution;
+		Integer[] first = this.solution.get(0);
+		for(int i = 0; i < this.dimensions * this.dimensions; i++) {
+			this.getCell(i+1).setCorrectValue(first[i]);
+		}
 	}
 	
-	public HashMap<Integer,Integer> getSolution(){
+	public void setamountSolutions(int am) {
+		this.solutions = am;
+	}
+	
+	public ArrayList<Integer[]> getSolution(){
 		return this.solution;
 	}
 	
@@ -784,55 +801,107 @@ public class Grid extends GridPane {
 	}
 	
 	public boolean showHint() {
+		int hint = this.generateHint();
+		Cell tochange = this.getCell(hint);
+		tochange.setNumber(tochange.getCorrectValue());
+		tochange.updateText();
+		return true;
+//		System.out.println("ALREADY SOLVED" + this.solved);
+
+//		
+//		if(this.givenhints == null) {
+//			Random random = new Random();
+//			this.givenhints = new ArrayList<Integer>();
+//			int rand = random.nextInt(this.dimensions * this.dimensions);
+//			boolean v = false;
+//			while(v == false) {
+//				if(rand > 0 ) {
+//					break;
+//				}
+//				else {
+//					random.nextInt(this.dimensions * this.dimensions);
+//				}
+//			}
+//			
+//			this.givenhints.add(rand);
+//			Cell cell = this.getCell(rand);
+//			cell.setNumber(cell.getCorrectValue());
+//			cell.updateText();					
+//			return true;
+//		}
+//		if(this.hints == 0) {
+//			return false;
+//		}
+//		
+//		else {
+//			System.out.println("executes");
+//			Random random = new Random();
+//			boolean valid = false;
+//			int rand = random.nextInt(this.dimensions * this.dimensions);
+//			while(valid == false) {
+//				if(rand > 0 ) {
+//					break;
+//				}
+//				else {
+//					rand = random.nextInt(this.dimensions * this.dimensions);
+//				}
+//			}
+//			
+//			boolean correct = false;
+//			while(correct = false) {
+//				if(rand == 0) {
+//					rand = random.nextInt(this.dimensions * this.dimensions);
+//					continue;
+//				}
+//				else {
+//					int chosen = random.nextInt(this.dimensions*this.dimensions);
+//						if(this.givenhints.contains(chosen)) {
+//							continue;
+//						}
+//						else {
+//							correct = true;
+//							Cell cell = this.getCell(rand);
+//							cell.setNumber(cell.getCorrectValue());
+//							cell.updateText();
+//							this.hints--;
+//						}
+//					}
+//				}
+//			return true;
+//		}
+	}
+	
+	public int generateHint() {
 		if(this.solved ==false) {
-			
-			//FIXX THISSS
-			ThreadSolve  solve = new ThreadSolve();
-			solve.solve(this, false);
-			Integer[] sols = solve.getSolutions().get(0);
-			for(int i = 0; i < sols.length;i++) {
-				this.getCell(i+1).setNumber(sols[i]);
+		ThreadSolve  solve = new ThreadSolve();
+		solve.solve(this, false);
+		Integer[] sols = solve.getSolutions().get(0);
+		for(int i = 0; i < sols.length;i++) {
+			this.getCell(i+1).setCorrectValue((sols[i]));
+		}
+		//maybe do a animation for 3s
+		this.solved = true;
+	}
+		Random random = new Random();
+		int rand = random.nextInt((this.dimensions*this.dimensions)+1);
+		boolean valid = false;
+		while(!valid) {
+			if(rand > 0) {
+				break;
 			}
-			this.solved = true;
+			else {
+				rand = random.nextInt((this.dimensions*this.dimensions)+1);
+			}
 		}
 		
-		if(this.hints == 0) {
-			return false;
+		if (this.givenhints == null) {
+			this.givenhints = new ArrayList<Integer>();
 		}
+		this.givenhints.add(rand);
 		
-		else {
-			Random random = new Random();
-			boolean valid = false;
-			while(!valid) {
-				int rand = random.nextInt(this.dimensions * this.dimensions);
-				if(this.givenhints == null) {
-					this.givenhints = new ArrayList<Integer>();
-					this.givenhints.add(rand);
-					Cell cell = this.getCell(rand);
-					cell.setNumber(cell.getCorrectValue());
-					cell.updateText();
-					
-					return true;
-				}
-				else {
-					boolean given = true;
-					while(given) {
-						int chosen = random.nextInt(this.dimensions*this.dimensions);
-						if(this.givenhints.contains(chosen)) {
-							continue;
-						}
-						else {
-							given = false;
-							Cell cell = this.getCell(rand);
-							cell.setNumber(cell.getCorrectValue());
-							cell.updateText();
-							this.hints--;
-						}
-					}
-				}
-			}
-			return true;
-		}
+		return rand;
+		
+		
 	}
 	
 	public String[] getConfig() {
