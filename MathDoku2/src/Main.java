@@ -113,7 +113,9 @@ public class Main extends Application {
 		pane.setCenter(grid);
 		scene = new Scene(pane,600,600);
 		VBox left = new VBox();
+		left.setSpacing(10.0);
 		VBox right = new VBox();
+		right.setSpacing(10.0);
 		Button hint = new Button("Hint");
 		hint.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -127,56 +129,40 @@ public class Main extends Application {
 			}
 			
 		});
-		Button animate = new Button("Temporary");
-//		animate.setOnAction(e->{
-//			Generator gen = new Generator();
-//			gen.addSingleCage(grid);
-//		});
-		
-		
-		
-		animate.setOnAction(new EventHandler<ActionEvent>() {
-//			public void handle(ActionEvent e) {
-//				Winning win = new Winning(pane,scene.getHeight(), scene.getWidth()); 
-//				try {
-//					stage.setScene(win.getAnimation());
-//				} catch (Exit e1) {
-//					stage.setScene(scene);
-//				}	
-//			}
-			public void handle(ActionEvent e) {
-				SolvingTask solve = new SolvingTask(grid.getConfig(),grid.getDimensions(),false);
-				Thread thread = new Thread(solve);
-				solve.setOnSucceeded(new EventHandler<WorkerStateEvent>(){
+		Button allsolutions = new Button("All solutions");
+
+		allsolutions.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent arg0) {
+				allsolutions.setDisable(true);
+				String[] touse = grid.getConfig();
+				int griddim = grid.getDimensions();
+				AllSolutions task = new AllSolutions(touse,griddim);
+				Thread thread = new Thread(task);
+				task.setOnSucceeded(new EventHandler<WorkerStateEvent>(){
 
 					@Override
 					public void handle(WorkerStateEvent arg0) {
-//						HashMap<Integer,Integer> values = (HashMap) solve.getValue();
-//						for(int position = 1; position <= grid.getDimensions() * grid.getDimensions(); position++) {
-//							int value = values.get(position);
-//							grid.getCell(position).setNumber(value);
-//						}
-//						grid.updateGrid();
-//						grid.setSolution(values);
-//						grid.solved(true);
-						ArrayList<Integer[]> sol =(ArrayList<Integer[]>) solve.getValue();
-						System.out.println(sol.size());
-						for(Integer[] solu: sol) {
-							System.out.println("SOLUTION");
-							for(int x = 0; x < solu.length; x++) {
-								System.out.print(solu[x] + " ");
-								if((x +1) % (grid.getDimensions()) == 0) {
-									System.out.println();
-								}
-							}
-						}
+						allsolutions.setDisable(false);
+						Scene get = (Scene) task.getValue();
+						Stage created = new Stage();
+						created.setScene(get);
+						created.show();
 					}
 					
 				});
 				thread.start();
-
-		}
+			}
+			
+			
 		});
+		
+		
+
+		
+		
+		
 		right.setAlignment(Pos.CENTER_LEFT);
 		pane.setRight(right);
 		pane.setLeft(left);
@@ -337,7 +323,7 @@ public class Main extends Application {
 			}
 			
 		});
-		bottom.getChildren().addAll(undo,redo,clear,solvebutton,config,hint,animate);
+		bottom.getChildren().addAll(undo,redo,clear,solvebutton,config,hint);
 		
 		CheckBox mistakes = new CheckBox("Show mistakes");
 		mistakes.setOnAction(new EventHandler<ActionEvent>() {
@@ -391,7 +377,7 @@ public class Main extends Application {
 		left.getChildren().addAll(new Label("Font Size"),font,generate);
 		left.setAlignment(Pos.CENTER);
 		Button load = new Button("Load games");
-		right.getChildren().add(load);
+		right.getChildren().addAll(load,allsolutions);
 		
 		load.setOnAction(new EventHandler<ActionEvent>(){
 		public void handle(ActionEvent e){

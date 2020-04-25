@@ -23,6 +23,7 @@ public class Grid extends GridPane {
 	private int dimensions;
 	private Cell[][] cells;
 	public int hints = 3; 
+	private boolean allSolutions = false;
 	private ArrayList<Integer> givenhints; 
 	private HashMap<String, Integer> positions;
 	private int solutions = 0;
@@ -913,4 +914,38 @@ public class Grid extends GridPane {
 		return config;
 	}
 	
+	public void fullySolved(boolean input) {
+		this.allSolutions = input;
+	}
+	
+	public boolean getfullySolved() {
+		return this.allSolutions;
+	}
+	
+	public void initialiseConfig(String[] config) {
+		for(String cage:config) {
+			String[] split = cage.split(" ");
+			String label = split[0];
+			String[] argum = split[1].split(",");
+			if(argum.length == 1) {
+				this.setCage(label, Integer.valueOf(split[1]));
+			}
+			else {
+			int[] arguments = new int[argum.length];
+			for(int i = 0;i < arguments.length;i++) {
+				arguments[i] = Integer.valueOf(argum[i]);
+			}
+			///change this argument shit
+			this.setCage(label, arguments);
+			}
+		}
+	}
+	
+	public void initialiseSolution(Integer[] numbers) {
+		for(int i = 0; i < numbers.length; i++) {
+			this.getCell(i+1).setCorrectValue(numbers[i]);
+			this.getCell(i+1).setNumber(numbers[i]);
+			this.getCell(i+1).updateText();
+		}
+	}
 }
