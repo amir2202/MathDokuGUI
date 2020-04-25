@@ -1,6 +1,12 @@
 import java.util.ArrayList;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
@@ -13,6 +19,10 @@ public class Cell extends StackPane{
 	private Label label;
 	private boolean occupied = false;
 	private boolean selected = false;
+	//0 small ( default)
+	//1 medium
+	//2 large
+	private int font = 0;
 	private Cage cage;
 	private int correctvalue;
 	private String concurrentLabel;
@@ -83,14 +93,34 @@ public class Cell extends StackPane{
 		return this.number;
 	}
 	
+
+	
 	public void updateText() {
 		this.getChildren().remove(this.getText());
 		Text newest = new Text(String.valueOf(this.getNumber()));
+		if(this.font == 0) {
+			newest.getStyleClass().add("small");
+		}
+		else if(this.font == 1) {
+			newest.getStyleClass().add("medium");
+		}
+		else if(this.font == 2) {
+			newest.getStyleClass().add("large");
+		}
 		this.getChildren().add(newest);
 		this.number = newest;
 	}
 	
 	public Action setText(Text newtext, boolean updateGrid, int actualvalue) {
+		if(this.font == 0) {
+			newtext.getStyleClass().add("small");
+		}
+		else if(this.font == 1) {
+			newtext.getStyleClass().add("medium");
+		}
+		else if(this.font == 2) {
+			newtext.getStyleClass().add("large");
+		}
 		if(updateGrid == true) {
 			if(this.getChildren().contains(this.getText())) {
 				this.getChildren().remove(this.getText());
@@ -164,9 +194,14 @@ public class Cell extends StackPane{
 	//start with labels
 	public void setFont(String size) {
 		if(size.equals("small")) {
+			this.font = 0;
 			if(this.label != null) {
 				this.label.getStyleClass().clear();
 			    this.label.getStyleClass().add("small");	
+			}
+			if(this.number != null) {
+				this.number.getStyleClass().clear();
+				this.number.getStyleClass().add("small");
 			}
 			this.getStyleClass().clear();
 			this.getStyleClass().add("borders");
@@ -174,18 +209,28 @@ public class Cell extends StackPane{
 		    
 		}
 		if(size.equals("medium")) {
+			this.font = 1;
 			if(this.label != null) {
 				this.label.getStyleClass().clear();
 			    this.label.getStyleClass().add("medium");	
+			}
+			if(this.number != null) {
+				this.number.getStyleClass().clear();
+				this.number.getStyleClass().add("medium");
 			}
 			this.getStyleClass().clear();
 			this.getStyleClass().add("borders");
 		    this.getStyleClass().add("medium");
 		}
 		if(size.equals("large")) {
+			this.font = 2;
 			if(this.label != null) {
 				this.label.getStyleClass().clear();
 			    this.label.getStyleClass().add("large");	
+			}
+			if(this.number != null) {
+				this.number.getStyleClass().clear();
+				this.number.getStyleClass().add("large");
 			}
 			this.getStyleClass().clear();
 			this.getStyleClass().add("borders");
@@ -315,5 +360,27 @@ public class Cell extends StackPane{
 		return String.valueOf(this.x) + String.valueOf(this.y);
 	}
 	
+	public void animateSolution(int solution) {
+		
+//		Cell.this.setFont("large");
+//		KeyFrame frame = new KeyFrame(javafx.util.Duration.millis(1000), new EventHandler<ActionEvent>() {
+//			public void handle(ActionEvent e) {
+//				Cell.this.setStyle("-fx-background-color: rgb(204,0,0)");
+//				System.out.println("first");
+//				
+//			}
+//		});
+//		KeyFrame frame2 = new KeyFrame(javafx.util.Duration.millis(1000), new EventHandler<ActionEvent>() {
+//			public void handle(ActionEvent e) {
+//				Cell.this.setStyle("-fx-background-color: rgb(107,194,130)");
+//				System.out.println("exe2");
+//			}
+//		});
+//		Timeline timeline = new Timeline(frame,frame2); 
+//		timeline.setCycleCount(100);
+//		timeline.play();
+	}
+	
 }
+
 

@@ -23,6 +23,7 @@ public class Generator {
 	}
 	
 	
+	
 	public Grid generate(int dimension,int difficulty, boolean unique) throws InterruptedException {
 		Grid created = new Grid(dimension);
 		this.generateSodukoGrid(difficulty, created);
@@ -432,6 +433,11 @@ public class Generator {
 		
 		
 		int operator = random.nextInt(4);
+		
+		
+		
+		
+		
 		//rework later 
 		///maybe add stuff in depending for difficulties
 //		boolean subtract = this.subtractionPossible(grid, args);
@@ -452,6 +458,32 @@ public class Generator {
 			grid.setCage(String.valueOf(grid.getCell(args[0]).getNumber()), args[0]);
 			return;
 		}
+		
+		//adding
+		if(difficulty > 1) {
+			int[] nrs = new int[args.length];
+			for(int i = 0; i < args.length;i++) {
+				nrs[i] = grid.getCell(args[i]).getNumber();
+			}
+			if(this.subtractionPossible(nrs) != 0 || this.divPossible(nrs) != 0) {
+				int sub = random.nextInt(2);
+				if(sub == 0) {
+					operator = 2;
+				}
+				else {
+					operator = 3;
+				}
+			}
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		//
 		
 		//division/subtraction possible
 		

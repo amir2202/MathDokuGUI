@@ -805,6 +805,7 @@ public class Grid extends GridPane {
 		Cell tochange = this.getCell(hint);
 		tochange.setNumber(tochange.getCorrectValue());
 		tochange.updateText();
+		tochange.animateSolution(tochange.getCorrectValue());
 		return true;
 //		System.out.println("ALREADY SOLVED" + this.solved);
 

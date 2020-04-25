@@ -59,9 +59,9 @@ import javafx.stage.Stage;
 public class Main extends Application {
 	private boolean checking = false;
 	private Grid grid;
-	private Stage stage;
+	public Stage stage;
 	private ArrayList<String> numbers;
-	private Scene scene;
+	public Scene scene;
 	private ActionHandler handler;
 	private Button redo; 
 	private BorderPane pane;
@@ -70,25 +70,48 @@ public class Main extends Application {
 	final KeyCombination redocmb = new KeyCodeCombination(KeyCode.Y, KeyCombination.SHORTCUT_DOWN);
 	public static void main(String[] args) {
 		launch(args);
-	
 	}
 
-	public Scene getScene() {
-		return this.scene;
+
+	
+	
+	public void setScene(Scene scene) {
+		this.stage.setScene(scene);
 	}
-	@Override
-	public void start(Stage stage) {
-		this.stage = stage;
+	
+	public Scene getScene(String[] oldconfig, Integer[] nrs, int oldgriddim) {
 		handler = new ActionHandler();
-		stage.setTitle("MathDoku");
 		pane = new BorderPane();
-		grid = new Grid(8);
+		if(oldconfig != null && nrs != null) {
+			grid = new Grid(oldgriddim);
+			for(String cage:oldconfig){
+				String[] splitline = cage.split(" ");
+				String label = splitline[0];
+				String[] arguments;
+				arguments = splitline[1].split(",");
+				int[] args = new int[arguments.length];
+				for(int i = 0; i < args.length; i++) {
+					args[i] = Integer.valueOf(arguments[i]);
+				}
+				if(arguments.length == 0) {
+					grid.setCage(label, Integer.valueOf(splitline[1]));
+				}
+				else {
+					grid.setCage(label, args);	
+				}
+		}
+			for(int i = 0; i < nrs.length;i++) {
+				grid.getCell(i+1).setNumber(nrs[i]);
+				grid.getCell(i+1).updateText();
+			}
+		}
+		else {
+		grid = new Grid(8);	
+		}
 		pane.addEventHandler(ScrollEvent.ANY, new ScrollHandler());
 		this.validInputNumber();
 		pane.setCenter(grid);
 		scene = new Scene(pane,600,600);
-		stage.setScene(scene);
-		stage.show();
 		VBox left = new VBox();
 		VBox right = new VBox();
 		Button hint = new Button("Hint");
@@ -96,8 +119,9 @@ public class Main extends Application {
 
 			@Override
 			public void handle(ActionEvent arg0) {
+				hint.setDisable(true);
 				if(grid.showHint()) {
-					
+					hint.setDisable(false);
 				};
 				
 			}
@@ -472,12 +496,27 @@ public class Main extends Application {
 					}
 				}
 			});
+			
 
 
 		}
 	});
-		
+		return scene;
 	}
+	
+	@Override
+	public void start(Stage stage) {
+		Scene get = this.getScene(null,null,0);
+		this.stage = stage;
+		stage.setScene(get);
+		stage.show();
+		stage.setTitle("MathDoku");
+	}
+	
+	
+	
+	
+	
 	
 	
 	public void validInputNumber() {
@@ -613,7 +652,7 @@ public class Main extends Application {
 			if(grid.isFilled()) {
 				try {
 					if(grid.win(grid.solved())){
-						Winning win = new Winning(pane,scene.getHeight(), scene.getWidth()); 
+						Winning win = new Winning(pane,scene.getHeight(), scene.getWidth(),grid); 
 						
 						stage.setScene(win.getAnimation());
 					}
@@ -679,16 +718,29 @@ public class Main extends Application {
 			private Scene sceneanother;
 			private boolean inScene = true;
 			private BorderPane grid;
+			private String config[];
+			private int olddim;
+			private Integer[] numbers;
 			private StackPane paneanimation;
 			double height;
 			double width;
-			public Winning(BorderPane grid,double height,double width) {
+			public Winning(BorderPane grid,double height,double width, Grid oldgrid) {
 				this.paneanimation = new StackPane();
 				this.height = height;
 				this.grid = grid;
 				this.width = width;
+				this.olddim = oldgrid.getDimensions();
+				config = new String[oldgrid.getAllCages().size()];
+				for(int i = 0; i < oldgrid.getAllCages().size();i++) {
+					config[i] = oldgrid.getAllCages().get(i).toString();
+				}
+				numbers = new Integer[oldgrid.getDimensions() * oldgrid.getDimensions()];
+				for(int i = 0; i < numbers.length; i ++) {
+					numbers[i] = oldgrid.getCell(i+1).getNumber();
+				}
 				this.sceneanother = new Scene(paneanimation,width,height);
 			}
+			
 			
 			
 			public Scene getAnimation() throws Exit{
@@ -697,10 +749,12 @@ public class Main extends Application {
 				Button more = new Button("Play more!");
 				Button back = new Button("Go back");
 				back.setOnAction(e->{
-					stage.setScene(scene);
+					Scene saved = Main.this.getScene(config, numbers, olddim);
+					Main.this.stage.setScene(saved);
 				});
 				more.setOnAction(e->{
-					
+					Scene newest = Main.this.getScene(null,null,0);
+					Main.this.stage.setScene(newest);
 				});
 				this.paneanimation.getChildren().add(grid);
 				this.paneanimation.getChildren().add(circle);
@@ -724,27 +778,7 @@ public class Main extends Application {
 						paneanimation.setAlignment(back, Pos.CENTER_LEFT);
 						paneanimation.setAlignment(more, Pos.CENTER_RIGHT);
 						paneanimation.getChildren().add(more);
-//						text.relocate(height/2, width/2);
-//							KeyFrame moveup = new KeyFrame(javafx.util.Duration.millis(500), new EventHandler<ActionEvent>() {
-//								public void handle(ActionEvent arg0) {
-//									text.setTranslateY(-25);
-//								}
-//								
-//							});
-//							KeyFrame movedown = new KeyFrame(javafx.util.Duration.millis(500), new EventHandler<ActionEvent>() {
-//								public void handle(ActionEvent arg0) {
-//									text.setTranslateY(25);
-//								}
-//							});
-//							Timeline movingtext = new Timeline(moveup,movedown);
-//							movingtext.setCycleCount(500);
-//							movingtext.play();
-//							movingtext.setOnFinished(new EventHandler<ActionEvent>(){
-//								public void handle(ActionEvent arg0) {
-//									inScene = false;
-//								}
-//								
-//							});
+
 						
 						
 					}
