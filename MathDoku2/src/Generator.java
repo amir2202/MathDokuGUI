@@ -303,11 +303,11 @@ public class Generator {
 	}
 	private void generateCages(int difficulty, Grid grid) {
 		//Need a list of initial positions
-		//+, -, x or Ã·
+		//+, -, x or ÷
 		//0 = +
 		// 1 = -
 		// 2 = x
-		// 3 = Ã·
+		// 3 = ÷
 		Random random = new Random();
 		ArrayList<Integer> cageCells = new ArrayList<Integer>();
 		ArrayList<Integer> availableCells = new ArrayList<Integer>();
@@ -545,7 +545,7 @@ public class Generator {
 			}
 			else {
 				int real = (int) result;
-				grid.setCage(real+"Ã·", args);
+				grid.setCage(real+"÷", args);
 			}
 			return;
 		}

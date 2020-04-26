@@ -147,7 +147,9 @@ public class Main extends Application {
 						allsolutions.setDisable(false);
 						Scene get = (Scene) task.getValue();
 						Stage created = new Stage();
+						Integer solutionamount = (Integer) get.getUserData();
 						created.setScene(get);
+						created.setTitle("All Solutions: " + solutionamount);
 						created.show();
 					}
 					

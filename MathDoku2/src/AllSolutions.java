@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -17,6 +18,8 @@ public class AllSolutions extends Task {
 	private Grid[] grids;
 	private String[] config; 
 	private HBox menubar;
+	private VBox vbox;
+	private int current = 1;
 	private Scene scene;
 	private int dimension;
 	private ArrayList<Integer[]> solutions;
@@ -59,45 +62,52 @@ public class AllSolutions extends Task {
 			solution.setUpBorders();
 		}
 		
-		VBox vbox = new VBox();
-		Scene scene = new Scene(vbox);
+		vbox = new VBox();
+		Scene scene = new Scene(vbox,300,300);
 		menubar = new HBox();
 		Button next = new Button("Next solution/permutation");
-		next.setOnAction(e-> {
-			vbox.getChildren().clear();
-//			vbox.getChildren().addAll(grids[])
-		});
 		Button prev = new Button("Previous solution");
+		prev.setDisable(true);
+		next.setOnAction(e->{
+			current++;
+			if(current == grids.length) {
+				next.setDisable(true);
+			}
+			else {
+				if(current == 2) {
+					prev.setDisable(false);
+				}
+				this.vbox.getChildren().clear();
+				this.vbox.getChildren().addAll(grids[current-1], menubar);
+				vbox.setVgrow(grids[current-1],Priority.ALWAYS);
+			}
+		});
+		
+		prev.setOnAction(e->{
+			current--;
+			if(current ==1) {
+				prev.setDisable(true);
+			}
+			else {
+				if(current == grids.length -1) {
+					next.setDisable(false);
+				}
+				this.vbox.getChildren().clear();
+				this.vbox.getChildren().addAll(grids[current-1], menubar);
+				vbox.setVgrow(grids[current-1],Priority.ALWAYS);
+			}
+		});
 		menubar.getChildren().addAll(prev,next);
+		if(grids.length == 1) {
+			next.setDisable(true);
+			prev.setDisable(true);
+		}
 		vbox.getChildren().addAll(grids[0],menubar);
+		vbox.setVgrow(grids[0], Priority.ALWAYS);
+		scene.setUserData(this.grids.length);
 		return scene;
 	}
+
+	
 }
 
-
-//allsolutions.setOnAction(new EventHandler<ActionEvent>() {
-//public void handle(ActionEvent e) {
-//	SolvingTask solve = new SolvingTask(grid.getConfig(),grid.getDimensions(),false);
-//	Thread thread = new Thread(solve);
-//	solve.setOnSucceeded(new EventHandler<WorkerStateEvent>(){
-//
-//		@Override
-//		public void handle(WorkerStateEvent arg0) {
-//			ArrayList<Integer[]> sol =(ArrayList<Integer[]>) solve.getValue();
-//			System.out.println(sol.size());
-//			for(Integer[] solu: sol) {
-//				System.out.println("SOLUTION");
-//				for(int x = 0; x < solu.length; x++) {
-//					System.out.print(solu[x] + " ");
-//					if((x +1) % (grid.getDimensions()) == 0) {
-//						System.out.println();
-//					}
-//				}
-//			}
-//		}
-//		
-//	});
-//	thread.start();
-//
-//}
-//});
