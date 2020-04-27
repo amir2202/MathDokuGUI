@@ -55,7 +55,6 @@ public class Generator {
 			ThreadSolve solve = new ThreadSolve();
 			solve.solve(temp,false);
 			if(temp.getDimensions() == 2) {
-				System.out.println("executes fix 2x2");
 				Grid makeunique = this.makeUnique(temp, 2, 1);
 				return makeunique;
 				
@@ -96,7 +95,6 @@ public class Generator {
 			for(Cage cage:grid.getAllCages()) {
 				if(cage.getCells().size() == 2) {
 					uniq = false;
-					System.out.println("ADDING SINGLE CAGE IN");
 					this.addSingleCage(grid);
 					return grid;
 				}
@@ -110,11 +108,6 @@ public class Generator {
 			for(int i = 0; i < 5; i++) {
 				Grid uniquegrid = this.tryUnique(dimension,difficulty);
 				if(uniquegrid != null) {
-//					System.out.println("UNIQUEEEEEE");
-					for(Cage cage: uniquegrid.getAllCages()) {
-						System.out.println(cage);
-					}
-					System.out.println("DELIMITER");
 					return uniquegrid;
 				}
 				
@@ -145,7 +138,6 @@ public class Generator {
 					return grid;
 					
 				}
-				System.out.println("still not unique");
 		}
 		
 		
@@ -200,10 +192,9 @@ public class Generator {
 //		}
 //		return false;
 		Random random = new Random();
-		System.out.println("INITIAL ALL CAGES");
-		for(Cage stuff2: grid.getAllCages()) {
-			System.out.println(stuff2);
-		}
+//		for(Cage stuff2: grid.getAllCages()) {
+//			System.out.println(stuff2);
+//		}
 		//infintie loop deal with later
 		Cage cage = null;
 		for(int i = 0; i < grid.getAllCages().size();i++) {
@@ -212,38 +203,28 @@ public class Generator {
 						break;
 					}
 					else {
-						System.out.println("Setting to null");
 						cage = null;
 					}
 		
 		}
 
 		if(cage == null) {
-			System.out.println("no single cages left");
 			return false;
 		}
-		System.out.println("fixing " + cage);
 		ArrayList<Cell> replace = cage.getEdgeOfCage();
-		System.out.println("its edge " + replace);
 		Cell delete = cage.getEdgeOfCage().get(cage.getEdgeOfCage().size() -1);
 		int pos = grid.getPosition(delete.getX(), delete.getY());
 		int[] args = new int[1];
 		args[0] = pos;
-		System.out.println("CAGE COORDINATES BEFORE REMOVING SIZE" + cage.getCords().length);
 		cage.removeCell(delete);
-		System.out.println("CAGE COORDINATES AFTER REMOVING SIZE" + cage.getCords().length);
-		System.out.println("removing" + delete);
 		int[] args2 = cage.getCords();
-		System.out.println("arg" + args.length);
-		System.out.println("arg2" + args2.length);
 		grid.deleteCage(cage);
 		this.setupCage(grid, args, new Random(), 1);
 		this.setupCage(grid, args2, new Random(), 1);
-		System.out.println("AFTER CAGES");
 		
-		for(Cage stuff: grid.getAllCages()) {
-			System.out.println(stuff);
-		}
+//		for(Cage stuff: grid.getAllCages()) {
+//			System.out.println(stuff);
+//		}
 		return true;
 	
 	}
@@ -301,13 +282,67 @@ public class Generator {
 		generateCages(difficulty, grid);
 		//leave in temporarily 
 	}
+	
+	
+	public void generateSodukoGridSpecial(int difficulty, Grid grid) {
+		grid.clearCells();
+		int index = 1;
+		while(index <= grid.getDimensions() * grid.getDimensions()) {
+			Cell current = grid.getCell(index);
+			current.increaseCell();
+			if(current.getNumber() == grid.getDimensions() +1) {
+				current.setNumber(0);
+			}
+			
+			while(current.getNumber() != 0 && (validCell(grid ,current) == false)) {
+				current.increaseCell();
+				if(current.getNumber() == grid.getDimensions() +1) {
+					current.setNumber(0);
+				}
+			}
+			
+			if (current.getNumber() == 0) {
+				index--;					
+			}
+			else {
+				index++;
+			}
+			
+			
+		}
+		Random random = new Random();
+		//so now random algorithm
+		for(int shuffle = 0;shuffle < 20; shuffle++) {
+			int one = random.nextInt(grid.getDimensions() -1);
+			int two = random.nextInt(grid.getDimensions() -1);
+			if(one != two) {
+				grid.shuffleColumn(one, two);
+			}
+			int three = random.nextInt(grid.getDimensions() -1);
+			int four = random.nextInt(grid.getDimensions() -1);
+			if(three != four) {
+				grid.shuffleRow(three, four);
+			}
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		//leave in temporarily 
+	} 
+	
 	private void generateCages(int difficulty, Grid grid) {
 		//Need a list of initial positions
-		//+, -, x or ÷
+		//+, -, x or Ã·
 		//0 = +
 		// 1 = -
 		// 2 = x
-		// 3 = ÷
+		// 3 = Ã·
 		Random random = new Random();
 		ArrayList<Integer> cageCells = new ArrayList<Integer>();
 		ArrayList<Integer> availableCells = new ArrayList<Integer>();
@@ -545,7 +580,7 @@ public class Generator {
 			}
 			else {
 				int real = (int) result;
-				grid.setCage(real+"÷", args);
+				grid.setCage(real+"Ã·", args);
 			}
 			return;
 		}
@@ -803,4 +838,56 @@ public class Generator {
 //		
 //		return false;
 //	}
+	
+	
+	public Grid specialCase(int dimension, int difficulty,boolean unique) {
+		Grid newest = new Grid(dimension);
+		this.generateSodukoGridSpecial(difficulty, newest);
+		
+		ArrayList<Integer> usedcells = new ArrayList<Integer>();
+		while(usedcells.size() < dimension*dimension) {
+			for(int i = 1; i < dimension* dimension;i++) {
+				if(!usedcells.contains(i)) {
+					this.specialCage(i, difficulty, newest,usedcells);
+				}
+			}
+
+		}
+		
+		return newest;
+		
+	}
+	
+	public void specialCage(int startingcell,int difficulty,Grid grid,ArrayList<Integer> usedshit){
+		ArrayList<Integer> positions = new ArrayList<Integer>();
+		ArrayList<Integer> posvalues = new ArrayList<Integer>();
+		Random rand = new Random();
+		usedshit.add(startingcell);
+		for(int i = 0; i < rand.nextInt((difficulty+1) *3);i++) {
+			int previouscell = startingcell;
+			startingcell += rand.nextInt(3) -1;
+			if (startingcell == previouscell){ 
+				if(rand.nextInt(2) == 1)
+				startingcell+= grid.getDimensions();
+			}
+			if(startingcell < 1) {
+				continue;
+			}
+			if(!usedshit.contains(i)) {
+				positions.add(startingcell);
+				posvalues.add(grid.getCell(startingcell).getNumber());
+				usedshit.add(startingcell);
+			}
+			else {
+				startingcell = previouscell;
+				continue;
+			}
+		}
+		int[] args = new int[positions.size()];
+		for(int i = 0; i < positions.size();i++) {
+			args[i] = positions.get(i);
+		}
+		this.setupCage(grid, args, new Random(), difficulty);
+	}
+	
 }	

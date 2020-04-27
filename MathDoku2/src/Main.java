@@ -16,6 +16,7 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.Tooltip;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
@@ -59,11 +60,17 @@ import javafx.stage.Stage;
 public class Main extends Application {
 	private boolean checking = false;
 	private Grid grid;
+	private boolean launched = false;
+	private CheckBox checkbox;
+	private CheckBox mistakes;
+	private ChoiceBox font;
 	public Stage stage;
 	private ArrayList<String> numbers;
 	public Scene scene;
 	private ActionHandler handler;
 	public static Button redo; 
+	private Button clear;
+	private Button config;
 	private BorderPane pane;
 	public static Button undo;
 	final KeyCombination undocmb = new KeyCodeCombination(KeyCode.Z, KeyCombination.SHORTCUT_DOWN);
@@ -80,6 +87,7 @@ public class Main extends Application {
 	}
 	
 	public Scene getScene(String[] oldconfig, Integer[] nrs, int oldgriddim) {
+		checkbox = new CheckBox("Unique");
 		handler = new ActionHandler();
 		pane = new BorderPane();
 		if(oldconfig != null && nrs != null) {
@@ -117,6 +125,9 @@ public class Main extends Application {
 		VBox right = new VBox();
 		right.setSpacing(10.0);
 		Button hint = new Button("Hint");
+		Tooltip t = new Tooltip("Button gets disabled if u solve it, no point in cheating is there");
+		t.install(hint,t);
+		hint.setDisable(true);
 		hint.setOnAction(new EventHandler<ActionEvent>() {
 
 			@Override
@@ -130,6 +141,10 @@ public class Main extends Application {
 			
 		});
 		Button allsolutions = new Button("All solutions");
+		allsolutions.setDisable(true);
+		
+		
+		//a tstart
 
 		allsolutions.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -173,6 +188,7 @@ public class Main extends Application {
 		pane.setBottom(bottom);
 //		bottom
 		Button solvebutton = new Button("Solve");
+		solvebutton.setDisable(true);
 		Button generate = new Button("Generate");
 		generate.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -198,11 +214,11 @@ public class Main extends Application {
 				dif.getItems().add("Intermediate");
 				dif.getItems().add("Hard");
 				dif.getItems().add("Guru");
-				CheckBox checkbox = new CheckBox("Unique");
 				
 				dif.getSelectionModel().selectFirst();
 				dim.getSelectionModel().selectFirst();
 				generate.setOnAction(e -> {
+					generate.setDisable(true);
 					grid.clearCells();
 					grid.eraseCages();
 					String dimensionstring = (String)dim.getValue();
@@ -228,14 +244,23 @@ public class Main extends Application {
 					GeneratingTask genTask = new GeneratingTask(chosendim,chosendifficulty,checkbox.isSelected());
 					genTask.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 						public void handle(WorkerStateEvent arg0) {
-							
 							grid = null;
 							Grid created = (Grid) genTask.getValue();
 							Main.this.grid = created;
 							Main.this.grid.clearCells();
 							pane.setCenter(Main.this.grid);
 							pane.setLeft(left);
-							
+							generate.setDisable(false);
+							//reenable buttons
+							solvebutton.setDisable(false);
+							allsolutions.setDisable(false);
+							hint.setDisable(false);
+							checkbox.setDisable(false);
+							clear.setDisable(false);
+							config.setDisable(false);
+							font.setDisable(false);
+							mistakes.setDisable(false);
+							//clear
 						}
 						
 					});
@@ -287,6 +312,7 @@ public class Main extends Application {
 						grid.updateGrid();
 						grid.setSolutions(allvalues);
 						grid.solved(true);
+						hint.setDisable(true);
 						solvebutton.setDisable(false);
 					}
 					
@@ -326,9 +352,13 @@ public class Main extends Application {
 			}
 			
 		});
-		Button clear = new Button("Clear");
+		clear = new Button("Clear");
+		clear.setDisable(true);
 		clear.setOnAction(new ClearHandler());
-		Button config = new Button("Save config");
+		config = new Button("Save config");
+		Tooltip confighelp = new Tooltip("Get the current game config, share with friends!");
+		confighelp.install(config, confighelp);
+		config.setDisable(true);
 		config.setOnAction(new EventHandler<ActionEvent>() {
 			public void handle(ActionEvent arg0) {
 				String configfinal = "";
@@ -354,7 +384,8 @@ public class Main extends Application {
 		});
 		bottom.getChildren().addAll(undo,redo,clear,solvebutton,config,hint);
 		
-		CheckBox mistakes = new CheckBox("Show mistakes");
+		mistakes = new CheckBox("Show mistakes");
+		mistakes.setDisable(true);
 		mistakes.setOnAction(new EventHandler<ActionEvent>() {
 			public void handle(ActionEvent e) {
 				if(mistakes.isSelected() == true) {
@@ -380,7 +411,8 @@ public class Main extends Application {
 		right.getChildren().add(mistakes);
 		
 		
-		ChoiceBox font = new ChoiceBox();
+		font = new ChoiceBox();
+		font.setDisable(true);
 		font.getItems().add("Small");
 		font.getItems().add("Medium");
 		font.getItems().add("Big");
@@ -462,6 +494,14 @@ public class Main extends Application {
 								}
 								line++;
 							}
+							solvebutton.setDisable(false);
+							allsolutions.setDisable(false);
+							hint.setDisable(false);
+							checkbox.setDisable(false);
+							clear.setDisable(false);
+							config.setDisable(false);
+							font.setDisable(false);
+							mistakes.setDisable(false);
 							pane.setCenter(grid);
 							
 							
@@ -513,6 +553,14 @@ public class Main extends Application {
 								line++;
 							}			
 							pane.setCenter(grid);
+							solvebutton.setDisable(false);
+							allsolutions.setDisable(false);
+							hint.setDisable(false);
+							checkbox.setDisable(false);
+							clear.setDisable(false);
+							config.setDisable(false);
+							mistakes.setDisable(false);
+							font.setDisable(false);
 						} catch(Exception e2) {
 							e2.printStackTrace();
 						}

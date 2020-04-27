@@ -22,7 +22,7 @@ public class ThreadSolve {
 		int index = 1;
 		int dim = grid.getDimensions();
 		//changed
-		int lastbacktrack = 1;
+		int lb = 1;
 		while(index <= grid.getDimensions() * grid.getDimensions()) {
 			Cell current = grid.getCell(index);
 			current.increaseCell();
@@ -55,7 +55,7 @@ public class ThreadSolve {
 				if(!showall && this.solutionset.size() > 1) {
 					return;
 				}
-				while(index > lastbacktrack) {
+				while(index > lb) {
 					grid.getCell(index).setNumber(0);
 					index--;
 				}
@@ -63,7 +63,7 @@ public class ThreadSolve {
 			}
 			
 			if (current.getNumber() == 0) {
-				lastbacktrack = index;
+				lb = index;
 				index--;	
 				//backtrack = true
 			}

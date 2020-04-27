@@ -21,7 +21,7 @@ public class Cage {
 		this.label = label;
 		this.cordinates = cordinates;
 		this.operator = label.charAt(label.length() -1);
-		if(this.label.charAt(this.label.length() -1 ) == '+' || this.label.charAt(this.label.length()-1) == '-' || this.label.charAt(this.label.length()-1) == 'x' || this.label.charAt(this.label.length()-1) == '÷'|| this.label.charAt(this.label.length()-1) == '/' || this.label.charAt(this.label.length()-1) == '*' ) {
+		if(this.label.charAt(this.label.length() -1 ) == '+' || this.label.charAt(this.label.length()-1) == '-' || this.label.charAt(this.label.length()-1) == 'x' || this.label.charAt(this.label.length()-1) == 'Ã·'|| this.label.charAt(this.label.length()-1) == '/' || this.label.charAt(this.label.length()-1) == '*' ) {
 			this.expected = Integer.valueOf(label.substring(0, label.length() -1));
 		}
 		else {
@@ -151,7 +151,7 @@ public class Cage {
 			}
 		}
 	
-		else if(operator =='÷' || operator == '/') {
+		else if(operator =='Ã·' || operator == '/') {
 			ArrayList<Integer> cagenumbers = new ArrayList<Integer>();
 			for(int i = 0; i < this.cagecells.size(); i++) {
 				cagenumbers.add(this.cagecells.get(i).getNumber());
@@ -201,7 +201,6 @@ public class Cage {
 			String operator = "";
 			this.cagecells.remove(cell);
 			int pos = cell.getGrid().getPosition(cell.getX(), cell.getY());
-			System.out.println("REMOVVINGG " + pos);
 			this.removeCordinate(pos);
 			if(cell.getLabel() != null) {
 				cell.removeLabel();
@@ -292,7 +291,7 @@ public class Cage {
 		for(Cage cages: cage) {
 			  for(int x: cages.getCords()) {
 				  coordinates.add(x);
-				  System.out.println("adding coordinate " + x);
+//				  System.out.println("adding coordinate " + x);
 			  }
 			  for(Cell cell: cages.getCells()) {
 				  numbers.add(cell.getNumber());
@@ -313,7 +312,7 @@ public class Cage {
 		}
 		//chose new operator here easiest way
 		if(div != 0) {
-			Cage created = new Cage(String.valueOf(div)+ "÷", cords);
+			Cage created = new Cage(String.valueOf(div)+ "Ã·", cords);
 			return created;
 		}
 		
