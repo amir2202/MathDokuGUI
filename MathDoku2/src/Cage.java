@@ -43,6 +43,22 @@ public class Cage {
 		}
 	}
 	
+	public void setCorrectExcludeCol(boolean input, int colindex) {
+		for(Cell cell: this.cagecells) {
+			if(cell.getX() != colindex) {
+				cell.setCorrect(input,false);	
+			}
+		}
+	}
+	
+	public void setCorrectExcludeRow(boolean input,int rowindex) {
+		for(Cell cell: this.cagecells) {
+			if(cell.getY() != rowindex) {
+				cell.setCorrect(input,false);	
+			}
+		}
+	}
+	
 	//Adding cell to cage 
 	public void addCell(Cell cell) {
 		cagecells.add(cell);

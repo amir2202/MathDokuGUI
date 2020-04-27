@@ -6,6 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
@@ -52,7 +53,12 @@ public class AllSolutions extends Task {
 		}
 		solver.solve(temp,true);
 		this.solutions = solver.getSolutions();
-		
+//		for(int i = 0; i < this.solutions.size();i++) {
+//			System.out.println("SOLUTION");
+//			for(int x: this.solutions.get(i)) {
+//				System.out.println(x);
+//			}
+//		}
 		grids = new Grid[solutions.size()];
 		for(int i = 0; i < solutions.size();i++) {
 			Grid solution = new Grid(this.dimension);
@@ -63,41 +69,41 @@ public class AllSolutions extends Task {
 		}
 		
 		vbox = new VBox();
-		Scene scene = new Scene(vbox,300,300);
+		Scene scene = new Scene(vbox,400,400);
 		menubar = new HBox();
 		Button next = new Button("Next solution/permutation");
 		Button prev = new Button("Previous solution");
+		Label currentsolution = new Label("Solution " + current + "/" + grids.length);
 		prev.setDisable(true);
 		next.setOnAction(e->{
 			current++;
+			currentsolution.setText("Solution " + current + "/" + grids.length);
 			if(current == grids.length) {
 				next.setDisable(true);
 			}
-			else {
-				if(current == 2) {
-					prev.setDisable(false);
-				}
+			if(current == 2) {
+				prev.setDisable(false);
+			}
 				this.vbox.getChildren().clear();
 				this.vbox.getChildren().addAll(grids[current-1], menubar);
 				vbox.setVgrow(grids[current-1],Priority.ALWAYS);
-			}
 		});
 		
 		prev.setOnAction(e->{
 			current--;
+			currentsolution.setText("Solution " + current + "/" + grids.length);
 			if(current ==1) {
 				prev.setDisable(true);
 			}
-			else {
-				if(current == grids.length -1) {
-					next.setDisable(false);
-				}
-				this.vbox.getChildren().clear();
-				this.vbox.getChildren().addAll(grids[current-1], menubar);
-				vbox.setVgrow(grids[current-1],Priority.ALWAYS);
+			if(current == grids.length -1) {
+				next.setDisable(false);
 			}
+			this.vbox.getChildren().clear();
+			this.vbox.getChildren().addAll(grids[current-1], menubar);
+			vbox.setVgrow(grids[current-1],Priority.ALWAYS);
 		});
-		menubar.getChildren().addAll(prev,next);
+		menubar.setSpacing(5);
+		menubar.getChildren().addAll(prev,next,currentsolution);
 		if(grids.length == 1) {
 			next.setDisable(true);
 			prev.setDisable(true);

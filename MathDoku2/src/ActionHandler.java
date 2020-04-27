@@ -17,8 +17,10 @@ public class ActionHandler {
 		this.addUndo(action);
 		return false;
 	}
+	
 	public void addUndo(Action action) {
 		undo.add(action);
+		Main.undo.setDisable(false);
 	}
 	
 	public boolean isRedoEmpty() {
@@ -32,7 +34,7 @@ public class ActionHandler {
 	public void addRedo(Action action) {
 		redo.add(action);
 	}
-	public void undo() {
+	public Cell undo() {
 		Action tofix = this.undo.pop();
 		if(tofix.getOldText().getText() == " " || tofix.getOldText().getText() == "") {
 			tofix.getCell().setText(tofix.getOldText(),true, 0);
@@ -42,6 +44,11 @@ public class ActionHandler {
 		}
 		tofix.getCell().resetStyle();
 		this.addRedo(tofix);
+		if(undo.isEmpty()) {
+			Main.undo.setDisable(true);
+		}
+		Main.redo.setDisable(false);
+		return tofix.getCell();
 	}
 	
 	public boolean redoEmpty() {
@@ -62,7 +69,7 @@ public class ActionHandler {
 		}
 	}
 
-	public void redo() {
+	public Cell redo() {
 		Action tofix = this.redo.pop();
 		this.addUndo(tofix);
 		Cell celltofix = tofix.getCell();
@@ -74,13 +81,11 @@ public class ActionHandler {
 			temp = 0;
 		}
 		
-		if(celltofix.getCorrect() == null) {
-			celltofix.setText(tofix.getnewText(),true, temp);
+		celltofix.setText(tofix.getnewText(),true, temp);
+		if(redo.isEmpty()) {
+			Main.redo.setDisable(true);
 		}
-		else if(celltofix.getCorrect() != null) {
-			celltofix.setText(tofix.getnewText(),true, temp);
-//			celltofix.setCorrect(!celltofix.getCorrect());
-		}
+		return tofix.getCell();
 	}
 	
 	public void reset() {

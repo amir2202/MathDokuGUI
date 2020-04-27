@@ -63,9 +63,9 @@ public class Main extends Application {
 	private ArrayList<String> numbers;
 	public Scene scene;
 	private ActionHandler handler;
-	private Button redo; 
+	public static Button redo; 
 	private BorderPane pane;
-	private Button undo;
+	public static Button undo;
 	final KeyCombination undocmb = new KeyCodeCombination(KeyCode.Z, KeyCombination.SHORTCUT_DOWN);
 	final KeyCombination redocmb = new KeyCodeCombination(KeyCode.Y, KeyCombination.SHORTCUT_DOWN);
 	public static void main(String[] args) {
@@ -232,6 +232,7 @@ public class Main extends Application {
 							grid = null;
 							Grid created = (Grid) genTask.getValue();
 							Main.this.grid = created;
+							Main.this.grid.clearCells();
 							pane.setCenter(Main.this.grid);
 							pane.setLeft(left);
 							
@@ -272,6 +273,12 @@ public class Main extends Application {
 				SolvingTask solve = new SolvingTask(config, grid.getDimensions(),false);
 				solve.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 					public void handle(WorkerStateEvent arg0) {
+						if(solve.getValue() == null) {
+							Alert alert = new Alert(AlertType.WARNING,"No solution found!");
+							alert.show();
+							alert.setTitle("No solution");
+							return;
+						}
 						ArrayList<Integer[]> allvalues = (ArrayList<Integer[]>) solve.getValue();
 						Integer[] values = allvalues.get(0);
 						for(int i = 0; i < grid.getDimensions() * grid.getDimensions();i++) {
@@ -298,7 +305,10 @@ public class Main extends Application {
 		undo.setOnAction(new EventHandler<ActionEvent>(){
 			public void handle(ActionEvent event) {
 				if(handler.undoEmpty() == false) {
-					handler.undo();
+					Cell cell = handler.undo();
+					if(checking == true) {
+					grid.mistakeAnalysis(cell.getX(), cell.getY());
+					}
 				}
 			}
 		});
@@ -308,19 +318,36 @@ public class Main extends Application {
 		redo.setOnAction(new EventHandler<ActionEvent>() {
 			public void handle(ActionEvent event) {
 				if(handler.redoEmpty() == false) {
-					handler.redo();
+					Cell cell = handler.redo();
+					if(checking == true) {
+					grid.mistakeAnalysis(cell.getX(), cell.getY());
+					}
 				}			
 			}
 			
 		});
 		Button clear = new Button("Clear");
 		clear.setOnAction(new ClearHandler());
-		Button config = new Button("Print config");
+		Button config = new Button("Save config");
 		config.setOnAction(new EventHandler<ActionEvent>() {
 			public void handle(ActionEvent arg0) {
-				for(Cage cage:grid.getAllCages()) {
-					System.out.println(cage.toString());
+				String configfinal = "";
+				String[] conf = grid.getConfig();
+				for(int i = 0; i < conf.length;i++) {
+					configfinal += conf[i] + "\n";
 				}
+				TextArea textArea = new TextArea(configfinal);
+				textArea.setEditable(false);
+				textArea.setWrapText(true);
+				GridPane gridPane = new GridPane();
+				gridPane.setMaxWidth(Double.MAX_VALUE);
+				gridPane.add(textArea, 0, 0);
+
+				Alert alert = new Alert(Alert.AlertType.INFORMATION);
+				alert.setTitle("Retrieve your configuration file");
+				alert.getDialogPane().setContent(gridPane);
+				alert.showAndWait();
+
 				
 			}
 			
@@ -403,7 +430,12 @@ public class Main extends Application {
 						try {
 							int line = 1;
 							for(String cage:configlines) {
-							if(manual.parseLine(cage) == false) {return;}
+							if(manual.parseLine(cage) == false) {
+								Alert alert = new Alert(AlertType.WARNING);
+								alert.setTitle("Configuration Error");
+								alert.setHeaderText("You have errors in the configuration structure, try again");
+								alert.show();
+								}
 							}
 							int realdim = manual.getDimension();
 							Grid newgrid = new Grid(realdim);
@@ -434,7 +466,11 @@ public class Main extends Application {
 							
 							
 						} catch(ConfigurationError e) {
-							e.printStackTrace();
+							Alert alert = new Alert(AlertType.WARNING);
+							alert.setTitle("Configuration Error");
+							alert.setHeaderText("You have errors in the configuration");
+							alert.setContentText(e.getLocalizedMessage());
+							alert.show();
 						}
 					
 
@@ -583,13 +619,27 @@ public class Main extends Application {
 				if(grid.getSelected() != null) {
 					Action action = grid.getSelected().setText(new Text(""),true, 0);
 					grid.getSelected().setNumber(0);
+//					if(grid.getSelected().getCage().isCageFull() == false) {
+//						grid.getSelected().getCage().setCorrect(true);
+//					}
+//					if(grid.rowDuplicates(grid.getSelected().getY()) == false){
+//						for(Cell rowcell: grid.getRowCells(grid.getSelected().getY())) {
+//							rowcell.unhighlight();
+//						}
+//					}
+//					if(grid.columnDuplicates(grid.getSelected().getX()) == false) {
+//						for(Cell colcell: grid.getColumncells(grid.getSelected().getX())) {
+//							colcell.unhighlight();
+//						}
+//					}
+					grid.mistakeAnalysis(grid.getSelected().getX(), grid.getSelected().getY());
 					boolean temp = handler.notify(action);
 					if(temp == true) {
 						redo.setDisable(true);
 						handler.addUndo(action);
 					}
 					else if(temp == false) {
-						redo.setDisable(false);
+//						redo.setDisable(false);
 						undo.setDisable(false);
 					}
 				}		
@@ -609,7 +659,7 @@ public class Main extends Application {
 						handler.addUndo(action);
 					}
 					else if(temp == false) {
-						redo.setDisable(false);
+//						redo.setDisable(false);
 						undo.setDisable(false);
 					}
 				}
@@ -621,17 +671,10 @@ public class Main extends Application {
 						handler.addUndo(action);
 					}
 					else if(temp == false) {
-						redo.setDisable(false);
+//						redo.setDisable(false);
 						undo.setDisable(false);
 					}
-					if(grid.validCellInput(grid.getSelected()) == true)
-					{
-						grid.getSelected().setCorrect(true,false);
-					}
-					if(grid.validCellInput(grid.getSelected()) == false)
-					{
-						grid.getSelected().setCorrect(false,true);
-					}
+					grid.mistakeAnalysis(grid.getSelected().getX(), grid.getSelected().getY());
 				}
 			}
 			
@@ -668,10 +711,14 @@ public class Main extends Application {
 						Action action = grid.getSelected().changeCell(false, grid.getDimensions());
 						handler.notify(action);
 						undo.setDisable(false);
-						redo.setDisable(false);						
+//						redo.setDisable(false);						
 					}
 					else if(checking == true) {
-						
+						Action action = grid.getSelected().changeCell(false, grid.getDimensions());
+						handler.notify(action);
+						undo.setDisable(false);
+//						redo.setDisable(false);
+						grid.mistakeAnalysis(grid.getSelected().getX(), grid.getSelected().getY());
 					}
 
 				}
@@ -682,10 +729,14 @@ public class Main extends Application {
 						Action action = grid.getSelected().changeCell(true, grid.getDimensions());
 						handler.notify(action);
 						undo.setDisable(false);
-						redo.setDisable(false);	
+//						redo.setDisable(false);	
 					}
 					else if(checking == true) {
-						
+						Action action = grid.getSelected().changeCell(true, grid.getDimensions());
+						handler.notify(action);
+						undo.setDisable(false);
+//						redo.setDisable(false);	
+						grid.mistakeAnalysis(grid.getSelected().getX(), grid.getSelected().getY());
 					}
 				}
 				

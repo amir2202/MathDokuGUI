@@ -269,6 +269,7 @@ public class Cell extends StackPane{
 		if(input == true) {
 			this.correct = true;
 			this.getStyleClass().add("correct");
+			this.getStyleClass().remove("wrong");
 			if(!gui) {
 				this.resetStyle();
 			}
@@ -360,25 +361,37 @@ public class Cell extends StackPane{
 		return String.valueOf(this.x) + String.valueOf(this.y);
 	}
 	
-	public void animateSolution(int solution) {
-		
-//		Cell.this.setFont("large");
-//		KeyFrame frame = new KeyFrame(javafx.util.Duration.millis(1000), new EventHandler<ActionEvent>() {
-//			public void handle(ActionEvent e) {
-//				Cell.this.setStyle("-fx-background-color: rgb(204,0,0)");
-//				System.out.println("first");
-//				
-//			}
-//		});
-//		KeyFrame frame2 = new KeyFrame(javafx.util.Duration.millis(1000), new EventHandler<ActionEvent>() {
-//			public void handle(ActionEvent e) {
-//				Cell.this.setStyle("-fx-background-color: rgb(107,194,130)");
-//				System.out.println("exe2");
-//			}
-//		});
-//		Timeline timeline = new Timeline(frame,frame2); 
-//		timeline.setCycleCount(100);
-//		timeline.play();
+	public void animateSolution() {
+		Text oldtext = this.number;
+		int oldnumber = this.numberOfText;
+		KeyFrame frame = new KeyFrame(javafx.util.Duration.millis(1000), new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent e) {
+
+				
+			}
+		});
+		Timeline timeline = new Timeline(frame); 
+		timeline.setOnFinished(e->{
+			this.getChildren().remove(this.number);
+			this.number = oldtext;
+			this.numberOfText = oldnumber;
+			if(this.numberOfText == 0) {
+				this.setText(new Text(" "),true, 0);
+			}
+			else {
+				this.setText(this.number, true, this.numberOfText);
+			}
+			this.setCorrect(true, false);
+		});
+		timeline.setCycleCount(1);
+		this.setCorrect(true, true);
+		this.setNumber(this.getCorrectValue());
+		this.updateText();
+		timeline.play();
+	}
+	
+	public void unhighlight() {
+		this.getStyleClass().remove("highlight");
 	}
 	
 }

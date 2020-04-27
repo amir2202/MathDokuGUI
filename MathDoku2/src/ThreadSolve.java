@@ -21,7 +21,8 @@ public class ThreadSolve {
 		grid.clearCells();
 		int index = 1;
 		int dim = grid.getDimensions();
-		int lastbacktrack = 0;
+		//changed
+		int lastbacktrack = 1;
 		while(index <= grid.getDimensions() * grid.getDimensions()) {
 			Cell current = grid.getCell(index);
 			current.increaseCell();
@@ -37,15 +38,14 @@ public class ThreadSolve {
 			}
 			
 			if(index == 0 && this.solutionset.size() == 0) {
-				System.out.println("No solution");
+				solutionset = null;
 				break;
 			}
 			else if(index == 0) {
-				System.out.println("Atleast one sol  aadasda  " + solutionset.size());
 				break;
 			}
 			
-			if(index == dim * dim && validCell(grid, current)) {
+			if(index == dim * dim && validCell(grid, current) && current.getNumber() != 0) {
 				//Add solution
 				Integer[] solution = new Integer[dim*dim];
 				for(int i = 1; i <= dim * dim; i++) {
